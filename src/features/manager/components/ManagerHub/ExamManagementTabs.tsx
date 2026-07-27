@@ -9,10 +9,24 @@ const TABS = [
 
 export type ExamManagementTab = (typeof TABS)[number]['to']
 
-/** Thanh tab gộp 2 màn Lịch thi (gồm gán đề + xem điểm) & Đề thi — mỗi tab là 1 route riêng để giữ deep link. */
-export function ExamManagementTabs({ active }: { active: ExamManagementTab }) {
+/**
+ * Thanh tab gộp 2 màn Lịch thi (gồm gán đề + xem điểm) & Đề thi — mỗi tab là 1 route riêng để giữ deep link.
+ * `className` để màn gọi tự quyết chỗ đặt (vd. đặt inline trong hàng tiêu đề thay vì khối riêng phía trên).
+ */
+export function ExamManagementTabs({
+  active,
+  className,
+}: {
+  active: ExamManagementTab
+  className?: string
+}) {
   return (
-    <div className="mb-6 flex w-fit items-center gap-1 rounded-2xl border border-border bg-muted/40 p-1">
+    <div
+      className={cn(
+        'mb-6 flex w-fit items-center gap-1 rounded-2xl border border-border bg-muted/40 p-1',
+        className
+      )}
+    >
       {TABS.map((t) => (
         <Link
           key={t.to}
