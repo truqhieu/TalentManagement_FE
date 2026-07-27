@@ -1,22 +1,16 @@
-import { useDeferredValue, useMemo, useState } from 'react'
-import { Link } from '@tanstack/react-router'
-import { Filter, Search, ClipboardCheck } from 'lucide-react'
-import { useForm, useWatch } from 'react-hook-form'
-import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { PaginationCardStepper, PaginationPrevNext } from '@/components/ui/pagination'
-import { cn } from '@/lib/utils'
 import { Form } from '@/components/ui/form'
 import { InputFieldController } from '@/components/ui/form-controllers'
+import { PaginationCardStepper, PaginationPrevNext } from '@/components/ui/pagination'
 import { useTeacherClasses } from '@/features/teacher/hooks'
+import { cn } from '@/lib/utils'
+import { Link } from '@tanstack/react-router'
+import { ClipboardCheck, Filter, Search } from 'lucide-react'
+import { useDeferredValue, useMemo, useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import { toast } from 'sonner'
 import { TeacherClassCard } from './TeacherClassCard'
 import type { TeacherClassRow, TeacherClassTrack } from './teacherClassTypes'
 
@@ -114,24 +108,12 @@ export function TeacherClassesScreen() {
   const activeFilter = filterKey
 
   return (
-    <div className="-m-5 flex min-h-[calc(100vh-3.5rem)] flex-col bg-app-canvas text-sm text-foreground md:-m-6 lg:-m-8">
+    <div className="flex flex-col bg-app-canvas text-sm text-foreground">
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className="page-shell">
+        <div className="w-full">
           <div className="mb-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div className={cn('min-w-0 flex-1', PAGE_HEADER_SURFACE)}>
-                <h1 className={PAGE_HEADER_TITLE}>
-                  <span className={PAGE_HEADER_GRADIENT}>Lớp được phân công</span>
-                </h1>
-                <p className={PAGE_HEADER_DESCRIPTION}>
-                  Lớp do quản lý gán cho bạn. Vào chi tiết để xem thành viên, chấm điểm và{' '}
-                  <strong className="font-semibold text-foreground">xếp lịch học buổi</strong> (API{' '}
-                  <code className="rounded bg-muted px-1 py-0.5 text-xs">
-                    /teacher/classes/:id/schedules
-                  </code>
-                  ).
-                </p>
-              </div>
+              <h1 className="text-2xl font-bold">Lớp được phân công</h1>
               <div className="flex flex-wrap items-center gap-3">
                 <Button
                   type="button"
@@ -155,7 +137,7 @@ export function TeacherClassesScreen() {
                 </Button>
                 <Button
                   type="button"
-                  className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
+                  className="rounded-lg px-5 py-2.5 text-sm font-semibold shadow-sm hover:opacity-90"
                   onClick={() => toast.info('Xuất danh sách lớp sẽ nối API sau.')}
                 >
                   Xuất dữ liệu
@@ -213,8 +195,8 @@ export function TeacherClassesScreen() {
                       className={cn(
                         'h-auto min-h-0 justify-center gap-1.5 whitespace-nowrap rounded-lg px-4 py-2 text-xs font-semibold md:text-sm',
                         selected
-                          ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary'
-                          : 'text-muted-foreground hover:bg-muted/70 hover:text-primary'
+                          ? 'bg-[#006C49] text-white shadow-sm hover:bg-[#006C49]'
+                          : 'text-muted-foreground hover:bg-muted/70 hover:text-[#006C49]/90'
                       )}
                       onClick={() => filtersForm.setValue('filterKey', key)}
                     >
@@ -264,7 +246,7 @@ export function TeacherClassesScreen() {
                     <Button
                       variant="default"
                       size="sm"
-                      className="h-10 w-full font-semibold"
+                      className="h-10 w-full font-semibold "
                       asChild
                     >
                       <Link to="/teacher/classes/$classId" params={{ classId: c.id }}>
