@@ -5,7 +5,6 @@ import { useKpiOkrStream } from '@/features/kpi-okr/useKpiOkrStream'
 import {
   Calendar,
   ChevronDown,
-  ChevronUp,
   Download,
   RefreshCw,
   Search,
@@ -22,6 +21,12 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
@@ -1034,9 +1039,6 @@ export function MonthlyReportScreen() {
   const [selectedTeamId, setSelectedTeamId] = useState('')
   const [selectedUserId, setSelectedUserId] = useState('')
   const [activeTab, setActiveTab] = useState<'kpi-okr' | 'work-report'>('kpi-okr')
-  const [summaryExpanded, setSummaryExpanded] = useState(true)
-  const [detailExpanded, setDetailExpanded] = useState(true)
-
   const maxViewYm = getMaxViewableYm()
 
   const treeQ = useHrOrgTree()
@@ -1285,13 +1287,13 @@ export function MonthlyReportScreen() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-3 py-6 md:px-4">
+    <div className="mx-auto">
       {/* ── Page header: title + actions ── */}
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-[1.75rem]">
             Báo cáo{' '}
-            <span className="text-indigo-600 dark:text-indigo-400">
+            <span className="text-[#006C49]">
               T{month}/{year}
             </span>
           </h1>
@@ -1363,7 +1365,7 @@ export function MonthlyReportScreen() {
           disabled={!canSeeTeamWide && !memberMultiTeam}
           onValueChange={(value) => setSelectedTeamId(value === '__none' ? '' : value)}
         >
-          <SelectTrigger className="h-8 w-[145px] rounded-lg border-slate-200 bg-white text-sm dark:border-slate-700 dark:bg-slate-800 [&>span]:truncate [&>span]:whitespace-nowrap">
+          <SelectTrigger className="h-8 w-fit rounded-lg border-slate-200 bg-white text-sm dark:border-slate-700 dark:bg-slate-800 [&>span]:truncate [&>span]:whitespace-nowrap">
             <SelectValue placeholder={memberMultiTeam ? 'Nhóm đang xem' : 'Nhóm'} />
           </SelectTrigger>
           <SelectContent>
@@ -1396,7 +1398,7 @@ export function MonthlyReportScreen() {
             setMonth(next.month)
           }}
         >
-          <SelectTrigger className="h-8 w-[112px] rounded-lg border-slate-200 bg-white text-sm dark:border-slate-700 dark:bg-slate-800">
+          <SelectTrigger className="h-8 w-fit rounded-lg border-slate-200 bg-white text-sm dark:border-slate-700 dark:bg-slate-800">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -1414,7 +1416,7 @@ export function MonthlyReportScreen() {
           value={year}
           min={2020}
           max={maxViewYm.year}
-          className="h-8 w-[90px] rounded-lg border-slate-200 bg-white text-sm dark:border-slate-700 dark:bg-slate-800"
+          className="h-8 w-fit rounded-lg border-slate-200 bg-white text-sm dark:border-slate-700 dark:bg-slate-800"
           onChange={(e) => {
             const v = Number(e.target.value)
             if (!Number.isFinite(v)) return
@@ -1425,7 +1427,7 @@ export function MonthlyReportScreen() {
         />
 
         {/* Tab switcher — flush right */}
-        <div className="ml-auto flex rounded-lg bg-white p-0.5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+        <div className="ml-auto flex rounded-lg bg-white p-0.5 shadow-sm ring-1 ring-[#006C49]/80 dark:bg-slate-800 dark:ring-slate-700">
           {(['kpi-okr', 'work-report'] as const).map((tab) => (
             <button
               key={tab}
@@ -1434,7 +1436,7 @@ export function MonthlyReportScreen() {
               className={cn(
                 'rounded-md px-3.5 py-1.5 text-xs font-semibold transition-all',
                 activeTab === tab
-                  ? 'bg-indigo-600 text-white shadow-sm'
+                  ? 'bg-[#006C49] text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
               )}
             >
@@ -1522,143 +1524,132 @@ export function MonthlyReportScreen() {
             </Card>
           ) : (
             <div className="space-y-6">
-              {/* Summary + Detail: single unified card, expandable sections */}
-              <Card className="overflow-hidden border-slate-200 dark:border-slate-800">
-                {/* Section 1: KPI Summary — always visible, compact */}
-                <button
-                  type="button"
-                  onClick={() => setSummaryExpanded(!summaryExpanded)}
-                  className="flex w-full items-center justify-between px-4 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors"
+              <Accordion
+                type="multiple"
+                defaultValue={['summary', 'detail']}
+                className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2"
+              >
+                <AccordionItem
+                  value="summary"
+                  className="overflow-hidden rounded-xl border border-slate-200 bg-card text-card-foreground shadow dark:border-slate-800"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-                      <Target className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                        Tổng hợp KPI/OKR
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        {summaryRows.length} nhân sự · {okCount} mục đạt (OK) ·{' '}
-                        {assignmentsData.length} mục tiêu
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="text-xs">{summaryRows.length}</Badge>
-                    {summaryExpanded ? (
-                      <ChevronUp className="h-4 w-4 text-slate-400" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-slate-400" />
-                    )}
-                  </div>
-                </button>
-                {summaryExpanded && summaryRows.length > 0 && (
-                  <div className="border-t">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b bg-slate-50/80 dark:bg-slate-800/50">
-                            <th className="px-4 py-2.5 text-left font-semibold text-slate-500">
-                              Nhân sự
-                            </th>
-                            <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
-                              KPI đạt
-                            </th>
-                            <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
-                              KPI chưa
-                            </th>
-                            <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
-                              Loại
-                            </th>
-                            <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
-                              OKR đạt
-                            </th>
-                            <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
-                              OKR chưa
-                            </th>
-                            <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
-                              Loại
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {summaryRows.map((row) => (
-                            <tr
-                              key={row.id}
-                              className="border-b last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
-                            >
-                              <td className="px-4 py-2.5 font-medium text-slate-800 dark:text-slate-200">
-                                {row.assigneeDisplayName?.trim() ||
-                                  row.assigneeEmail?.trim() ||
-                                  'Thành viên'}
-                              </td>
-                              <td className="px-3 py-2.5 text-center tabular-nums">
-                                {row.kpiOkCount}
-                              </td>
-                              <td className="px-3 py-2.5 text-center tabular-nums">
-                                {row.kpiNotCount}
-                              </td>
-                              <td className="px-3 py-2.5 text-center font-semibold">
-                                {row.kpiGrade ?? '—'}
-                              </td>
-                              <td className="px-3 py-2.5 text-center tabular-nums">
-                                {row.okrOkCount}
-                              </td>
-                              <td className="px-3 py-2.5 text-center tabular-nums">
-                                {row.okrNotCount}
-                              </td>
-                              <td className="px-3 py-2.5 text-center font-semibold">
-                                {row.okrGrade ?? '—'}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-                {summaryExpanded && summaryRows.length === 0 && (
-                  <div className="border-t px-4 py-6 text-center text-xs text-slate-400">
-                    Chưa có dữ liệu tổng hợp. Trưởng nhóm tính lại ở màn KPI & OKR.
-                  </div>
-                )}
-              </Card>
-
-              {/* Section 2: Detail — collapsible */}
-              <Card className="overflow-hidden border-slate-200 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setDetailExpanded(!detailExpanded)}
-                  className="flex w-full items-center justify-between px-4 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                      <Search className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                        Chi tiết mục tiêu
-                      </h3>
-                      {selectedDetailUserId && (
+                  <AccordionTrigger className="flex w-full items-center justify-between gap-3 rounded-none px-4 py-3 hover:bg-slate-50/50 hover:no-underline dark:hover:bg-slate-800/50 [&[data-state=open]>svg.chevron-accordion]:rotate-180">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                        <Target className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 text-left">
+                        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                          Tổng hợp KPI/OKR
+                        </h3>
                         <p className="text-xs text-slate-500">
-                          {teamMemberName(selectedDetailUserId)} · {detailRows.length} mục tiêu
+                          {summaryRows.length} nhân sự · {okCount} mục đạt (OK) ·{' '}
+                          {assignmentsData.length} mục tiêu
                         </p>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="text-xs">{detailRows.length}</Badge>
-                    {detailExpanded ? (
-                      <ChevronUp className="h-4 w-4 text-slate-400" />
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Badge className="text-xs">{summaryRows.length}</Badge>
+                      <ChevronDown className="chevron-accordion h-4 w-4 text-slate-400 transition-transform duration-200" />
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="border-t pb-0">
+                    {summaryRows.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b bg-slate-50/80 dark:bg-slate-800/50">
+                              <th className="px-4 py-2.5 text-left font-semibold text-slate-500">
+                                Nhân sự
+                              </th>
+                              <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
+                                KPI đạt
+                              </th>
+                              <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
+                                KPI chưa
+                              </th>
+                              <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
+                                Loại
+                              </th>
+                              <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
+                                OKR đạt
+                              </th>
+                              <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
+                                OKR chưa
+                              </th>
+                              <th className="px-3 py-2.5 text-center font-semibold text-slate-500">
+                                Loại
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {summaryRows.map((row) => (
+                              <tr
+                                key={row.id}
+                                className="border-b last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
+                              >
+                                <td className="px-4 py-2.5 font-medium text-slate-800 dark:text-slate-200">
+                                  {row.assigneeDisplayName?.trim() ||
+                                    row.assigneeEmail?.trim() ||
+                                    'Thành viên'}
+                                </td>
+                                <td className="px-3 py-2.5 text-center tabular-nums">
+                                  {row.kpiOkCount}
+                                </td>
+                                <td className="px-3 py-2.5 text-center tabular-nums">
+                                  {row.kpiNotCount}
+                                </td>
+                                <td className="px-3 py-2.5 text-center font-semibold">
+                                  {row.kpiGrade ?? '—'}
+                                </td>
+                                <td className="px-3 py-2.5 text-center tabular-nums">
+                                  {row.okrOkCount}
+                                </td>
+                                <td className="px-3 py-2.5 text-center tabular-nums">
+                                  {row.okrNotCount}
+                                </td>
+                                <td className="px-3 py-2.5 text-center font-semibold">
+                                  {row.okrGrade ?? '—'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     ) : (
-                      <ChevronDown className="h-4 w-4 text-slate-400" />
+                      <div className="px-4 py-6 text-center text-xs text-slate-400">
+                        Chưa có dữ liệu tổng hợp. Trưởng nhóm tính lại ở màn KPI & OKR.
+                      </div>
                     )}
-                  </div>
-                </button>
+                  </AccordionContent>
+                </AccordionItem>
 
-                {detailExpanded && (
-                  <>
+                <AccordionItem
+                  value="detail"
+                  className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-card text-card-foreground shadow dark:border-slate-800"
+                >
+                  <AccordionTrigger className="flex w-full items-center justify-between gap-3 rounded-none px-4 py-3 hover:bg-slate-50/50 hover:no-underline dark:hover:bg-slate-800/50 [&[data-state=open]>svg.chevron-accordion]:rotate-180">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                        <Search className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 text-left">
+                        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                          Chi tiết mục tiêu
+                        </h3>
+                        {selectedDetailUserId && (
+                          <p className="text-xs text-slate-500">
+                            {teamMemberName(selectedDetailUserId)} · {detailRows.length} mục tiêu
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Badge className="text-xs">{detailRows.length}</Badge>
+                      <ChevronDown className="chevron-accordion h-4 w-4 text-slate-400 transition-transform duration-200" />
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="border-t pb-0">
                     {/* Member selector tabs — clean horizontal tabs, not pills */}
                     {canSeeTeamWide && (
                       <div className="border-t">
@@ -1718,7 +1709,7 @@ export function MonthlyReportScreen() {
                           )}
                         </div>
                         {/* Desktop: bảng + modal nhập liệu */}
-                        <div className="hidden md:block">
+                        <div className="hidden overflow-x-auto md:block">
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="border-b bg-slate-50 dark:bg-slate-800/50">
@@ -1779,12 +1770,12 @@ export function MonthlyReportScreen() {
                         </div>
                       </div>
                     )}
-                  </>
-                )}
-              </Card>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
 
               <Card className="overflow-hidden border-slate-200 dark:border-slate-800">
-                <CardHeader>
+                {/* <CardHeader>
                   <CardTitle className="text-lg font-bold text-slate-900 dark:text-slate-100">
                     {canSeeTeamWide ? 'Phản hồi từ nhân sự' : 'Form khảo sát tháng này'}
                   </CardTitle>
@@ -1793,7 +1784,15 @@ export function MonthlyReportScreen() {
                       ? 'Danh sách câu trả lời của từng nhân sự trong nhóm theo kỳ đã chọn.'
                       : 'Trả lời câu hỏi khảo sát hàng tháng do trưởng nhóm thiết lập.'}
                   </p>
-                </CardHeader>
+                </CardHeader> */}
+                {canSeeTeamWide && (
+                  <CardHeader>
+                    <CardTitle className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                      {canSeeTeamWide ? 'Phản hồi từ nhân sự' : 'Form khảo sát tháng này'}
+                    </CardTitle>
+                  </CardHeader>
+                )}
+
                 <CardContent>
                   <FormPanel
                     teamId={selectedTeamId}

@@ -5297,9 +5297,8 @@ export function FormPanel({
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <div className="h-6 w-1 rounded-full bg-fuchsia-600" />
             <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              3. Form câu hỏi theo tháng
+              Form câu hỏi theo tháng
             </h2>
           </div>
           <p className="text-sm text-slate-500">Khảo sát và ghi nhận ý kiến phản hồi hàng tháng.</p>
@@ -5315,13 +5314,13 @@ export function FormPanel({
         {shouldShowQuestionForm ? (
           <Card className="border-slate-200/60 shadow-sm dark:border-slate-800/50">
             <CardHeader className="pb-4">
-              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+              {/* <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                 {isManagerViewOnly ? 'Câu hỏi khảo sát' : 'Trả lời khảo sát'}
-              </CardTitle>
+              </CardTitle> */}
             </CardHeader>
             <CardContent className="space-y-6">
               {!data && (
-                <div className="flex h-32 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/30">
+                <div className="flex h-32 flex-col items-center justify-center rounded-xl">
                   <p className="text-sm text-slate-400">
                     {isManagerViewOnly
                       ? 'Chưa có form câu hỏi cho kỳ này.'

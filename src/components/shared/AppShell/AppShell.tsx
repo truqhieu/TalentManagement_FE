@@ -202,7 +202,7 @@ export function AppShell({ children, title }: AppShellProps) {
               ? cskhAuditLayout
                 ? 'h-full overflow-y-hidden p-3 sm:p-4'
                 : 'h-full min-h-0 overflow-hidden p-2 sm:p-3'
-              : 'overflow-y-auto p-5 md:p-6'
+              : 'overflow-y-auto p-6'
           )}
         >
           <div
