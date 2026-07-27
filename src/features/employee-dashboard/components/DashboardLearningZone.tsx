@@ -176,10 +176,10 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
 
   return (
     <div className="space-y-8 text-sm text-foreground">
-      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3">
         <section
           className={cn(
-            'relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.14] via-game-soft/50 to-accent/[0.1] p-6 shadow-[var(--shadow-game-float)] md:p-8 lg:col-span-4',
+            'relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.14] via-game-soft/50 to-accent/[0.1] p-6 shadow-[var(--shadow-game-float)] md:p-8',
             CARD_ENTRANCE_HOVER,
             'motion-safe:transition-shadow motion-safe:duration-300 hover:shadow-[0_24px_48px_-20px_hsl(var(--primary)/0.35)] motion-reduce:transition-none'
           )}
@@ -208,9 +208,11 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
           </h3>
 
           {isLoading ? (
-            <RoadmapSkeleton />
+            <div className="flex-1">
+              <RoadmapSkeleton />
+            </div>
           ) : (
-            <div className="relative space-y-0 pl-0">
+            <div className="relative flex-1 space-y-0 pl-0">
               <div
                 className="absolute bottom-4 left-[19px] top-4 w-1 rounded-full bg-gradient-to-b from-primary via-accent to-border/80 shadow-[0_0_12px_hsl(var(--primary)/0.35)]"
                 aria-hidden
@@ -335,218 +337,212 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
           )}
         </section>
 
-        <section className="flex flex-col gap-6 lg:col-span-8">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div
-              className={cn(
-                'group relative overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-b from-muted/70 via-card to-primary/[0.05] p-6 shadow-md',
-                CARD_ENTRANCE_HOVER,
-                'motion-safe:transition-all motion-safe:duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[var(--shadow-game-float)] motion-reduce:transition-none motion-reduce:hover:translate-y-0'
-              )}
-              style={staggerStyle(1, 55)}
-              aria-busy={blockLoading}
-            >
-              <div
-                className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-opacity group-hover:opacity-100"
-                aria-hidden
-              />
-              <h4 className="relative mb-4 flex items-center gap-2 text-lg font-black text-foreground">
-                <CalendarDays
-                  className="h-5 w-5 text-primary motion-safe:transition-transform group-hover:rotate-12"
-                  strokeWidth={2}
-                  aria-hidden
-                />
-                Kỳ thi tiếp theo
-              </h4>
-              {blockLoading ? (
-                <div className="relative mb-4 space-y-3 rounded-2xl border border-primary/10 bg-card/95 p-4">
-                  <Skeleton className="h-3 w-24" />
-                  <Skeleton className="h-5 w-full max-w-[280px]" />
-                  <Skeleton className="h-4 w-40" />
-                </div>
-              ) : nextExam && nextExamFmt ? (
-                <div className="relative mb-4 rounded-2xl border border-primary/10 bg-card/95 p-4 shadow-inner backdrop-blur-sm">
-                  <p className="mb-1 text-xs font-bold uppercase tracking-tighter text-primary/90">
-                    {nextExam.status === 'IN_PROGRESS' ? 'Kỳ thi / lịch' : 'Môn thi & lịch'}
-                  </p>
-                  <p className="font-bold text-foreground">{nextExam.title}</p>
-                  <div className="mt-3 flex flex-wrap gap-4 border-t border-border/80 pt-3">
-                    <div className="flex items-center gap-1 text-xs font-bold text-foreground">
-                      <CalendarDays className="h-4 w-4 text-accent" strokeWidth={2} />
-                      {nextExamFmt.dateLine}
-                    </div>
-                    <div className="flex items-center gap-1 text-xs font-bold text-foreground">
-                      <Clock className="h-4 w-4 text-primary" strokeWidth={2} />
-                      {nextExamFmt.timeLine}
-                    </div>
-                    {nextExam.status === 'IN_PROGRESS' ? (
-                      <span className="text-xs font-bold uppercase text-primary">Đang mở</span>
-                    ) : null}
-                  </div>
-                </div>
-              ) : (
-                <div className="relative mb-4 rounded-2xl border border-dashed border-border bg-card/80 p-4 text-sm font-semibold text-muted-foreground">
-                  Chưa có kỳ thi sắp tới trên hệ thống. Mở mục Thi và kết quả để cập nhật.
-                </div>
-              )}
-
-              {blockLoading ? (
-                <div className="relative mb-4 rounded-xl border border-border/60 bg-card/60 p-3">
-                  <Skeleton className="h-3 w-32" />
-                  <Skeleton className="mt-2 h-4 w-full" />
-                </div>
-              ) : nextSlot && nextSlotFmt ? (
-                <div className="relative mb-4 rounded-xl border border-accent/20 bg-gradient-to-r from-card/90 to-accent/[0.06] p-3 text-sm">
-                  <p className="mb-1 text-xs font-bold uppercase tracking-tight text-accent">
-                    Buổi học gần nhất
-                  </p>
-                  <p className="font-bold text-foreground">{nextSlot.topic}</p>
-                  <div className="mt-2 flex flex-wrap gap-3 text-xs font-semibold text-muted-foreground">
-                    <span className="inline-flex items-center gap-1 text-foreground">
-                      <CalendarDays className="h-3.5 w-3.5 text-primary" strokeWidth={2} />
-                      {nextSlotFmt.dateLine}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-foreground">
-                      <Clock className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
-                      {nextSlotFmt.timeLine}
-                    </span>
-                  </div>
-                </div>
-              ) : !classLoading && enrolled?.enrolledClass ? (
-                <p className="relative mb-4 text-xs text-muted-foreground">
-                  Lớp {enrolled.enrolledClass.name}: chưa có buổi học tới trên lịch.
+        <div
+          className={cn(
+            'group relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-b from-muted/70 via-card to-primary/[0.05] p-6 shadow-md',
+            CARD_ENTRANCE_HOVER,
+            'motion-safe:transition-all motion-safe:duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[var(--shadow-game-float)] motion-reduce:transition-none motion-reduce:hover:translate-y-0'
+          )}
+          style={staggerStyle(1, 55)}
+          aria-busy={blockLoading}
+        >
+          <div
+            className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-opacity group-hover:opacity-100"
+            aria-hidden
+          />
+          <h4 className="relative mb-4 flex items-center gap-2 text-lg font-black text-foreground">
+            <CalendarDays
+              className="h-5 w-5 text-primary motion-safe:transition-transform group-hover:rotate-12"
+              strokeWidth={2}
+              aria-hidden
+            />
+            Kỳ thi tiếp theo
+          </h4>
+          <div className="relative flex flex-1 flex-col">
+            {blockLoading ? (
+              <div className="relative mb-4 space-y-3 rounded-2xl border border-primary/10 bg-card/95 p-4">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-5 w-full max-w-[280px]" />
+                <Skeleton className="h-4 w-40" />
+              </div>
+            ) : nextExam && nextExamFmt ? (
+              <div className="relative mb-4 rounded-2xl border border-primary/10 bg-card/95 p-4 shadow-inner backdrop-blur-sm">
+                <p className="mb-1 text-xs font-bold uppercase tracking-tighter text-primary/90">
+                  {nextExam.status === 'IN_PROGRESS' ? 'Kỳ thi / lịch' : 'Môn thi & lịch'}
                 </p>
-              ) : null}
+                <p className="font-bold text-foreground">{nextExam.title}</p>
+                <div className="mt-3 flex flex-wrap gap-4 border-t border-border/80 pt-3">
+                  <div className="flex items-center gap-1 text-xs font-bold text-foreground">
+                    <CalendarDays className="h-4 w-4 text-accent" strokeWidth={2} />
+                    {nextExamFmt.dateLine}
+                  </div>
+                  <div className="flex items-center gap-1 text-xs font-bold text-foreground">
+                    <Clock className="h-4 w-4 text-primary" strokeWidth={2} />
+                    {nextExamFmt.timeLine}
+                  </div>
+                  {nextExam.status === 'IN_PROGRESS' ? (
+                    <span className="text-xs font-bold uppercase text-primary">Đang mở</span>
+                  ) : null}
+                </div>
+              </div>
+            ) : (
+              <div className="relative flex flex-col items-center justify-center text-center mb-4 w-full h-full rounded-2xl border border-dashed border-border bg-card/80 p-4 text-lg font-semibold text-muted-foreground">
+                <CalendarDays className="h-10 w-10 text-accent" />
+                Chưa có kỳ thi sắp tới trên hệ thống. Mở mục Thi và kết quả để cập nhật.
+              </div>
+            )}
 
+            {blockLoading ? (
+              <div className="relative mb-4 rounded-xl border border-border/60 bg-card/60 p-3">
+                <Skeleton className="h-3 w-32" />
+                <Skeleton className="mt-2 h-4 w-full" />
+              </div>
+            ) : nextSlot && nextSlotFmt ? (
+              <div className="relative mb-4 rounded-xl border border-accent/20 bg-gradient-to-r from-card/90 to-accent/[0.06] p-3 text-sm">
+                <p className="mb-1 text-xs font-bold uppercase tracking-tight text-accent">
+                  Buổi học gần nhất
+                </p>
+                <p className="font-bold text-foreground">{nextSlot.topic}</p>
+                <div className="mt-2 flex flex-wrap gap-3 text-xs font-semibold text-muted-foreground">
+                  <span className="inline-flex items-center gap-1 text-foreground">
+                    <CalendarDays className="h-3.5 w-3.5 text-primary" strokeWidth={2} />
+                    {nextSlotFmt.dateLine}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-foreground">
+                    <Clock className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
+                    {nextSlotFmt.timeLine}
+                  </span>
+                </div>
+              </div>
+            ) : !classLoading && enrolled?.enrolledClass ? (
+              <p className="relative mb-4 text-xs text-muted-foreground">
+                Lớp {enrolled.enrolledClass.name}: chưa có buổi học tới trên lịch.
+              </p>
+            ) : null}
+
+            <Button
+              asChild
+              className={cn(
+                'relative mt-auto h-auto w-full overflow-hidden rounded-xl bg-[#006C49] to-accent py-3.5 text-sm font-black text-primary-foreground shadow-lg shadow-primary/30',
+                quartOut,
+                'transition-all hover:brightness-110 hover:shadow-xl active:scale-[0.98] motion-reduce:active:scale-100'
+              )}
+            >
+              <Link to="/exam" className="relative z-10 flex w-full items-center justify-center ">
+                {nextExam && nextExam.status === 'IN_PROGRESS'
+                  ? 'Vào mục thi và lịch'
+                  : 'Đăng ký tham gia ngay'}
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            'relative flex h-full flex-col overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-muted via-card to-accent/[0.08] p-6 shadow-md',
+            CARD_ENTRANCE_HOVER,
+            'motion-safe:transition-all motion-safe:duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-18px_hsl(var(--accent)/0.35)] motion-reduce:transition-none'
+          )}
+          style={staggerStyle(2, 55)}
+          aria-busy={blockLoading}
+        >
+          <div
+            className="pointer-events-none absolute -bottom-8 -right-8 opacity-[0.12] motion-safe:animate-[dash-float-slow_6s_ease-in-out_infinite] motion-reduce:animate-none"
+            aria-hidden
+          >
+            <BookOpen className="h-36 w-36 text-accent" strokeWidth={1} />
+          </div>
+          <h4 className="relative mb-4 flex items-center gap-2 text-lg font-black text-foreground">
+            <ListChecks
+              className="h-5 w-5 text-accent motion-safe:animate-pulse motion-reduce:animate-none"
+              strokeWidth={2}
+              aria-hidden
+            />
+            Tiến độ mốc học
+          </h4>
+          <div className="relative flex flex-1 flex-col">
+            {blockLoading ? (
+              <div className="relative space-y-4">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-2 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            ) : totalMs === 0 ? (
+              <p className="relative text-sm font-medium text-muted-foreground">
+                Chưa có mốc lộ trình từ hệ thống. Khi HR/L&D thiết lập, bạn sẽ thấy tiến độ tại đây.
+              </p>
+            ) : (
+              <>
+                <div className="relative mb-4">
+                  <div className="mb-2 flex items-baseline justify-between gap-2">
+                    <span className="text-xs font-bold uppercase tracking-tight text-muted-foreground">
+                      Hoàn thành mốc
+                    </span>
+                    <span className="text-sm font-black tabular-nums text-primary">
+                      {doneMs}/{totalMs} ({roadPct}%)
+                    </span>
+                  </div>
+                  <div className="h-2.5 overflow-hidden rounded-full bg-border/80 p-px shadow-inner">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary-600 motion-safe:transition-[width] motion-safe:duration-700 motion-safe:ease-out"
+                      style={{ width: `${roadPct}%` }}
+                    />
+                  </div>
+                </div>
+                <ul className="relative space-y-3 md:space-y-10">
+                  {topMilestones.map((m: any, j: number) => {
+                    const Icon =
+                      m.status === 'done'
+                        ? CheckCircle2
+                        : m.status === 'in_progress'
+                          ? CircleDashed
+                          : Lock
+                    return (
+                      <li key={m.id} className="flex gap-2 text-lg" style={staggerStyle(j, 40)}>
+                        <Icon
+                          className={cn(
+                            'mt-0.5 h-4 w-4 shrink-0',
+                            m.status === 'done' && 'text-emerald-600',
+                            m.status === 'in_progress' && 'text-primary',
+                            m.status === 'locked' && 'text-muted-foreground'
+                          )}
+                          strokeWidth={2}
+                          aria-hidden
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold leading-snug text-foreground">{m.title}</p>
+                          <p className="text-xs font-semibold text-muted-foreground">
+                            {milestoneStatusLabel(m.status)}
+                          </p>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </>
+            )}
+            <div className="relative mt-auto flex flex-col gap-2 rounded-xl border border-accent/25 bg-gradient-to-r from-card/95 to-accent/5 p-3 text-xs font-semibold leading-snug text-muted-foreground shadow-sm backdrop-blur-sm">
+              <p>Cập nhật minh chứng, checklist sao theo từng cấp — toàn bộ nằm ở lộ trình học.</p>
               <Button
                 asChild
-                className={cn(
-                  'relative h-auto w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary via-primary-600 to-accent py-3.5 text-sm font-black text-primary-foreground shadow-lg shadow-primary/30',
-                  quartOut,
-                  'transition-all hover:brightness-110 hover:shadow-xl active:scale-[0.98] motion-reduce:active:scale-100'
-                )}
+                variant="secondary"
+                size="sm"
+                className="h-auto w-full rounded-lg border border-primary/20 py-2 text-sm font-bold text-white bg-[#006C49]"
               >
-                <Link to="/exam" className="relative z-10 flex w-full items-center justify-center">
-                  {nextExam && nextExam.status === 'IN_PROGRESS'
-                    ? 'Vào mục thi và lịch'
-                    : 'Đăng ký tham gia ngay'}
+                <Link
+                  to="/learning-path"
+                  search={{
+                    levelId: currentLevel,
+                    starId: Math.min(Math.max(1, currentStars), STARS_PER_LEVEL[currentLevel] || 6),
+                  }}
+                >
+                  Mở lộ trình học
                 </Link>
               </Button>
             </div>
-
-            <div
-              className={cn(
-                'relative overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-muted via-card to-accent/[0.08] p-6 shadow-md',
-                CARD_ENTRANCE_HOVER,
-                'motion-safe:transition-all motion-safe:duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-18px_hsl(var(--accent)/0.35)] motion-reduce:transition-none'
-              )}
-              style={staggerStyle(2, 55)}
-              aria-busy={blockLoading}
-            >
-              <div
-                className="pointer-events-none absolute -bottom-8 -right-8 opacity-[0.12] motion-safe:animate-[dash-float-slow_6s_ease-in-out_infinite] motion-reduce:animate-none"
-                aria-hidden
-              >
-                <BookOpen className="h-36 w-36 text-accent" strokeWidth={1} />
-              </div>
-              <h4 className="relative mb-4 flex items-center gap-2 text-lg font-black text-foreground">
-                <ListChecks
-                  className="h-5 w-5 text-accent motion-safe:animate-pulse motion-reduce:animate-none"
-                  strokeWidth={2}
-                  aria-hidden
-                />
-                Tiến độ mốc học
-              </h4>
-              {blockLoading ? (
-                <div className="relative space-y-4">
-                  <Skeleton className="h-8 w-full" />
-                  <Skeleton className="h-2 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                </div>
-              ) : totalMs === 0 ? (
-                <p className="relative text-sm font-medium text-muted-foreground">
-                  Chưa có mốc lộ trình từ hệ thống. Khi HR/L&D thiết lập, bạn sẽ thấy tiến độ tại
-                  đây.
-                </p>
-              ) : (
-                <>
-                  <div className="relative mb-4">
-                    <div className="mb-2 flex items-baseline justify-between gap-2">
-                      <span className="text-xs font-bold uppercase tracking-tight text-muted-foreground">
-                        Hoàn thành mốc
-                      </span>
-                      <span className="text-sm font-black tabular-nums text-primary">
-                        {doneMs}/{totalMs} ({roadPct}%)
-                      </span>
-                    </div>
-                    <div className="h-2.5 overflow-hidden rounded-full bg-border/80 p-px shadow-inner">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary-600 motion-safe:transition-[width] motion-safe:duration-700 motion-safe:ease-out"
-                        style={{ width: `${roadPct}%` }}
-                      />
-                    </div>
-                  </div>
-                  <ul className="relative space-y-3">
-                    {topMilestones.map((m: any, j: number) => {
-                      const Icon =
-                        m.status === 'done'
-                          ? CheckCircle2
-                          : m.status === 'in_progress'
-                            ? CircleDashed
-                            : Lock
-                      return (
-                        <li key={m.id} className="flex gap-2 text-xs" style={staggerStyle(j, 40)}>
-                          <Icon
-                            className={cn(
-                              'mt-0.5 h-4 w-4 shrink-0',
-                              m.status === 'done' && 'text-emerald-600',
-                              m.status === 'in_progress' && 'text-primary',
-                              m.status === 'locked' && 'text-muted-foreground'
-                            )}
-                            strokeWidth={2}
-                            aria-hidden
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className="font-bold leading-snug text-foreground">{m.title}</p>
-                            <p className="text-xs font-semibold text-muted-foreground">
-                              {milestoneStatusLabel(m.status)}
-                            </p>
-                          </div>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </>
-              )}
-              <div className="relative mt-6 flex flex-col gap-2 rounded-xl border border-accent/25 bg-gradient-to-r from-card/95 to-accent/5 p-3 text-xs font-semibold leading-snug text-muted-foreground shadow-sm backdrop-blur-sm">
-                <p>
-                  Cập nhật minh chứng, checklist sao theo từng cấp — toàn bộ nằm ở lộ trình học.
-                </p>
-                <Button
-                  asChild
-                  variant="secondary"
-                  size="sm"
-                  className="h-auto w-full rounded-lg border border-primary/20 py-2 text-xs font-bold"
-                >
-                  <Link
-                    to="/learning-path"
-                    search={{
-                      levelId: currentLevel,
-                      starId: Math.min(
-                        Math.max(1, currentStars),
-                        STARS_PER_LEVEL[currentLevel] || 6
-                      ),
-                    }}
-                    className="text-primary"
-                  >
-                    Mở lộ trình học
-                  </Link>
-                </Button>
-              </div>
-            </div>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   )

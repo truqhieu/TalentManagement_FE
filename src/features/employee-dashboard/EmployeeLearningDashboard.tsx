@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { BarChart3, GraduationCap, Medal, Sparkles, Target, Trophy } from 'lucide-react'
 import { EmployeeAvatar } from '@/components/shared/EmployeeAvatar'
-import { ProgressStar } from '@/components/shared/ProgressStar/ProgressStar'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   PAGE_HEADER_DESCRIPTION,
@@ -19,7 +18,6 @@ import {
   ManagerSharedReportPeriodFilter,
   type ManagerReportPeriod,
 } from '@/features/employee-dashboard/components/ManagerSharedReportPeriodFilter'
-import { CARD_ENTRANCE_HOVER, STAR_POP, staggerStyle } from '@/lib/cardMotion'
 import { LEVEL_LABELS, STARS_PER_LEVEL, type LevelCode } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
@@ -37,27 +35,7 @@ function kpiOkrPaths(role: Role | undefined): { kpiOkr: string } {
 
 type DashboardTab = 'learning' | 'kpi'
 
-function shortId(id: string): string {
-  return id.replace(/-/g, '').slice(0, 8).toUpperCase()
-}
-
-function monthLabelVi(d: Date): string {
-  return `Tháng ${d.getMonth() + 1} · ${d.getFullYear()}`
-}
-
-function formatDepartment(departmentId: string): string {
-  return `PB · ${shortId(departmentId)}`
-}
-
 const quartOut = '[transition-timing-function:cubic-bezier(0.25,1,0.48,1)]'
-
-const LEVEL_FRAMES: Record<LevelCode, string> = {
-  tap_su: '/khung_avatar/khung_avatar_tap_su.png',
-  biet_viec: '/khung_avatar/khung_avatar_biet_viec.png',
-  duoc_viec: '/khung_avatar/khung_avatar_duoc_viec.png',
-  dong_gop_ket_qua: '/khung_avatar/khung_avatar_ket_qua.png',
-  tuong: '/khung_avatar/khung_avatar_tuong.png',
-}
 
 function parseLevelFromStaff(staffLevel: StaffLevel | undefined): LevelCode | null {
   if (staffLevel === 'PROBATION') return 'tap_su'
@@ -168,15 +146,7 @@ export function EmployeeLearningDashboard() {
   const filledStars = apiCareer?.currentStars ?? meDashboard?.levelSource?.starCount ?? 0
 
   const avatarName = apiUser?.fullNameLegal?.trim() || user?.name || 'User'
-  const deptLine = isLoading
-    ? 'Loading...'
-    : apiUser?.departmentName?.trim() || (user ? formatDepartment(user.departmentId) : '—')
-  const fullName = isLoading
-    ? 'Loading...'
-    : apiUser?.displayName?.trim() || apiUser?.fullNameLegal?.trim() || user?.name || '—'
-  const birthDate = isLoading ? 'Loading...' : formatDateVi(apiUser?.birthDate)
-  const jobTitleValue = isLoading ? 'Loading...' : apiUser?.jobTitle || '—'
-  const teamPositionValue = isLoading ? 'Loading...' : apiUser?.teamPosition?.trim() || '—'
+
   const levelLabelValue = isLoading ? 'Loading...' : levelLabel
   const promotionHistory = meDashboard?.promotionHistory ?? []
   const highlightAchievements = meDashboard?.highlightAchievements ?? []
@@ -257,7 +227,7 @@ export function EmployeeLearningDashboard() {
   }, [celebrationPromotion, user?.id])
 
   return (
-    <div className="relative -m-5 flex min-h-[calc(100vh-3rem)] flex-col overflow-hidden bg-app-canvas text-sm text-foreground md:-m-6 lg:-m-8">
+    <div className="relative flex flex-col bg-app-canvas text-sm text-foreground md:-m-2">
       {/* Promotion Celebration Modal */}
       {celebrationPromotion && (
         <PromotionCelebrationModal
@@ -270,277 +240,87 @@ export function EmployeeLearningDashboard() {
         />
       )}
       {/* Subtle background */}
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_50%_-20%,hsl(var(--primary)/0.16),transparent_55%),radial-gradient(ellipse_80%_50%_at_100%_50%,hsl(var(--accent)/0.12),transparent_50%)]"
-        aria-hidden
-      />
+      <div className="pointer-events-none absolute inset-0" aria-hidden />
 
-      <div className="page-shell relative z-[1] space-y-6 pb-10">
-        <VinhDanhSlide />
-        <section className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div className={cn('min-w-0 flex-1', PAGE_HEADER_SURFACE)}>
-            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-gradient-to-r from-primary/[0.12] to-accent/[0.1] px-3 py-0.5 text-xs font-bold uppercase tracking-widest text-primary shadow-sm">
+      <div className="relative z-[1] space-y-4 px-3 pb-8 pt-1 sm:px-4 sm:pb-10 md:px-6">
+        {isManagerLearningDash ? <VinhDanhSlide /> : null}
+
+        {isManagerLearningDash ? (
+          <section className={cn('min-w-0', PAGE_HEADER_SURFACE)}>
+            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-primary/20  px-3 py-0.5 text-xs font-bold uppercase tracking-widest text-primary shadow-sm">
               <Sparkles className="h-3 w-3" aria-hidden />
-              {isManagerLearningDash ? 'Quản lý' : 'Cá nhân'}
+              Quản lý
             </div>
             <h1 className={PAGE_HEADER_TITLE}>
-              <span className={PAGE_HEADER_GRADIENT}>
-                {isManagerLearningDash ? 'Tổng quan quản lý' : 'Tổng quan cá nhân'}
-              </span>
+              <span className={PAGE_HEADER_GRADIENT}>Tổng quan quản lý</span>
             </h1>
             <p className={PAGE_HEADER_DESCRIPTION}>
-              {isManagerLearningDash ? (
-                <>Tổng quan nhân sự, học tập &amp; KPI theo kỳ báo cáo.</>
-              ) : (
-                <>
-                  Chào <span className="font-semibold text-primary">{greetingName}</span>, thu thập
-                  sao và leo hạng.
-                </>
-              )}
+              Tổng quan nhân sự, học tập &amp; KPI theo kỳ báo cáo.
             </p>
-          </div>
-          {!isManagerLearningDash ? (
-            <div
-              className={cn(
-                'inline-flex items-center gap-2 self-start rounded-2xl border border-primary/25 bg-card/90 px-4 py-2 shadow-[var(--shadow-game-float)] backdrop-blur-sm md:self-auto',
-                quartOut,
-                'transition-transform duration-300 hover:scale-[1.03] hover:border-primary/40'
-              )}
-            >
-              <span className="bg-gradient-to-r from-primary to-primary-600 bg-clip-text font-bold text-transparent">
-                {monthLabelVi(new Date())}
-              </span>
-            </div>
-          ) : null}
-        </section>
+          </section>
+        ) : null}
 
-        {/* MEMBER: Profile section */}
-        {!isManagerLearningDash ? (
-          <section className="grid grid-cols-1 gap-6 lg:grid-cols-4" aria-label="Thông tin tóm tắt">
-            {/* Avatar + Stars */}
-            <div
-              className={cn(
-                'group relative overflow-hidden rounded-2xl p-[1.5px] shadow-[0_20px_50px_-24px_hsl(var(--primary)/0.45)]',
-                'bg-gradient-to-br from-accent/55 via-primary/50 to-primary-600/70',
-                quartOut
-              )}
-            >
-              <div
-                className={cn(
-                  'relative flex h-full flex-col items-center justify-center gap-6 overflow-hidden rounded-[calc(1.75rem-1.5px)] px-5 py-7',
-                  'bg-gradient-to-br from-[hsl(var(--accent)/0.11)] via-card to-[hsl(var(--primary)/0.12)]',
-                  'ring-1 ring-inset ring-white/60 dark:ring-white/10'
-                )}
-              >
-                {user && (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="relative flex h-36 w-36 items-center justify-center">
-                      <div
-                        className="pointer-events-none absolute inset-4 rounded-full bg-gradient-to-tr from-primary/40 via-accent/30 to-primary-600/45 opacity-90 blur-xl"
-                        aria-hidden
-                      />
-                      <EmployeeAvatar
-                        name={avatarName}
-                        photoUrl={resolvePublicAssetUrl(user?.portraitRef || apiUser?.portraitRef)}
-                        className="relative z-10 h-24 w-24 text-xl shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.45)]"
-                      />
-                      <img
-                        src={LEVEL_FRAMES[levelKey]}
-                        alt=""
-                        aria-hidden
-                        className="pointer-events-none absolute inset-0 z-20 h-full w-full object-contain"
-                      />
-                    </div>
-                    <span className="whitespace-nowrap rounded-full border border-white/40 bg-gradient-to-r from-primary to-accent px-3 py-0.5 text-xs font-black uppercase tracking-wide text-primary-foreground shadow-[0_6px_20px_hsl(var(--primary)/0.4)]">
-                      {levelLabel}
-                    </span>
-                  </div>
-                )}
-
-                {maxStars > 0 && (
-                  <div className="relative w-full text-center">
-                    <p className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-primary">
-                      Sao
-                    </p>
-                    <div
-                      className="inline-flex flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-primary/20 bg-gradient-to-b from-white/80 to-primary/[0.06] px-3 py-3 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.85)] dark:from-card/90 dark:to-primary/[0.08]"
-                      role="img"
-                      aria-label={`${filledStars} trên ${maxStars} sao`}
-                    >
-                      {Array.from({ length: maxStars }, (_, i) => (
-                        <span
-                          key={i}
-                          className={cn('inline-flex rounded-sm', STAR_POP)}
-                          style={staggerStyle(i, 55)}
-                        >
-                          <ProgressStar
-                            filled={i < filledStars}
-                            variant="primary"
-                            className="h-6 w-6 sm:h-7 sm:w-7"
-                          />
-                        </span>
-                      ))}
-                    </div>
-                    <p className="mt-3 text-base font-black tabular-nums tracking-tight text-foreground">
-                      <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        {filledStars}
-                      </span>
-                      <span className="text-muted-foreground/80">/{maxStars}</span>{' '}
-                      <span className="text-xs font-bold text-muted-foreground">sao</span>
-                    </p>
-                  </div>
-                )}
+        {/* MEMBER: Profile summary card — đặt trên cùng, không để VinhDanh/header rỗng chiếm chỗ */}
+        {!isManagerLearningDash && user ? (
+          <section
+            className="flex flex-col gap-3 rounded-2xl border border-border/80 bg-card px-3.5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 md:px-6"
+            aria-label="Tổng quan cá nhân"
+          >
+            <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-10">
+              <EmployeeAvatar
+                name={avatarName}
+                photoUrl={resolvePublicAssetUrl(user.portraitRef || apiUser?.portraitRef)}
+                className="h-24 w-24 shrink-0 rounded-xl text-2xl ring-0 shadow-sm sm:h-28 sm:w-28 sm:text-3xl md:h-32 md:w-32"
+                showOnlineDot
+              />
+              <div className="min-w-0 space-y-0.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
+                  <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  Cá nhân
+                </span>
+                <h2 className="text-xl font-black leading-tight tracking-tight text-foreground sm:text-2xl">
+                  Tổng quan cá nhân
+                </h2>
+                <p className="text-base leading-snug text-muted-foreground sm:text-lg">
+                  Chào <span className="font-semibold text-primary">{greetingName}</span>, hãy cùng
+                  thu thập sao và leo hạng nhé.
+                </p>
               </div>
             </div>
 
-            {/* Info card */}
-            <div
-              className={cn(
-                'relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-card via-card to-primary/[0.06] p-5 shadow-[var(--shadow-game-float)] lg:col-span-3',
-                quartOut,
-                CARD_ENTRANCE_HOVER
-              )}
-            >
-              <div
-                className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-bl-[100%] bg-gradient-to-bl from-accent/10 to-transparent"
-                aria-hidden
-              />
-              <div className="relative mb-4 flex items-center justify-between gap-3">
-                <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
-                  Thông tin
-                </h2>
-                <span className="rounded-full border border-amber-500/30 bg-tier-gold-muted/80 px-2 py-0.5 text-xs font-black tabular-nums text-tier-gold shadow-sm">
-                  XP · {starPct + 24}%
+            <div className="w-full shrink-0 sm:w-auto sm:min-w-[min(100%,380px)]">
+              <p className="mb-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Cấp độ hiện tại
+              </p>
+              <div className="mb-1.5 flex items-center justify-between gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-accent px-3.5 py-1 text-sm font-bold text-accent-foreground shadow-sm">
+                    {levelLabelValue}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    Tháng {new Date().getMonth() + 1} - {new Date().getFullYear()}
+                  </span>
+                </div>
+                <span className="shrink-0 text-lg font-black text-accent sm:text-xl">
+                  XP {starPct}%
                 </span>
               </div>
-              <dl className="relative grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {[
-                  ['Họ tên', fullName],
-                  ['Ngày sinh', birthDate],
-                  ['Phòng ban', deptLine],
-                  ['Vị trí', teamPositionValue],
-                  ['Vị trí chuyên môn', jobTitleValue],
-                  ['Cấp độ', levelLabelValue],
-                ].map(([label, value], idx) => (
-                  <div
-                    key={label}
-                    className={cn(
-                      'rounded-xl border border-transparent bg-gradient-to-r from-muted/40 to-transparent px-3 py-2',
-                      idx % 2 === 0 ? 'sm:border-r sm:border-border/40 sm:pr-4' : ''
-                    )}
-                  >
-                    <dt className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      {label}
-                    </dt>
-                    <dd className="mt-0.5 break-words text-sm font-bold text-foreground">
-                      {value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </section>
-        ) : null}
-
-        {!isManagerLearningDash ? (
-          <section
-            className="rounded-2xl border border-border/80 bg-card/95 p-4 shadow-[var(--shadow-card)]"
-            aria-label="Lịch sử thăng cấp"
-          >
-            <div className="mb-2 text-xs font-bold uppercase tracking-wider text-primary">
-              Lịch sử thăng cấp
-            </div>
-            {isLoading ? (
-              <div className="space-y-1.5">
-                <Skeleton className="h-10 w-full rounded-xl" />
-                <Skeleton className="h-10 w-full rounded-xl" />
+              <div className="h-3 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-accent motion-safe:transition-[width] motion-safe:duration-500 motion-safe:ease-out"
+                  style={{ width: `${starPct}%` }}
+                  role="progressbar"
+                  aria-valuenow={starPct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label="Tiến độ XP"
+                />
               </div>
-            ) : promotionHistory.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Chưa có lịch sử.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {promotionHistory.map((p, idx) => (
-                  <li
-                    key={`${p.promotedAt}-${idx}`}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/25 px-3 py-2"
-                  >
-                    <span className="text-xs font-semibold text-foreground">
-                      {p.fromLevel ? LEVEL_LABELS[p.fromLevel] : '—'} → {LEVEL_LABELS[p.toLevel]}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDateVi(p.promotedAt)}
-                      {p.note ? ` · ${p.note}` : ''}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            </div>
           </section>
         ) : null}
 
-        {!isManagerLearningDash ? (
-          <section aria-labelledby="dash-highlight-achievements">
-            <div className="mb-3 flex items-end justify-between gap-3">
-              <h2
-                id="dash-highlight-achievements"
-                className="flex items-center gap-2 text-base font-black tracking-tight text-foreground"
-              >
-                <Medal className="h-5 w-5 text-amber-500" />
-                Thành tựu
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {highlightAchievements.length === 0 ? (
-                <div className="rounded-2xl border border-border/80 bg-card px-4 py-4 text-sm text-muted-foreground sm:col-span-2 xl:col-span-4">
-                  Chưa có thành tựu.
-                </div>
-              ) : (
-                highlightAchievements.map((achievement, idx) => {
-                  const style =
-                    achievementCardStyles[idx % achievementCardStyles.length] ??
-                    achievementCardStyles[0]!
-                  const AchievementIcon = style.icon
-                  return (
-                    <div
-                      key={achievement.id}
-                      className={cn(
-                        'group relative overflow-hidden rounded-2xl border p-4',
-                        style.panel,
-                        quartOut,
-                        'transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl motion-reduce:transition-none motion-reduce:hover:translate-y-0'
-                      )}
-                    >
-                      <div className="relative mb-2 flex items-start justify-between gap-2">
-                        <div
-                          className={cn(
-                            'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl',
-                            style.iconWrap
-                          )}
-                        >
-                          <AchievementIcon className="h-4 w-4" strokeWidth={2.5} aria-hidden />
-                        </div>
-                        <span className="rounded-full bg-background/70 px-2 py-0.5 text-xs font-black uppercase tracking-tight text-foreground shadow-sm backdrop-blur-sm">
-                          {achievement.badge?.trim() ||
-                            (achievement.score != null ? `+${achievement.score}` : 'Nổi bật')}
-                        </span>
-                      </div>
-                      <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/80">
-                        {achievement.title}
-                      </h3>
-                      <p className="mt-1 text-xs font-semibold leading-snug text-foreground">
-                        {achievement.description?.trim() || 'Đã ghi nhận một thành tựu.'}
-                      </p>
-                      <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-primary">
-                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
-                        {achievement.levelScope?.trim() || 'Cá nhân'}
-                      </div>
-                    </div>
-                  )
-                })
-              )}
-            </div>
-          </section>
-        ) : null}
+        {!isManagerLearningDash ? <VinhDanhSlide /> : null}
 
         {showKpiZone ? (
           <div className="space-y-5">
@@ -660,6 +440,110 @@ export function EmployeeLearningDashboard() {
             />
           </section>
         )}
+
+        {!isManagerLearningDash ? (
+          <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+            <section
+              className="flex h-full flex-col rounded-2xl border border-border/80 bg-card/95 p-4 shadow-[var(--shadow-card)]"
+              aria-label="Lịch sử thăng cấp"
+            >
+              <div className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-primary">
+                <Trophy className="h-4 w-4 text-amber-500" aria-hidden />
+                Lịch sử thăng cấp
+              </div>
+              {isLoading ? (
+                <div className="space-y-1.5">
+                  <Skeleton className="h-10 w-full rounded-xl" />
+                  <Skeleton className="h-10 w-full rounded-xl" />
+                </div>
+              ) : promotionHistory.length === 0 ? (
+                <div className="rounded-xl border border-border/80 bg-muted/20 px-4 py-4 text-sm text-muted-foreground sm:col-span-2">
+                  Chưa có lịch sử.
+                </div>
+              ) : (
+                <ul className="space-y-1.5">
+                  {promotionHistory.map((p, idx) => (
+                    <li
+                      key={`${p.promotedAt}-${idx}`}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/25 px-3 py-2"
+                    >
+                      <span className="text-xs font-semibold text-foreground">
+                        {p.fromLevel ? LEVEL_LABELS[p.fromLevel] : '—'} → {LEVEL_LABELS[p.toLevel]}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDateVi(p.promotedAt)}
+                        {p.note ? ` · ${p.note}` : ''}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section
+              className="flex h-full flex-col rounded-2xl border border-border/80 bg-card/95 p-4 shadow-[var(--shadow-card)]"
+              aria-labelledby="dash-highlight-achievements"
+            >
+              <h2
+                id="dash-highlight-achievements"
+                className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-primary"
+              >
+                <Medal className="h-4 w-4 text-amber-500" aria-hidden />
+                Thành tựu
+              </h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {highlightAchievements.length === 0 ? (
+                  <div className="rounded-xl border border-border/80 bg-muted/20 px-4 py-4 text-sm text-muted-foreground sm:col-span-2">
+                    Chưa có thành tựu.
+                  </div>
+                ) : (
+                  highlightAchievements.map((achievement, idx) => {
+                    const style =
+                      achievementCardStyles[idx % achievementCardStyles.length] ??
+                      achievementCardStyles[0]!
+                    const AchievementIcon = style.icon
+                    return (
+                      <div
+                        key={achievement.id}
+                        className={cn(
+                          'group relative overflow-hidden rounded-2xl border p-4',
+                          style.panel,
+                          quartOut,
+                          'transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl motion-reduce:transition-none motion-reduce:hover:translate-y-0'
+                        )}
+                      >
+                        <div className="relative mb-2 flex items-start justify-between gap-2">
+                          <div
+                            className={cn(
+                              'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl',
+                              style.iconWrap
+                            )}
+                          >
+                            <AchievementIcon className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+                          </div>
+                          <span className="rounded-full bg-background/70 px-2 py-0.5 text-xs font-black uppercase tracking-tight text-foreground shadow-sm backdrop-blur-sm">
+                            {achievement.badge?.trim() ||
+                              (achievement.score != null ? `+${achievement.score}` : 'Nổi bật')}
+                          </span>
+                        </div>
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/80">
+                          {achievement.title}
+                        </h3>
+                        <p className="mt-1 text-xs font-semibold leading-snug text-foreground">
+                          {achievement.description?.trim() || 'Đã ghi nhận một thành tựu.'}
+                        </p>
+                        <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-primary">
+                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+                          {achievement.levelScope?.trim() || 'Cá nhân'}
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </section>
+          </div>
+        ) : null}
       </div>
     </div>
   )
