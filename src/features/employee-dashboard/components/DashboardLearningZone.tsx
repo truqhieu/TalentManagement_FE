@@ -179,34 +179,20 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
       <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3">
         <section
           className={cn(
-            'relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.14] via-game-soft/50 to-accent/[0.1] p-6 shadow-[var(--shadow-game-float)] md:p-8',
-            CARD_ENTRANCE_HOVER,
-            'motion-safe:transition-shadow motion-safe:duration-300 hover:shadow-[0_24px_48px_-20px_hsl(var(--primary)/0.35)] motion-reduce:transition-none'
+            'relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/20 p-6 md:p-8'
           )}
           style={staggerStyle(0, 55)}
           aria-labelledby="dash-learning-path-title"
         >
-          <div
-            className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary/25 blur-2xl motion-safe:animate-[dash-glow-orb_7s_ease-in-out_infinite] motion-reduce:animate-none"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -bottom-6 left-2 h-28 w-28 rounded-full bg-accent/20 blur-2xl motion-safe:animate-[dash-glow-orb_8s_ease-in-out_infinite_1s] motion-reduce:animate-none"
-            aria-hidden
-          />
-
           <h3
             id="dash-learning-path-title"
             className="relative mb-8 flex items-center gap-2 text-xl font-black tracking-tight text-foreground"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-600 text-primary-foreground shadow-lg shadow-primary/30">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl text-[#006C49]">
               <Route className="h-5 w-5 shrink-0" strokeWidth={2} aria-hidden />
             </span>
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Lộ trình 5 cấp độ
-            </span>
+            <span>Lộ trình 5 cấp độ</span>
           </h3>
-
           {isLoading ? (
             <div className="flex-1">
               <RoadmapSkeleton />
@@ -231,14 +217,14 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
                       className="relative pb-10 pl-12 motion-safe:animate-[dash-fade-up_0.5s_ease-out_both] motion-reduce:animate-none"
                       style={{ animationDelay: `${baseDelay}ms` }}
                     >
-                      <div className="absolute left-0 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-600 text-primary-foreground shadow-lg shadow-primary/40 ring-2 ring-primary/30 motion-safe:transition-transform motion-safe:duration-300 hover:scale-110">
+                      <div className="absolute left-0 z-10 flex h-10 w-10 items-center justify-center rounded-full shadow-lg shadow-primary/40 ring-2 ring-primary/30 motion-safe:transition-transform motion-safe:duration-300 hover:scale-110">
                         <Check className="h-5 w-5" strokeWidth={2.5} aria-hidden />
                       </div>
-                      <p className="mb-1 text-xs font-bold uppercase tracking-widest text-primary">
+                      <p className="mb-1 text-xs font-bold uppercase tracking-widest text-[#006C49]">
                         Cấp độ {displayNum}
                       </p>
                       <h4 className="text-lg font-bold leading-tight text-foreground">{title}</h4>
-                      <span className="mt-1 inline-block rounded-md border border-primary/20 bg-primary/12 px-2 py-0.5 text-sm font-semibold text-primary">
+                      <span className="mt-1 inline-block rounded-md border border-primary/20 bg-[#006C49] px-2 py-0.5 text-sm font-semibold text-primary">
                         Hoàn thành
                       </span>
                     </div>
@@ -255,22 +241,18 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
                       )}
                       style={{ animationDelay: `${baseDelay}ms` }}
                     >
-                      <span
-                        className="absolute left-2 top-3 z-0 h-10 w-10 -translate-x-1/2 rounded-full bg-primary/35 motion-safe:animate-ping motion-reduce:hidden"
-                        aria-hidden
-                      />
-                      <div className="absolute -left-1 z-10 flex h-12 w-12 items-center justify-center rounded-full border-4 border-card bg-gradient-to-br from-primary via-primary-600 to-accent text-primary-foreground shadow-xl shadow-primary/40 motion-safe:animate-[dash-float-slow_4s_ease-in-out_infinite] motion-reduce:animate-none">
+                      <div className="absolute -left-1 z-10 flex h-12 w-12 items-center justify-center rounded-full border-4 border-card bg-[#006C49] text-primary-foreground shadow-xl shadow-primary/40 motion-safe:animate-[dash-float-slow_4s_ease-in-out_infinite] motion-reduce:animate-none">
                         <Hourglass
                           className="h-6 w-6 motion-safe:animate-pulse motion-reduce:animate-none"
                           aria-hidden
                         />
                       </div>
-                      <p className="mb-1 text-xs font-bold uppercase tracking-widest text-primary">
+                      <p className="mb-1 text-xs font-bold uppercase tracking-widest text-[#006C49]">
                         Cấp độ {displayNum}
                       </p>
                       <h4 className="text-xl font-black leading-tight text-foreground">{title}</h4>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-gradient-to-r from-primary to-primary-600 px-3 py-1 text-xs font-bold text-primary-foreground shadow-md shadow-primary/25">
+                        <span className="rounded-full bg-[#006C49] px-3 py-1 text-xs font-bold text-primary-foreground shadow-md shadow-primary/25">
                           Đang học
                         </span>
                         {progressPct !== null ? (
@@ -339,20 +321,16 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
 
         <div
           className={cn(
-            'group relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-b from-muted/70 via-card to-primary/[0.05] p-6 shadow-md',
+            'group relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/15  p-6',
             CARD_ENTRANCE_HOVER,
-            'motion-safe:transition-all motion-safe:duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-[var(--shadow-game-float)] motion-reduce:transition-none motion-reduce:hover:translate-y-0'
+            'motion-safe:transition-all motion-safe:duration-300 hover:-translate-y-1 hover:border-primary/25 motion-reduce:transition-none motion-reduce:hover:translate-y-0'
           )}
           style={staggerStyle(1, 55)}
           aria-busy={blockLoading}
         >
-          <div
-            className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/10 blur-2xl transition-opacity group-hover:opacity-100"
-            aria-hidden
-          />
           <h4 className="relative mb-4 flex items-center gap-2 text-lg font-black text-foreground">
             <CalendarDays
-              className="h-5 w-5 text-primary motion-safe:transition-transform group-hover:rotate-12"
+              className="h-5 w-5 text-[#006C49] motion-safe:transition-transform group-hover:rotate-12"
               strokeWidth={2}
               aria-hidden
             />
@@ -422,13 +400,9 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
 
             <Button
               asChild
-              className={cn(
-                'relative mt-auto h-auto w-full overflow-hidden rounded-xl bg-[#006C49] to-accent py-3.5 text-sm font-black text-primary-foreground shadow-lg shadow-primary/30',
-                quartOut,
-                'transition-all hover:brightness-110 hover:shadow-xl active:scale-[0.98] motion-reduce:active:scale-100'
-              )}
+              className="relative mt-auto h-auto w-full rounded-xl py-3.5 text-sm font-black"
             >
-              <Link to="/exam" className="relative z-10 flex w-full items-center justify-center ">
+              <Link to="/exam" className="relative z-10 flex w-full items-center justify-center">
                 {nextExam && nextExam.status === 'IN_PROGRESS'
                   ? 'Vào mục thi và lịch'
                   : 'Đăng ký tham gia ngay'}
@@ -439,19 +413,11 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
 
         <div
           className={cn(
-            'relative flex h-full flex-col overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-muted via-card to-accent/[0.08] p-6 shadow-md',
-            CARD_ENTRANCE_HOVER,
-            'motion-safe:transition-all motion-safe:duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-18px_hsl(var(--accent)/0.35)] motion-reduce:transition-none'
+            'relative flex h-full flex-col overflow-hidden rounded-3xl border border-accent/20 p-6'
           )}
           style={staggerStyle(2, 55)}
           aria-busy={blockLoading}
         >
-          <div
-            className="pointer-events-none absolute -bottom-8 -right-8 opacity-[0.12] motion-safe:animate-[dash-float-slow_6s_ease-in-out_infinite] motion-reduce:animate-none"
-            aria-hidden
-          >
-            <BookOpen className="h-36 w-36 text-accent" strokeWidth={1} />
-          </div>
           <h4 className="relative mb-4 flex items-center gap-2 text-lg font-black text-foreground">
             <ListChecks
               className="h-5 w-5 text-accent motion-safe:animate-pulse motion-reduce:animate-none"
@@ -522,14 +488,9 @@ export const DashboardLearningZone = memo(function DashboardLearningZone({
                 </ul>
               </>
             )}
-            <div className="relative mt-auto flex flex-col gap-2 rounded-xl border border-accent/25 bg-gradient-to-r from-card/95 to-accent/5 p-3 text-xs font-semibold leading-snug text-muted-foreground shadow-sm backdrop-blur-sm">
+            <div className="relative mt-auto flex flex-col gap-2 rounded-xl border border-accent/25  p-3 text-xs font-semibold leading-snug text-muted-foreground">
               <p>Cập nhật minh chứng, checklist sao theo từng cấp — toàn bộ nằm ở lộ trình học.</p>
-              <Button
-                asChild
-                variant="secondary"
-                size="sm"
-                className="h-auto w-full rounded-lg border border-primary/20 py-2 text-sm font-bold text-white bg-[#006C49]"
-              >
+              <Button asChild size="sm" className="h-auto w-full rounded-lg py-2 text-sm font-bold">
                 <Link
                   to="/learning-path"
                   search={{

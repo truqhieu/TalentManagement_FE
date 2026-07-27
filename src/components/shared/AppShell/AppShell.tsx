@@ -150,7 +150,7 @@ export function AppShell({ children, title }: AppShellProps) {
         </div>
       ) : null}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="sticky top-0 z-30 shrink-0 border-b border-primary-300/40 bg-[#005236] to-accent shadow-[0_8px_24px_-14px_rgba(79,70,229,0.45)] backdrop-blur-sm dark:border-primary/30 dark:from-primary/60 dark:via-primary/45 dark:to-primary/60">
+        <header className="sticky top-0 z-30 shrink-0 border-b border-primary-300/40 bg-[#005236] backdrop-blur-sm dark:border-primary/30 dark:from-primary/60 dark:via-primary/45 dark:to-primary/60">
           <div className="flex min-h-12 items-center justify-between gap-2 px-3 py-1.5 md:hidden">
             <div className="flex items-center gap-1.5">
               <MobileHeaderNav />

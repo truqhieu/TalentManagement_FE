@@ -274,10 +274,6 @@ export function EmployeeLearningDashboard() {
                 showOnlineDot
               />
               <div className="min-w-0 space-y-0.5">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
-                  <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  Cá nhân
-                </span>
                 <h2 className="text-xl font-black leading-tight tracking-tight text-foreground sm:text-2xl">
                   Tổng quan cá nhân
                 </h2>
@@ -293,15 +289,15 @@ export function EmployeeLearningDashboard() {
                 Cấp độ hiện tại
               </p>
               <div className="mb-1.5 flex items-center justify-between gap-2">
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-accent px-3.5 py-1 text-sm font-bold text-accent-foreground shadow-sm">
+                <div className="flex min-w-0 flex-wrap items-center gap-2 ">
+                  <span className="rounded-full px-3.5 py-1 text-sm font-bold text-accent-foreground shadow-sm bg-[#006C49]">
                     {levelLabelValue}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     Tháng {new Date().getMonth() + 1} - {new Date().getFullYear()}
                   </span>
                 </div>
-                <span className="shrink-0 text-lg font-black text-accent sm:text-xl">
+                <span className="shrink-0 text-lg font-black text-[#006C49] sm:text-xl">
                   XP {starPct}%
                 </span>
               </div>
@@ -447,7 +443,7 @@ export function EmployeeLearningDashboard() {
               className="flex h-full flex-col rounded-2xl border border-border/80 bg-card/95 p-4 shadow-[var(--shadow-card)]"
               aria-label="Lịch sử thăng cấp"
             >
-              <div className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-primary">
+              <div className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
                 <Trophy className="h-4 w-4 text-amber-500" aria-hidden />
                 Lịch sử thăng cấp
               </div>
@@ -486,7 +482,7 @@ export function EmployeeLearningDashboard() {
             >
               <h2
                 id="dash-highlight-achievements"
-                className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-primary"
+                className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider"
               >
                 <Medal className="h-4 w-4 text-amber-500" aria-hidden />
                 Thành tựu

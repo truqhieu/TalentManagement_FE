@@ -146,10 +146,10 @@ body {
   --muted-foreground: 215 14% 50%;
   --border: 214 32% 91%;
   --ring: 239 84% 59%;
-  --button: 239 84% 59%;
+  --button: 162 100% 21%;
   --button-foreground: 0 0% 100%;
-  --button-hover: 243 75% 52%;
-  --button-active: 243 55% 42%;
+  --button-hover: 162 100% 21%;
+  --button-active: 162 90% 18%;
   --shadow-card: 0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
   --shadow-card-hover: 0 4px 12px rgb(0 0 0 / 0.08);
   --game-accent: 239 84% 59%;
@@ -185,10 +185,10 @@ body {
   --muted-foreground: 215 12% 58%;
   --border: 222 22% 18%;
   --ring: 210 90% 52%;
-  --button: 248 72% 62%;
+  --button: 162 100% 24%;
   --button-foreground: 0 0% 100%;
-  --button-hover: 248 74% 56%;
-  --button-active: 248 76% 48%;
+  --button-hover: 162 100% 24%;
+  --button-active: 162 90% 20%;
   --shadow-card: 0 2px 12px rgb(0 0 0 / 0.45), 0 0 0 1px rgb(255 255 255 / 0.06);
 }
 
