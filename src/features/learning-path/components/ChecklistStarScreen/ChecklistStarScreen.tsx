@@ -1,37 +1,5 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { Link, useNavigate } from '@tanstack/react-router'
-import {
-  ChevronDown,
-  ChevronRight,
-  Clock,
-  CloudUpload,
-  ListChecks,
-  Lock,
-  Paperclip,
-  Loader2,
-  Eye,
-  Info,
-  ExternalLink,
-  CheckCircle2,
-  UserCheck,
-  MessageSquareQuote,
-  AlertCircle,
-  Trophy,
-  XCircle,
-} from 'lucide-react'
-import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
 import { StarEmblem } from '@/components/icons/StarEmblem'
-import {
-  useLearningChecklist,
-  useMyLearningPath,
-  useStarSubmissions,
-  useSubmitEvidence,
-} from '@/features/learning-path/hooks'
-import { useChecklistItem } from '@/features/learning-path/components/ChecklistItem/useChecklistItem'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
@@ -39,11 +7,43 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Skeleton, SkeletonApprovalCardRow } from '@/components/ui/skeleton'
-import { CARD_ENTRANCE, CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
-import { cn } from '@/lib/utils'
 import { Form } from '@/components/ui/form'
 import { InputController, TextareaController } from '@/components/ui/form-controllers'
+import { Input } from '@/components/ui/input'
+import { Skeleton, SkeletonApprovalCardRow } from '@/components/ui/skeleton'
+import { useChecklistItem } from '@/features/learning-path/components/ChecklistItem/useChecklistItem'
+import {
+  useLearningChecklist,
+  useMyLearningPath,
+  useStarSubmissions,
+  useSubmitEvidence,
+} from '@/features/learning-path/hooks'
+import { CARD_ENTRANCE, CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
+import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
+import { cn } from '@/lib/utils'
+import { Link, useNavigate } from '@tanstack/react-router'
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  CloudUpload,
+  ExternalLink,
+  Eye,
+  Info,
+  ListChecks,
+  Loader2,
+  Lock,
+  MessageSquareQuote,
+  Paperclip,
+  Trophy,
+  UserCheck,
+  XCircle,
+} from 'lucide-react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 const LEVEL_VI: Record<string, string> = {
   tap_su: 'Tập sự',

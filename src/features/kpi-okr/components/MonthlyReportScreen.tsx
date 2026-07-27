@@ -1,33 +1,21 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { toast } from 'sonner'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useKpiOkrStream } from '@/features/kpi-okr/useKpiOkrStream'
-import {
-  Calendar,
-  ChevronDown,
-  Download,
-  RefreshCw,
-  Search,
-  TrendingUp,
-  Users,
-  UserRound,
-  Target,
-  Pencil,
-  Eye,
-  Lock,
-  CheckCircle2,
-  XCircle,
-} from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { CustomSelect } from '@/components/shared/CustomSelect'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -37,54 +25,66 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
-import { getApiErrorMessage } from '@/lib/axios'
+import { Textarea } from '@/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ORG_TREE_KEY, useHrOrgTree } from '@/features/hr-admin/useHrOrgTree'
 import { performanceApi, type PerformanceAssignment } from '@/features/kpi-okr/api'
+import {
+  isCatalogEnabledDepartment,
+  isTrafficTeam,
+  kpiEligibleUserIdSet,
+  requiresKpiApproval,
+  shouldShowAssignmentForMember,
+} from '@/features/kpi-okr/catalogHelpers'
+import { useMonthlyReportSelfEdit } from '@/features/kpi-okr/components/hooks/useMonthlyReportSelfEdit'
 import {
   GoalReviewStatusBadge,
   GoalReviewSummary,
 } from '@/features/kpi-okr/components/kpiAssignmentTableShared'
 import {
-  clampKpiPeriod,
-  getMaxViewableYm,
-  isKpiPeriodSelectable,
-} from '@/features/kpi-okr/kpiPeriodLimits'
+  EvidenceImagePreviews,
+  KpiEvidenceInput,
+} from '@/features/kpi-okr/components/KpiEvidenceInput'
 import { FormPanel } from '@/features/kpi-okr/components/KpiOkrWorkspace'
-import { useMonthlyReportSelfEdit } from '@/features/kpi-okr/components/hooks/useMonthlyReportSelfEdit'
 import {
   SubItemsReadOnlyList,
   SubItemsSelfEditPanel,
   useSubItemsSelfEdit,
   validateSubItemsSelfDrafts,
 } from '@/features/kpi-okr/components/SubItemsSelfEdit'
-import { useHrOrgTree, ORG_TREE_KEY } from '@/features/hr-admin/useHrOrgTree'
+import {
+  clampKpiPeriod,
+  getMaxViewableYm,
+  isKpiPeriodSelectable,
+} from '@/features/kpi-okr/kpiPeriodLimits'
+import { useKpiOkrStream } from '@/features/kpi-okr/useKpiOkrStream'
 import { organizationApi } from '@/features/organization/api'
-import { isMockApiEnabled } from '@/lib/mockEnv'
-import { useAuthStore } from '@/stores/auth.store'
-import { isManagerLikeRole } from '@/lib/managerLikeRole'
 import { resolveEffectivePermissionSet } from '@/features/permissions/resolveEffective'
-import { Textarea } from '@/components/ui/textarea'
+import { getApiErrorMessage } from '@/lib/axios'
+import { isManagerLikeRole } from '@/lib/managerLikeRole'
+import { isMockApiEnabled } from '@/lib/mockEnv'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth.store'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  EvidenceImagePreviews,
-  KpiEvidenceInput,
-} from '@/features/kpi-okr/components/KpiEvidenceInput'
-import { CustomSelect } from '@/components/shared/CustomSelect'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+  Calendar,
+  CheckCircle2,
+  ChevronDown,
+  Download,
+  Eye,
+  Lock,
+  Pencil,
+  RefreshCw,
+  Search,
+  Target,
+  TrendingUp,
+  UserRound,
+  Users,
+  XCircle,
+} from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { toast } from 'sonner'
 import { WorkReportTab } from './WorkReportTab'
-import {
-  isCatalogEnabledDepartment,
-  requiresKpiApproval,
-  shouldShowAssignmentForMember,
-  isTrafficTeam,
-  kpiEligibleUserIdSet,
-} from '@/features/kpi-okr/catalogHelpers'
 
 function nowYm() {
   const d = new Date()

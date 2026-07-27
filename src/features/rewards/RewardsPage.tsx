@@ -7,12 +7,7 @@ import {
   Calendar,
   Check,
   ChevronDown,
-  ChevronRight,
-  Filter,
-  MoreVertical,
-  Plus,
   Search,
-  Settings2,
   Trash2,
   Users,
   Edit,
@@ -25,7 +20,7 @@ import {
   X,
 } from 'lucide-react'
 import { CustomSelect } from '@/components/shared/CustomSelect'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog/ConfirmDialog'
 import { Button } from '@/components/ui/button'
 
@@ -326,9 +321,6 @@ export default function RewardsPage() {
     setRecordMonth(month)
     setHistoryPage(1)
   }
-
-  // Member search
-  const [memberRuleSearch, setMemberRuleSearch] = useState('')
 
   // Rule CRUD Modal
   const [showRuleModal, setShowRuleModal] = useState(false)
@@ -761,12 +753,11 @@ export default function RewardsPage() {
 
   return (
     <>
-      <div className="p-6 max-w-7xl mx-auto space-y-8 animate-fade-in">
+      <div className="mx-auto animate-fade-in">
         {/* Header Area */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-5">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-              <Award className="h-7 w-7 text-indigo-600" />
               Quản lý Khen thưởng/Phạt
             </h1>
             <p className="text-slate-500 text-sm mt-1 font-medium">
@@ -802,7 +793,7 @@ export default function RewardsPage() {
                   )}
                   <button
                     onClick={() => setAdminSubTab('history')}
-                    className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${adminSubTab === 'history' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                    className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${adminSubTab === 'history' ? 'border-[#006C49] text-[#006C49]' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
                   >
                     <History className="h-4 w-4" />{' '}
                     {isPrivileged ? 'Lịch sử hệ thống' : 'Lịch sử Team'}
@@ -812,13 +803,13 @@ export default function RewardsPage() {
                 <>
                   <button
                     onClick={() => setMySubTab('history')}
-                    className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${mySubTab === 'history' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                    className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${mySubTab === 'history' ? 'border-[#006C49] text-[#006C49]' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
                   >
                     <User className="h-4 w-4" /> Thưởng / Lỗi cá nhân
                   </button>
                   <button
                     onClick={() => setMySubTab('catalog')}
-                    className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${mySubTab === 'catalog' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                    className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${mySubTab === 'catalog' ? 'border-[#006C49] text-[#006C49]' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
                   >
                     <Award className="h-4 w-4" /> Danh mục Khen thưởng / Phạt
                   </button>
@@ -842,7 +833,7 @@ export default function RewardsPage() {
                             Khen thưởng
                           </p>
                           <h3 className="text-xl font-black text-emerald-900">
-                            +{myTotalRewards.toLocaleString()}đ
+                            + {myTotalRewards.toLocaleString()}đ
                           </h3>
                         </div>
                       </div>
@@ -855,7 +846,7 @@ export default function RewardsPage() {
                             Vi phạm/Phạt
                           </p>
                           <h3 className="text-xl font-black text-rose-900">
-                            -{myTotalPenalties.toLocaleString()}đ
+                            - {myTotalPenalties.toLocaleString()}đ
                           </h3>
                         </div>
                       </div>
@@ -876,8 +867,7 @@ export default function RewardsPage() {
                           <h3
                             className={`text-xl font-black ${myNetBalance >= 0 ? 'text-indigo-900' : 'text-amber-900'}`}
                           >
-                            {myNetBalance >= 0 ? '+' : ''}
-                            {myNetBalance.toLocaleString()}đ
+                            {myNetBalance >= 0 ? '+' : ''} {myNetBalance.toLocaleString()}đ
                           </h3>
                         </div>
                       </div>
@@ -886,12 +876,12 @@ export default function RewardsPage() {
                     {/* Member History Table */}
                     <div className="bg-white border rounded-3xl shadow-xl overflow-hidden">
                       <div className="px-8 py-5 border-b bg-slate-50 flex items-center justify-between">
-                        <h3 className="font-black text-slate-800 uppercase text-xs tracking-widest">
+                        <h3 className="font-black text-slate-800 uppercase text-sm tracking-widest">
                           Lịch sử cá nhân
                         </h3>
                       </div>
                       <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-900 text-white text-xs font-black uppercase">
+                        <thead className="bg-[#006C49] text-white text-xs font-black uppercase">
                           <tr>
                             <th className="py-5 px-8">Nội dung</th>
                             <th className="py-5 px-6">Số tiền</th>
@@ -938,29 +928,13 @@ export default function RewardsPage() {
                   </div>
                 ) : (
                   /* Member Team Rules Catalog */
-                  <div className="space-y-6">
-                    <div className="bg-white p-5 rounded-3xl border shadow-xl flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-                          <LayoutGrid className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="font-black text-slate-800 uppercase text-xs tracking-widest">
-                            Quy chuẩn nội bộ Team
-                          </h3>
-                          <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">
-                            Khung quy định thưởng phạt áp dụng
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+                  <div className="space-y-4">
+                    <div className="flex gap-2 overflow-x-auto">
                       {memberTabs.map((tab) => (
                         <button
                           key={tab}
                           onClick={() => setSelectedRuleCategory(tab)}
-                          className={`px-6 py-3 rounded-2xl text-xs font-black uppercase transition-all whitespace-nowrap border-2 ${selectedRuleCategory === tab ? 'bg-indigo-600 text-white border-indigo-600 shadow-xl' : 'bg-white text-slate-400 border-slate-50 hover:border-indigo-100 shadow-sm'}`}
+                          className={`px-6 py-3 rounded-2xl text-xs font-black uppercase transition-all whitespace-nowrap border border-slate-400 ${selectedRuleCategory === tab ? 'bg-[#006C49] text-white border-[#006C49] shadow-xl' : 'bg-white text-slate-400 border-slate-50 hover:border-[#006C49] shadow-sm'}`}
                         >
                           {tab}
                         </button>
@@ -1015,7 +989,9 @@ export default function RewardsPage() {
                                   <thead>
                                     <tr className="bg-slate-50 text-xs font-black text-slate-400 uppercase border-b">
                                       <th className="py-4 px-8">Quy chuẩn</th>
-                                      <th className="py-4 px-6 text-right">Định mức</th>
+                                      <th className="py-4 px-6 text-right whitespace-nowrap">
+                                        Định mức
+                                      </th>
                                     </tr>
                                   </thead>
                                   <tbody className="divide-y divide-slate-50">

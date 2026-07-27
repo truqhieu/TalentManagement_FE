@@ -1,6 +1,145 @@
-import { useCallback, useEffect, useMemo, useRef, useState, Fragment } from 'react'
+import { CustomSelect } from '@/components/shared/CustomSelect'
+import { OrgUserAvatar } from '@/components/shared/EmployeeAvatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import {
+  InputController,
+  SelectController,
+  TextareaController,
+} from '@/components/ui/form-controllers'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ORG_TREE_KEY, useHrOrgTree } from '@/features/hr-admin/useHrOrgTree'
+import {
+  performanceApi,
+  type ApprovalRequest,
+  type PerformanceAssignment,
+  type PerformanceQuestionnaire,
+  type PerformanceSummaryRow,
+} from '@/features/kpi-okr/api'
+import {
+  catalogSeedEnabledForTeam,
+  filterKpiEligibleMembers,
+  isCatalogEnabledDepartment,
+  isCatalogSeedExcludedTeam,
+  isMandatoryMetric,
+  isTrafficTeam,
+  kpiEligibleUserIdSet,
+  memberRequiresKpiOkr,
+  requiresKpiApproval,
+  resolveTemplateCodeForTeam,
+  shouldShowAssignmentForMember,
+} from '@/features/kpi-okr/catalogHelpers'
+import { useKpiOkrAutoSeed } from '@/features/kpi-okr/components/hooks/useKpiOkrAutoSeed'
+import {
+  ASSIGN_TABLE_HEAD,
+  AssignmentEpic4ReadCells,
+  AssignmentEpic4ReadStack,
+  CELL_EVIDENCE,
+  CELL_NUMERIC,
+  CELL_SELF_EVAL,
+  CELL_UNIT,
+  ContentCell,
+  EVAL_LEADER_CELL,
+  EVAL_MANAGER_CELL,
+  EvalStatusBadge,
+  GoalReviewStatusBadge,
+  GoalReviewSummary,
+  KindBadge,
+  PLANNING_ASSIGN_TABLE_HEAD,
+  PriorityBadge,
+  TABLE_INLINE_SELECT_TRIGGER,
+  XL_BORDER,
+  XL_TH,
+  formatKpiSetAt,
+  formatViNumber,
+  periodLabel,
+  resolveParentKpiDisplay,
+  resultsColumnHeadClass,
+  resultsTableMinWidthClass,
+  xlTd,
+} from '@/features/kpi-okr/components/kpiAssignmentTableShared'
+import { KpiEvidenceInput } from '@/features/kpi-okr/components/KpiEvidenceInput'
+import { KpiProgressBar } from '@/features/kpi-okr/components/KpiProgressBar'
+import {
+  AssignmentSubItemsInline,
+  SubItemsEditSection,
+  SubItemsEditorPanel,
+  mapSubItemsToPayload,
+  subItemsFromAssignment,
+} from '@/features/kpi-okr/components/kpiSubItemsShared'
+import {
+  SubItemsSelfEditInline,
+  isSubItemResultComplete,
+} from '@/features/kpi-okr/components/SubItemsSelfEdit'
+import {
+  parseKpiOkrImportFile,
+  type ImportAssignmentItem,
+} from '@/features/kpi-okr/kpiOkrSheetImport'
+import {
+  clampKpiPeriod,
+  formatKinhDoanhResultsCloseRange,
+  getAssignmentWindowPhase,
+  getKinhDoanhResultsCloseWindowPhase,
+  getMaxViewableYm,
+  isAnswerWindowOpen,
+  isAssignmentWindowOpen,
+  isKinhDoanhResultsCloseWindowOpen,
+  isKpiPeriodSelectable,
+  resolveAssignmentWindowForTeam,
+  resolveKinhDoanhResultsCloseWindowForTeam,
+} from '@/features/kpi-okr/kpiPeriodLimits'
+import { parseQuestionnaireImportFile } from '@/features/kpi-okr/questionnaireGridImport'
+import { useKpiOkrStream } from '@/features/kpi-okr/useKpiOkrStream'
+import type { SubItemDraft } from '@/features/kpi-okr/utils/kpiProgressUtils'
+import {
+  organizationApi,
+  type OrgTreeDepartment,
+  type TeamMemberRow,
+} from '@/features/organization/api'
+import { resolveEffectivePermissionSet } from '@/features/permissions/resolveEffective'
+import { getApiErrorMessage } from '@/lib/axios'
+import { CARD_ENTRANCE } from '@/lib/cardMotion'
+import { isManagerLikeRole } from '@/lib/managerLikeRole'
+import { isMockApiEnabled } from '@/lib/mockEnv'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth.store'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useForm, useFieldArray, useWatch, Controller } from 'react-hook-form'
 import {
   AlertTriangle,
   AlignLeft,
@@ -20,150 +159,9 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import { CustomSelect } from '@/components/shared/CustomSelect'
-import { cn } from '@/lib/utils'
-import { getApiErrorMessage } from '@/lib/axios'
-import { CARD_ENTRANCE } from '@/lib/cardMotion'
-import { useAuthStore } from '@/stores/auth.store'
-import { isManagerLikeRole } from '@/lib/managerLikeRole'
-import { resolveEffectivePermissionSet } from '@/features/permissions/resolveEffective'
-import { useHrOrgTree, ORG_TREE_KEY } from '@/features/hr-admin/useHrOrgTree'
-import { useKpiOkrAutoSeed } from '@/features/kpi-okr/components/hooks/useKpiOkrAutoSeed'
-import { useKpiOkrStream } from '@/features/kpi-okr/useKpiOkrStream'
-import {
-  performanceApi,
-  type ApprovalRequest,
-  type PerformanceAssignment,
-  type PerformanceQuestionnaire,
-  type PerformanceSummaryRow,
-} from '@/features/kpi-okr/api'
-import {
-  clampKpiPeriod,
-  getMaxViewableYm,
-  isKpiPeriodSelectable,
-  isAssignmentWindowOpen,
-  getAssignmentWindowPhase,
-  resolveAssignmentWindowForTeam,
-  resolveKinhDoanhResultsCloseWindowForTeam,
-  getKinhDoanhResultsCloseWindowPhase,
-  isKinhDoanhResultsCloseWindowOpen,
-  formatKinhDoanhResultsCloseRange,
-  isAnswerWindowOpen,
-} from '@/features/kpi-okr/kpiPeriodLimits'
-import { KpiEvidenceInput } from '@/features/kpi-okr/components/KpiEvidenceInput'
-import {
-  ASSIGN_TABLE_HEAD,
-  AssignmentEpic4ReadCells,
-  AssignmentEpic4ReadStack,
-  ContentCell,
-  CELL_EVIDENCE,
-  CELL_NUMERIC,
-  CELL_SELF_EVAL,
-  CELL_UNIT,
-  EVAL_LEADER_CELL,
-  EVAL_MANAGER_CELL,
-  EvalStatusBadge,
-  GoalReviewStatusBadge,
-  GoalReviewSummary,
-  KindBadge,
-  PLANNING_ASSIGN_TABLE_HEAD,
-  PriorityBadge,
-  resultsColumnHeadClass,
-  resultsTableMinWidthClass,
-  TABLE_INLINE_SELECT_TRIGGER,
-  XL_TH,
-  XL_BORDER,
-  formatKpiSetAt,
-  formatViNumber,
-  periodLabel,
-  resolveParentKpiDisplay,
-  xlTd,
-} from '@/features/kpi-okr/components/kpiAssignmentTableShared'
-import { KpiProgressBar } from '@/features/kpi-okr/components/KpiProgressBar'
-import {
-  AssignmentSubItemsInline,
-  SubItemsEditSection,
-  SubItemsEditorPanel,
-  mapSubItemsToPayload,
-  subItemsFromAssignment,
-} from '@/features/kpi-okr/components/kpiSubItemsShared'
-import {
-  SubItemsSelfEditInline,
-  isSubItemResultComplete,
-} from '@/features/kpi-okr/components/SubItemsSelfEdit'
-import type { SubItemDraft } from '@/features/kpi-okr/utils/kpiProgressUtils'
-import { emptySubItemLine } from '@/features/kpi-okr/utils/kpiProgressUtils'
-import {
-  catalogSeedEnabledForTeam,
-  isCatalogEnabledDepartment,
-  shouldShowAssignmentForMember,
-  isMandatoryMetric,
-  isTrafficTeam,
-  requiresKpiApproval,
-  resolveTemplateCodeForTeam,
-  filterKpiEligibleMembers,
-  kpiEligibleUserIdSet,
-  memberRequiresKpiOkr,
-  isCatalogSeedExcludedTeam,
-} from '@/features/kpi-okr/catalogHelpers'
-import {
-  parseKpiOkrImportFile,
-  type ImportAssignmentItem,
-} from '@/features/kpi-okr/kpiOkrSheetImport'
-import { parseQuestionnaireImportFile } from '@/features/kpi-okr/questionnaireGridImport'
-import { OrgUserAvatar } from '@/components/shared/EmployeeAvatar'
-import {
-  organizationApi,
-  type OrgTreeDepartment,
-  type TeamMemberRow,
-} from '@/features/organization/api'
-import { isMockApiEnabled } from '@/lib/mockEnv'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  InputController,
-  SelectController,
-  TextareaController,
-} from '@/components/ui/form-controllers'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 
 function nowYm() {
   const n = new Date()
