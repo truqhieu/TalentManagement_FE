@@ -1,3 +1,35 @@
+import { EmployeeAvatar } from '@/components/shared/EmployeeAvatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Form } from '@/components/ui/form'
+import {
+  DateController,
+  InputController,
+  InputFieldController,
+  TextareaController,
+} from '@/components/ui/form-controllers'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Link, useRouterState } from '@tanstack/react-router'
+import {
+  ArrowLeft,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  Pencil,
+  Search,
+  Star,
+  Trash2,
+  X,
+  XCircle,
+} from 'lucide-react'
 import {
   useCallback,
   useDeferredValue,
@@ -7,40 +39,8 @@ import {
   useSyncExternalStore,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useRouterState } from '@tanstack/react-router'
-import {
-  ArrowLeft,
-  CalendarDays,
-  Pencil,
-  Search,
-  Trash2,
-  X,
-  Star,
-  CheckCircle2,
-  XCircle,
-  Clock,
-} from 'lucide-react'
-import { useForm, useWatch, Controller } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
-import { EmployeeAvatar } from '@/components/shared/EmployeeAvatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
-import { Form } from '@/components/ui/form'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
-  DateController,
-  InputController,
-  InputFieldController,
-  TextareaController,
-} from '@/components/ui/form-controllers'
 
 import {
   Dialog,
@@ -53,26 +53,26 @@ import {
 import { PaginationCardStepper, PaginationPrevNext } from '@/components/ui/pagination'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { joinTimeHm, splitTimeToParts } from '@/lib/time24h'
-import { cn } from '@/lib/utils'
-import { SessionEvaluationModal } from './SessionEvaluationModal'
-import { ViewEvaluationsModal } from './ViewEvaluationsModal'
 import {
+  useApproveClassRegistration,
+  useCreateTeacherRoadmapItem,
+  useRejectClassRegistration,
+  useRemoveTeacherClassMember,
   useTeacherClassDetail,
+  useTeacherClassRegistrations,
   useTeacherCreateSchedule,
   useTeacherDeleteSchedule,
+  useTeacherRoadmapItems,
   useTeacherSchedules,
   useTeacherUpdateAttendance,
   useTeacherUpdateSchedule,
-  useApproveClassRegistration,
-  useRejectClassRegistration,
-  useRemoveTeacherClassMember,
-  useTeacherClassRegistrations,
-  useTeacherRoadmapItems,
-  useCreateTeacherRoadmapItem,
 } from '@/features/teacher/hooks'
+import { joinTimeHm, splitTimeToParts } from '@/lib/time24h'
+import { cn } from '@/lib/utils'
+import { SessionEvaluationModal } from './SessionEvaluationModal'
 import { TeacherClassMemberCard } from './TeacherClassMemberCard'
 import type { ClassMemberRow } from './teacherClassMemberTypes'
+import { ViewEvaluationsModal } from './ViewEvaluationsModal'
 
 const FILTERS = [{ key: 'all', label: 'Tất cả học viên' }] as const
 
@@ -530,96 +530,56 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
   }, [scheduleModalOpen, resetScheduleValues])
 
   return (
-    <div className="-m-5 flex min-h-screen flex-col bg-[#f1f5f9] text-sm text-slate-900 md:-m-6 lg:-m-8">
-      <div className="flex-1 overflow-y-auto px-4 py-10 sm:px-10 lg:px-16">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-12 space-y-6">
-            <Link
-              to="/teacher/classes"
-              className="group inline-flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-slate-400 transition-all hover:text-primary"
-            >
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition-all group-hover:bg-primary group-hover:text-white group-hover:ring-primary">
-                <ArrowLeft className="h-4 w-4" />
-              </div>
-              Danh sách lớp phụ trách
-            </Link>
-
-            <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
-              <div className="space-y-4">
-                <h1 className="text-5xl font-black tracking-tight text-slate-900 sm:text-6xl">
+    <div className="min-h-screen flex flex-col text-sm text-slate-900">
+      <div className="flex-1 overflow-y-auto">
+        <div className="">
+          <div className="mb-4">
+            <div className="flex flex-col justify-between md:flex-row md:items-end">
+              <div className="">
+                <h1 className="text-4xl font-black tracking-tight text-slate-900 sm:text-4xl flex items-center gap-3 line-clamp-1">
+                  <Link to="/teacher/classes">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition-all hover:bg-[#006C49] hover:text-white">
+                      <ArrowLeft className="h-4 w-4" />
+                    </div>
+                  </Link>
                   {title}
                 </h1>
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-1.5 text-xs font-black text-white shadow-lg shadow-emerald-500/20">
-                    <div className="h-2 w-2 rounded-full bg-white animate-pulse" />
-                    ĐANG GIẢNG DẠY
-                  </div>
-                  <p className="text-sm font-semibold text-slate-500/80">
-                    Hệ thống quản lý học viên và điều phối lịch đào tạo chuyên nghiệp.
-                  </p>
-                </div>
               </div>
-
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex h-11 items-center rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
+                <div className="flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1">
                   <Button
-                    variant="ghost"
                     size="sm"
                     className={cn(
-                      'h-full rounded-xl px-4 text-xs font-black uppercase tracking-widest transition-all',
+                      'h-full rounded-xl px-4 text-xs font-black uppercase cursor-pointer',
                       viewMode === 'cards'
-                        ? 'bg-primary text-white shadow-lg'
-                        : 'text-slate-400 hover:bg-slate-50'
+                        ? 'bg-[#006C49] text-white shadow-lg'
+                        : 'text-slate-400 hover:bg-slate-50 bg-white'
                     )}
                     onClick={() => setViewMode('cards')}
                   >
                     Dạng thẻ
                   </Button>
                   <Button
-                    variant="ghost"
                     size="sm"
                     className={cn(
-                      'h-full rounded-xl px-4 text-xs font-black uppercase tracking-widest transition-all',
+                      'h-full rounded-xl px-4 text-xs font-black uppercase cursor-pointer',
                       viewMode === 'table'
-                        ? 'bg-primary text-white shadow-lg'
-                        : 'text-slate-400 hover:bg-slate-50'
+                        ? 'bg-[#006C49] text-white shadow-lg'
+                        : 'text-slate-400 hover:bg-slate-50 bg-white'
                     )}
                     onClick={() => setViewMode('table')}
                   >
                     Dạng bảng
                   </Button>
                 </div>
-                <Button className="h-11 rounded-2xl bg-primary px-6 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-105 active:scale-95">
+                <Button className="h-11 rounded-2xl px-6 text-xs font-black uppercase cursor-pointer">
                   Xuất báo cáo
                 </Button>
               </div>
             </div>
           </div>
 
-          {/* Search & Filters */}
-          <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center">
-            <Form {...filtersForm}>
-              <div className="flex h-14 flex-1 items-center gap-4 rounded-3xl border border-slate-200 bg-white px-5 shadow-sm transition-all focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5">
-                <Search className="h-5 w-5 text-slate-400" />
-                <InputFieldController
-                  control={filtersForm.control}
-                  name="searchDraft"
-                  placeholder="Tìm kiếm học viên theo tên hoặc email..."
-                  className="flex-1"
-                  wrapperClassName="flex-1"
-                  inputClassName="h-full border-0 bg-transparent text-base font-medium shadow-none focus-visible:ring-0 placeholder:text-slate-300"
-                />
-              </div>
-            </Form>
-            {/* Filter buttons - already simplified to 1 item, so we can hide or keep as label */}
-            <div className="flex h-14 items-center rounded-3xl border border-slate-200 bg-white p-1.5 shadow-sm">
-              <div className="px-6 text-xs font-black uppercase tracking-widest text-slate-900">
-                Tất cả học viên
-              </div>
-            </div>
-          </div>
-
-          <div className="mb-8 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-xl shadow-slate-200/40">
+          <div className="mb-4 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-xl shadow-slate-200/40">
             <div className="flex flex-col gap-3 border-b border-slate-100 p-6 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
@@ -711,10 +671,10 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
           </div>
 
           {/* Schedule Management Card - LIGHT THEME */}
-          <div className="group relative mb-12 overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 transition-all hover:shadow-primary/5">
+          <div className="group relative mb-4 overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 transition-all hover:shadow-primary/5">
             <div className="flex flex-col justify-between gap-8 p-8 sm:flex-row sm:items-center sm:px-12">
               <div className="flex items-center gap-6">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#006C49] text-white transition-transform group-hover:scale-110">
                   <CalendarDays className="h-8 w-8" />
                 </div>
                 <div className="space-y-1">
@@ -728,7 +688,7 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <Button
-                  className="h-14 rounded-2xl bg-primary px-8 text-base font-black text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-105 active:scale-95"
+                  className="h-14 rounded-2xl px-8 text-base font-black cursor-pointer"
                   onClick={() => {
                     resetScheduleForm()
                     setScheduleModalOpen(true)
@@ -738,7 +698,7 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
                   THÊM BUỔI MỚI
                 </Button>
                 <Button
-                  className="h-14 rounded-2xl bg-indigo-600 px-8 text-base font-black text-white shadow-xl shadow-indigo-600/20 transition-all hover:bg-indigo-700 hover:scale-105 active:scale-95"
+                  className="h-14 rounded-2xl px-8 text-base font-black cursor-pointer"
                   onClick={() => {
                     roadmapForm.reset({
                       topic: '',
@@ -754,8 +714,7 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
                   THÊM LỘ TRÌNH
                 </Button>
                 <Button
-                  variant="outline"
-                  className="h-14 rounded-2xl border-primary text-primary hover:bg-primary/5 px-8 text-base font-black shadow-lg transition-all hover:scale-105 active:scale-95"
+                  className="h-14 rounded-2xl px-8 text-base font-black cursor-pointer bg-white border border-slate-200 text-[#006C49] hover:bg-slate-50"
                   onClick={() => {
                     resetScheduleForm()
                     scheduleForm.reset({
@@ -806,7 +765,7 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
                         className={cn(
                           'h-11 rounded-xl px-6 text-xs font-black uppercase tracking-widest transition-all',
                           isActive
-                            ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                            ? 'bg-[#006C49] hover:bg-[#006C49]/90 hover:text-white text-white'
                             : 'text-slate-400 hover:bg-slate-100'
                         )}
                         onClick={() => setActiveScheduleId(s.id)}
@@ -883,17 +842,11 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
 
           {/* Lịch nộp phản tư Card — TEACHER */}
           {deadlineSchedules.length > 0 && (
-            <div className="mb-12 overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-2xl shadow-slate-200/50">
-              <div className="flex flex-col gap-3 border-b border-slate-100 p-8 sm:px-12">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-                  Lộ trình học
-                </p>
+            <div className="mb-4 overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-2xl shadow-slate-200/50">
+              <div className="flex flex-col gap-3 border-b border-slate-100 p-4">
                 <h3 className="text-2xl font-black text-slate-900">
                   Lịch nộp phản tư ({deadlineSchedules.length})
                 </h3>
-                <p className="text-sm font-semibold text-slate-400">
-                  Danh sách các hạn nộp phản tư do giảng viên thiết lập cho lớp học
-                </p>
               </div>
               <div className="divide-y divide-slate-100">
                 {deadlineSchedules.map((s) => (
@@ -973,7 +926,22 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
               </div>
             </div>
           )}
-
+          {/* Search & Filters */}
+          <div className="mb-2 flex flex-col gap-4 lg:flex-row lg:items-center">
+            <Form {...filtersForm}>
+              <div className="flex h-14 flex-1 items-center gap-4 rounded-3xl border border-slate-200 bg-white px-5 shadow-sm transition-all focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5">
+                <Search className="h-5 w-5 text-slate-400" />
+                <InputFieldController
+                  control={filtersForm.control}
+                  name="searchDraft"
+                  placeholder="Tìm kiếm học viên theo tên hoặc email..."
+                  className="flex-1"
+                  wrapperClassName="flex-1"
+                  inputClassName="h-full border-0 bg-transparent text-base font-medium shadow-none focus-visible:ring-0 placeholder:text-slate-300"
+                />
+              </div>
+            </Form>
+          </div>
           {isLoadingDetail ? (
             <div
               className="space-y-3 rounded-[32px] border border-slate-200 bg-white p-5 shadow-2xl shadow-slate-200/50 ring-1 ring-slate-200/60"
@@ -1360,9 +1328,8 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
                     Trang {page} — {filtered.length} thành viên hiển thị
                   </span>
                   <Button
-                    variant="default"
                     size="sm"
-                    className="h-9 rounded-xl bg-primary px-4 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-95"
+                    className="uppercase cursor-pointer font-black"
                     onClick={() => {
                       if (activeScheduleId) {
                         if (!selectedSchedule?.evaluatedUserIds?.length) {
@@ -1768,7 +1735,7 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
                       </Button>
                       <Button
                         type="submit"
-                        className="h-10 rounded-xl bg-primary px-7 font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/90"
+                        className="h-10 rounded-xl px-7 font-bold cursor-pointer"
                         loading={createSchedule.isPending || updateSchedule.isPending}
                       >
                         {isCreatingDeadlineOnly
@@ -1895,11 +1862,9 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
                 })
               })}
             >
-              <div className="bg-primary px-8 py-6 text-white">
-                <DialogTitle className="text-2xl font-black tracking-tight">
-                  Thêm Lộ Trình Riêng
-                </DialogTitle>
-                <DialogDescription className="text-primary-foreground/80 mt-2 font-medium">
+              <div className="bg-[#006C49] px-8 py-6 text-white">
+                <DialogTitle className="text-2xl text-white">Thêm Lộ Trình Riêng</DialogTitle>
+                <DialogDescription className="text-white mt-2 font-medium">
                   Tạo lộ trình học tập và tài liệu dành riêng cho lớp này
                 </DialogDescription>
               </div>
@@ -1951,7 +1916,7 @@ export function TeacherClassDetailScreen({ classId }: { classId: string }) {
                 </Button>
                 <Button
                   type="submit"
-                  className="h-12 rounded-xl bg-primary px-8 font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/90"
+                  className="h-12 rounded-xl px-8 font-bold cursor-pointer"
                   disabled={createRoadmapItem.isPending}
                 >
                   {createRoadmapItem.isPending ? 'ĐANG LƯU...' : 'LƯU LỘ TRÌNH'}

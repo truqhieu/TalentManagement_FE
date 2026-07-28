@@ -9,8 +9,7 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'bg-[#006C49] text-white shadow-[0_2px_8px_rgb(0_108_73/0.35)] hover:bg-[#006C49]/90 active:bg-[#006C49]/80',
+        default: 'bg-[#006C49] text-white hover:bg-[#006C49]/90 active:bg-[#006C49]/80',
         outline:
           'border border-game-accent/25 bg-card text-game-soft-foreground shadow-sm hover:bg-game-soft hover:border-game-accent/40',
         ghost: 'rounded-xl text-game-muted hover:bg-game-soft hover:text-game-soft-foreground',
