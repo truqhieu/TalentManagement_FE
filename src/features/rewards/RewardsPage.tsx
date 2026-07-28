@@ -1,28 +1,28 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog/ConfirmDialog'
+import { CustomSelect } from '@/components/shared/CustomSelect'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { apiClient } from '@/lib/axios'
 import { useAuthStore } from '@/stores/auth.store'
-import { toast } from 'sonner'
 import {
+  AlertTriangle,
   Award,
   Calendar,
   Check,
   ChevronDown,
+  ChevronUp,
+  Edit,
+  History,
+  LayoutGrid,
   Search,
   Trash2,
-  Users,
-  Edit,
-  LayoutGrid,
-  ChevronUp,
-  User,
-  History,
-  AlertTriangle,
   TrendingUp,
+  User,
+  Users,
   X,
 } from 'lucide-react'
-import { CustomSelect } from '@/components/shared/CustomSelect'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog/ConfirmDialog'
-import { Button } from '@/components/ui/button'
+import React, { useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 type Rule = {
   id: string
@@ -778,7 +778,7 @@ export default function RewardsPage() {
                 <>
                   <button
                     onClick={() => setAdminSubTab('log')}
-                    className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${adminSubTab === 'log' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                    className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${adminSubTab === 'log' ? 'border-[#006C49] text-[#006C49]' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
                   >
                     <Users className="h-4 w-4" />{' '}
                     {isPrivileged ? 'Ghi nhận theo Team' : 'Ghi nhận cho Team'}
@@ -786,7 +786,7 @@ export default function RewardsPage() {
                   {isPrivileged && (
                     <button
                       onClick={() => setAdminSubTab('catalog')}
-                      className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${adminSubTab === 'catalog' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                      className={`px-8 py-4 text-sm font-black uppercase transition-all border-b-2 flex items-center gap-2 ${adminSubTab === 'catalog' ? 'border-[#006C49] text-[#006C49]' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
                     >
                       <LayoutGrid className="h-4 w-4" /> Danh mục quy chuẩn
                     </button>
@@ -1027,7 +1027,7 @@ export default function RewardsPage() {
                                   <div className="p-4 bg-slate-50/50 border-t flex justify-center">
                                     <button
                                       onClick={() => setFullView(!isFullView)}
-                                      className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm ${isFullView ? 'bg-white text-slate-500 hover:bg-slate-100' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100'}`}
+                                      className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm ${isFullView ? 'bg-white text-slate-500 hover:bg-slate-100' : 'bg-[#006C49] text-white hover:bg-[#006C49]/90'}`}
                                     >
                                       {isFullView
                                         ? 'Thu gọn'
@@ -1181,7 +1181,7 @@ export default function RewardsPage() {
               <div className="space-y-6">
                 <div className="bg-white p-5 rounded-3xl border shadow-xl flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <LayoutGrid className="h-5 w-5 text-indigo-600" />
+                    <LayoutGrid className="h-5 w-5 text-[#006C49]" />
                     <div>
                       <h3 className="font-black text-slate-800 uppercase text-sm">
                         Cấu hình Quy chuẩn
@@ -1202,7 +1202,7 @@ export default function RewardsPage() {
                       })
                       setShowRuleModal(true)
                     }}
-                    className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase hover:bg-indigo-700 transition-all"
+                    className="px-6 py-2.5 bg-[#006C49] text-white rounded-xl text-xs font-black uppercase hover:bg-[#006C49]/90 transition-all"
                   >
                     + Thêm quy định
                   </button>
@@ -1212,7 +1212,7 @@ export default function RewardsPage() {
                     <button
                       key={tab}
                       onClick={() => setSelectedRuleCategory(tab)}
-                      className={`px-6 py-3 rounded-2xl text-xs font-black uppercase transition-all whitespace-nowrap border-2 ${selectedRuleCategory === tab ? 'bg-indigo-600 text-white border-indigo-600 shadow-xl' : 'bg-white text-slate-400 border-slate-50 hover:border-indigo-100 shadow-sm'}`}
+                      className={`px-6 py-3 rounded-2xl text-xs font-black uppercase transition-all whitespace-nowrap border-2 ${selectedRuleCategory === tab ? 'bg-[#006C49] text-white border-[#006C49] shadow-xl' : 'bg-white text-slate-400 border-slate-50 hover:border-[#006C49]/10 shadow-sm'}`}
                     >
                       {tab}
                     </button>
@@ -1326,7 +1326,7 @@ export default function RewardsPage() {
                               <div className="p-4 bg-slate-50/50 border-t flex justify-center">
                                 <button
                                   onClick={() => setFullView(!isFullView)}
-                                  className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm ${isFullView ? 'bg-white text-slate-500 hover:bg-slate-100' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100'}`}
+                                  className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm ${isFullView ? 'bg-white text-slate-500 hover:bg-slate-100' : 'bg-[#006C49] text-white hover:bg-[#006C49]/90'}`}
                                 >
                                   {isFullView
                                     ? 'Thu gọn danh sách'
@@ -1399,7 +1399,7 @@ export default function RewardsPage() {
 
                 <div className="bg-white border rounded-3xl shadow-xl overflow-hidden">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-900 text-white text-xs font-black uppercase">
+                    <thead className="bg-[#006C49] text-white text-xs font-black uppercase">
                       <tr>
                         <th className="py-5 px-8">Nhân sự</th>
                         <th className="py-5 px-6">Loại</th>

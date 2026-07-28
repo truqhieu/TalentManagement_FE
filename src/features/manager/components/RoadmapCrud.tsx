@@ -1,55 +1,16 @@
-import { useEffect, useState } from 'react'
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Edit,
-  Trash2,
-  Plus,
-  X,
-  ExternalLink,
-  BookOpen,
-  Target,
-  GraduationCap,
-  ClipboardCheck,
-  Search,
-  Type,
-  Files,
-  ArrowUpRight,
-  ChevronRight,
-  LayoutList,
-  Link as LinkIcon,
-  Loader2,
-  Check,
-  Book,
-  FileText,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-
-// Local utility to ensure 'cn' is always available even if module import fails
-const cnLocal = (...classes: any[]) => classes.filter(Boolean).join(' ')
-const safeCn = typeof cn !== 'undefined' ? cn : cnLocal
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -57,15 +18,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Textarea } from '@/components/ui/textarea'
 import {
-  useManagerRoadmapItems,
   useCreateManagerRoadmapItem,
-  useUpdateManagerRoadmapItem,
   useDeleteManagerRoadmapItem,
+  useManagerRoadmapItems,
   useTeacherOptions,
+  useUpdateManagerRoadmapItem,
 } from '@/features/manager/hooks'
+import { cn } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  ArrowUpRight,
+  Book,
+  BookOpen,
+  Check,
+  ChevronRight,
+  ClipboardCheck,
+  Edit,
+  ExternalLink,
+  Files,
+  FileText,
+  GraduationCap,
+  Link as LinkIcon,
+  Loader2,
+  Plus,
+  Search,
+  Target,
+  Trash2,
+  Type,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+
+// Local utility to ensure 'cn' is always available even if module import fails
+const cnLocal = (...classes: any[]) => classes.filter(Boolean).join(' ')
+const safeCn = typeof cn !== 'undefined' ? cn : cnLocal
 
 const formSchema = z.object({
   id: z.string().optional(),
@@ -503,7 +492,7 @@ export function RoadmapCrud() {
 
             <DialogHeader className="shrink-0 relative border-b border-primary/5 px-8 pt-8 pb-6 bg-white/40 backdrop-blur-md">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#006C49] text-white">
                   {editingId ? <Edit className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
                 </div>
                 <div>
@@ -526,7 +515,7 @@ export function RoadmapCrud() {
                 >
                   {/* Level Section */}
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-primary">
+                    <div className="flex items-center gap-2 text-[#006C49]">
                       <ArrowUpRight className="h-4 w-4" />
                       <h4 className="text-xs font-bold uppercase tracking-widest">
                         Tiến trình cấp độ
@@ -534,7 +523,7 @@ export function RoadmapCrud() {
                     </div>
                     <div
                       className={safeCn(
-                        'grid grid-cols-1 gap-6 rounded-3xl border border-primary/10 bg-primary/[0.02] p-6 transition-all',
+                        'grid grid-cols-1 gap-6 rounded-3xl border border-[#006C49]/10 bg-[#006C49]/0.2 p-6 transition-all',
                         levelStart !== 'tuong' ? 'md:grid-cols-2' : 'md:grid-cols-1'
                       )}
                     >
@@ -543,10 +532,10 @@ export function RoadmapCrud() {
                           Cấp độ hiện tại
                         </FormLabel>
                         <Select value={levelStart} onValueChange={handleLevelStartChange}>
-                          <SelectTrigger className="h-12 rounded-2xl border-primary/10 bg-white shadow-sm transition-all hover:border-primary/30 focus:ring-2 focus:ring-primary/20">
+                          <SelectTrigger className="h-12 rounded-2xl border-[#006C49]/10 bg-white">
                             <SelectValue placeholder="Chọn cấp độ" />
                           </SelectTrigger>
-                          <SelectContent className="rounded-2xl border-primary/10 shadow-2xl">
+                          <SelectContent className="rounded-2xl border-[#006C49]/10">
                             {CAREER_LEVELS.map((k) => (
                               <SelectItem
                                 key={k}
@@ -567,10 +556,10 @@ export function RoadmapCrud() {
                           </FormLabel>
                           <div className="relative group">
                             <Select value={levelEnd} onValueChange={setLevelEnd}>
-                              <SelectTrigger className="h-12 rounded-2xl border-primary/10 bg-white shadow-sm transition-all hover:border-primary/30 focus:ring-2 focus:ring-primary/20">
+                              <SelectTrigger className="h-12 rounded-2xl border-[#006C49]/10 bg-white">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent className="rounded-2xl border-primary/10 shadow-2xl">
+                              <SelectContent className="rounded-2xl border-[#006C49]/10">
                                 {CAREER_LEVELS.map((k) => (
                                   <SelectItem
                                     key={k}
@@ -583,7 +572,7 @@ export function RoadmapCrud() {
                               </SelectContent>
                             </Select>
                             <div className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 hidden md:block border-2 border-white rounded-full">
-                              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+                              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#006C49] text-white">
                                 <ChevronRight className="h-3 w-3" />
                               </div>
                             </div>
@@ -595,7 +584,7 @@ export function RoadmapCrud() {
 
                   {/* Content Section */}
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-primary">
+                    <div className="flex items-center gap-2 text-[#006C49]">
                       <BookOpen className="h-4 w-4" />
                       <h4 className="text-xs font-bold uppercase tracking-widest">
                         Nội dung đào tạo
@@ -704,14 +693,14 @@ export function RoadmapCrud() {
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="h-8 gap-1.5 rounded-full border-primary/20 bg-primary/[0.02] px-4 text-xs font-bold text-primary hover:bg-primary/5 active:scale-95 transition-all"
+                            className="h-8 gap-1.5 rounded-full border-[#006C49]/20 bg-[#006C49]/0.2 px-4 text-xs font-bold text-[#006C49]"
                             onClick={addObjective}
                           >
                             <Plus className="h-3.5 w-3.5" /> Thêm mục tiêu
                           </Button>
                         </div>
 
-                        <div className="space-y-3 rounded-2xl border border-dashed border-primary/20 bg-primary/[0.01] p-4">
+                        <div className="space-y-3 rounded-2xl border border-dashed border-[#006C49]/20 bg-[#006C49]/0.1 p-4">
                           {objectives.map((obj, idx) => (
                             <div
                               key={obj.id}
@@ -764,7 +753,7 @@ export function RoadmapCrud() {
                   {/* Materials Section */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-primary">
+                      <div className="flex items-center gap-2 text-[#006C49]">
                         <Files className="h-4 w-4" />
                         <h4 className="text-xs font-bold uppercase tracking-widest">
                           Tài liệu học tập
@@ -774,7 +763,7 @@ export function RoadmapCrud() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-8 gap-1.5 rounded-full border-primary/20 bg-primary/[0.02] px-4 text-xs font-bold text-primary hover:bg-primary/5 active:scale-95 transition-all"
+                        className="h-8 gap-1.5 rounded-full border-[#006C49]/20 bg-[#006C49]/0.2 px-4 text-xs font-bold text-[#006C49]"
                         onClick={addMaterial}
                       >
                         <Plus className="h-3.5 w-3.5" /> Thêm tài liệu
@@ -822,13 +811,13 @@ export function RoadmapCrud() {
 
                   {/* Trainer Section */}
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-primary">
+                    <div className="flex items-center gap-2 text-[#006C49]">
                       <GraduationCap className="h-4 w-4" />
                       <h4 className="text-xs font-bold uppercase tracking-widest">
                         Phụ trách đào tạo
                       </h4>
                     </div>
-                    <div className="rounded-3xl border border-primary/10 bg-primary/[0.02] p-6">
+                    <div className="rounded-3xl border border-[#006C49]/10 bg-[#006C49]/0.2 p-6">
                       <FormField
                         control={form.control}
                         name="trainer"
@@ -961,7 +950,6 @@ export function RoadmapCrud() {
                   <Button
                     type="submit"
                     form="roadmap-form"
-                    className="h-12 min-w-[200px] rounded-2xl bg-primary px-12 font-black text-white shadow-xl shadow-primary/30 transition-all hover:scale-[1.03] active:scale-95"
                     loading={createItem.isPending || updateItem.isPending}
                     onClick={() => form.handleSubmit(onSubmit)()}
                   >
@@ -978,7 +966,7 @@ export function RoadmapCrud() {
         </Dialog>
 
         {/* Grouped Card Display Layout */}
-        <div className="mx-auto mt-6 max-w-7xl space-y-8 px-2 pb-16 sm:px-4">
+        <div className="space-y-8">
           {!isLoading && uniqueLevels.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 rounded-[3rem] border border-dashed border-gray-200 bg-white shadow-sm">
               <div className="h-20 w-20 rounded-3xl bg-gray-50 flex items-center justify-center text-gray-300 font-black text-3xl mb-4">
@@ -1018,7 +1006,7 @@ export function RoadmapCrud() {
                 >
                   {/* Level Header - MORE COMPACT */}
                   <div className="flex items-center gap-4 p-3 rounded-2xl bg-white border border-gray-100 shadow-sm">
-                    <div className="bg-primary h-10 w-10 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/10">
+                    <div className="bg-[#006C49] h-10 w-10 rounded-xl flex items-center justify-center text-white">
                       <ArrowUpRight className="h-5 w-5" />
                     </div>
                     <div>
