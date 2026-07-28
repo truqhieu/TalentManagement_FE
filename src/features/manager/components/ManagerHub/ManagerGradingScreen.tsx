@@ -1,23 +1,18 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { useManagerClasses } from '@/features/manager/hooks'
-import { useManagerSubmissions } from '@/features/exam/hooks'
-import { ManagerScreenLayout } from './ManagerScreenLayout'
-import { managerClassApiSchema } from '@/features/manager/schemas'
-import { z } from 'zod'
 import { CustomSelect } from '@/components/shared/CustomSelect'
 import { DialogCustom } from '@/components/shared/DialogCustom/DialogCustom'
+import { PAGE_HEADER_DESCRIPTION } from '@/components/shared/PageHeader'
+import { Button } from '@/components/ui/button'
+import { useManagerSubmissions } from '@/features/exam/hooks'
 import { useGetFeedback } from '@/features/learning-path/hooks'
-import { Loader2 } from 'lucide-react'
+import { useManagerClasses } from '@/features/manager/hooks'
+import type { managerClassApiSchema } from '@/features/manager/schemas'
+import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth.store'
+import { useNavigate } from '@tanstack/react-router'
+import { Loader2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import type { z } from 'zod'
+import { ManagerScreenLayout } from './ManagerScreenLayout'
 
 /** BOD/HR/MANAGER chấm chéo toàn hệ thống — không giới hạn theo lớp/lịch được gán. */
 const SEES_ALL_GRADING_ROLES = ['BOD', 'HR', 'MANAGER']
@@ -281,11 +276,9 @@ export function ManagerGradingScreen() {
 
   return (
     <ManagerScreenLayout hideHubNav hideToolbar>
-      <div className="mb-8 flex flex-col gap-8">
-        <div className={cn('min-w-0', PAGE_HEADER_SURFACE)}>
-          <h1 className={PAGE_HEADER_TITLE}>
-            <span className={PAGE_HEADER_GRADIENT}>Chấm bài thi</span>
-          </h1>
+      <div className="mb-4 flex flex-col gap-4">
+        <div className={cn('min-w-0')}>
+          <h1 className="text-2xl font-bold">Chấm bài thi</h1>
           <p className={PAGE_HEADER_DESCRIPTION}>
             Quản lý và chấm điểm bài thi đã nộp của các thành viên. Bấm &quot;Xem tất cả bài
             nộp&quot; để bắt đầu chấm bài.
@@ -319,30 +312,30 @@ export function ManagerGradingScreen() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3">
-          <CustomSelect
-            label="Lớp"
-            value={filterClass}
-            onValueChange={handleFilterClass}
-            options={[
-              { label: 'Tất cả lớp', value: 'all' },
-              ...classNames.map((name) => ({ label: name, value: name })),
-            ]}
-            className="min-w-[180px]"
-          />
-          <CustomSelect
-            label="Trạng thái chấm"
-            value={filterGrading}
-            onValueChange={handleFilterGrading}
-            options={[
-              { label: 'Tất cả', value: 'all' },
-              { label: 'Chờ chấm', value: 'pending' },
-              { label: 'Đã chấm hết', value: 'done' },
-              { label: 'Chưa có bài nộp', value: 'no_submission' },
-            ]}
-            className="min-w-[180px]"
-          />
-          <span className="text-xs text-muted-foreground">{filteredRows.length} lịch thi</span>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <CustomSelect
+              value={filterClass}
+              onValueChange={handleFilterClass}
+              options={[
+                { label: 'Tất cả lớp', value: 'all' },
+                ...classNames.map((name) => ({ label: name, value: name })),
+              ]}
+              triggerClassName="border border-slate-500 py-2 w-[150px]"
+            />
+            <CustomSelect
+              value={filterGrading}
+              onValueChange={handleFilterGrading}
+              options={[
+                { label: 'Tất cả', value: 'all' },
+                { label: 'Chờ chấm', value: 'pending' },
+                { label: 'Đã chấm hết', value: 'done' },
+                { label: 'Chưa có bài nộp', value: 'no_submission' },
+              ]}
+              triggerClassName="border border-slate-500 py-2 w-[120px]"
+            />
+          </div>
+          <span className="text-sm text-primary font-bold">{filteredRows.length} lịch thi</span>
         </div>
 
         {/* Table (desktop) + thẻ (mobile) */}
