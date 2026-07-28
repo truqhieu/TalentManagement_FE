@@ -1,16 +1,9 @@
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
-import { BarChart3, GraduationCap, Medal, Sparkles, Target, Trophy } from 'lucide-react'
 import { EmployeeAvatar } from '@/components/shared/EmployeeAvatar'
+import { PromotionCelebrationModal } from '@/components/shared/PromotionCelebrationModal'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
 import { useMyDashboard } from '@/features/dashboard/hooks'
 import { DashboardKpiOkrZone } from '@/features/employee-dashboard/components/DashboardKpiOkrZone'
-import { VinhDanhSlide } from '@/features/employee-dashboard/components/VinhDanhSlide'
 import { DashboardLearningZone } from '@/features/employee-dashboard/components/DashboardLearningZone'
 import { ManagerHrSnapshotCards } from '@/features/employee-dashboard/components/ManagerHrSnapshotCards'
 import { ManagerLearningOpsZone } from '@/features/employee-dashboard/components/ManagerLearningOpsZone'
@@ -18,14 +11,15 @@ import {
   ManagerSharedReportPeriodFilter,
   type ManagerReportPeriod,
 } from '@/features/employee-dashboard/components/ManagerSharedReportPeriodFilter'
+import { VinhDanhSlide } from '@/features/employee-dashboard/components/VinhDanhSlide'
 import { LEVEL_LABELS, STARS_PER_LEVEL, type LevelCode } from '@/lib/constants'
-import { cn } from '@/lib/utils'
-import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
-import { Button } from '@/components/ui/button'
-import { PromotionCelebrationModal } from '@/components/shared/PromotionCelebrationModal'
-import { useAuthStore } from '@/stores/auth.store'
 import { isManagerLikeRole } from '@/lib/managerLikeRole'
+import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth.store'
 import type { Role, StaffLevel } from '@/types/auth'
+import { BarChart3, GraduationCap, Medal, Target, Trophy } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 function kpiOkrPaths(role: Role | undefined): { kpiOkr: string } {
   if (role === 'LEADER') return { kpiOkr: '/leader/kpi-okr' }
@@ -242,22 +236,23 @@ export function EmployeeLearningDashboard() {
       {/* Subtle background */}
       <div className="pointer-events-none absolute inset-0" aria-hidden />
 
-      <div className="relative z-[1] space-y-4 px-3 pb-8 pt-1 sm:px-4 sm:pb-10 md:px-6">
+      <div className="relative z-[1] space-y-4 pb-8">
         {isManagerLearningDash ? <VinhDanhSlide /> : null}
 
         {isManagerLearningDash ? (
-          <section className={cn('min-w-0', PAGE_HEADER_SURFACE)}>
-            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-primary/20  px-3 py-0.5 text-xs font-bold uppercase tracking-widest text-primary shadow-sm">
-              <Sparkles className="h-3 w-3" aria-hidden />
-              Quản lý
-            </div>
-            <h1 className={PAGE_HEADER_TITLE}>
-              <span className={PAGE_HEADER_GRADIENT}>Tổng quan quản lý</span>
-            </h1>
-            <p className={PAGE_HEADER_DESCRIPTION}>
-              Tổng quan nhân sự, học tập &amp; KPI theo kỳ báo cáo.
-            </p>
-          </section>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+            <section className="min-w-0 shrink-0">
+              <h1 className="text-2xl font-bold">Tổng quan quản lý</h1>
+              <p className="text-sm text-muted-foreground">
+                Tổng quan nhân sự, học tập &amp; KPI theo kỳ báo cáo.
+              </p>
+            </section>
+            <ManagerSharedReportPeriodFilter
+              value={managerReportPeriod}
+              onChange={setManagerReportPeriod}
+              className="w-full shrink-0 motion-reduce:animate-none sm:flex-1 sm:min-w-[min(100%,42rem)] lg:max-w-[48rem] !rounded-lg !border-border/80 !bg-card/90 !p-2 !shadow-sm [&>div:first-child]:hidden [&>div:last-child]:grid-cols-3 [&>div:last-child]:gap-2 [&>div>div]:space-y-1 [&>div>div>span]:text-sm [&>div>div>span]:font-semibold [&_input]:h-8 [&_input]:rounded-lg [&_input]:text-xs [&_button]:h-8 [&_button]:min-h-8 [&_button]:rounded-lg [&_button]:text-xs"
+            />
+          </div>
         ) : null}
 
         {/* MEMBER: Profile summary card — đặt trên cùng, không để VinhDanh/header rỗng chiếm chỗ */}
@@ -321,17 +316,11 @@ export function EmployeeLearningDashboard() {
         {showKpiZone ? (
           <div className="space-y-5">
             {isManagerLearningDash && (
-              <>
-                <ManagerSharedReportPeriodFilter
-                  value={managerReportPeriod}
-                  onChange={setManagerReportPeriod}
-                />
-                <ManagerHrSnapshotCards
-                  reportYear={managerReportPeriod.reportYear}
-                  rangeStartMonth={managerReportPeriod.rangeStartMonth}
-                  rangeEndMonth={managerReportPeriod.rangeEndMonth}
-                />
-              </>
+              <ManagerHrSnapshotCards
+                reportYear={managerReportPeriod.reportYear}
+                rangeStartMonth={managerReportPeriod.rangeStartMonth}
+                rangeEndMonth={managerReportPeriod.rangeEndMonth}
+              />
             )}
             {/* Tab switcher */}
             <div
@@ -339,7 +328,7 @@ export function EmployeeLearningDashboard() {
               role="tablist"
               aria-label="Chuyển tab"
             >
-              <div className="inline-flex rounded-full border border-primary/20 bg-gradient-to-r from-primary/[0.1] via-card/95 to-accent/[0.1] p-1 shadow-inner shadow-primary/10">
+              <div className="inline-flex rounded-full border p-1">
                 <Button
                   type="button"
                   variant="ghost"
@@ -352,7 +341,7 @@ export function EmployeeLearningDashboard() {
                   className={cn(
                     'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all duration-300',
                     tab === 'learning'
-                      ? 'bg-gradient-to-r from-primary to-primary-600 text-primary-foreground shadow-[var(--shadow-game-float)] ring-2 ring-primary/25 ring-offset-2 ring-offset-background motion-reduce:ring-0 motion-reduce:ring-offset-0'
+                      ? 'bg-[#006C49] text-white hover:bg-[#006C49]/90 hover:text-white'
                       : 'text-muted-foreground hover:bg-background/80 hover:text-foreground',
                     isPending && tab === 'learning' && 'opacity-70'
                   )}
@@ -372,7 +361,7 @@ export function EmployeeLearningDashboard() {
                   className={cn(
                     'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all duration-300',
                     tab === 'kpi'
-                      ? 'bg-gradient-to-r from-primary to-primary-600 text-primary-foreground shadow-[var(--shadow-game-float)] ring-2 ring-primary/25 ring-offset-2 ring-offset-background motion-reduce:ring-0 motion-reduce:ring-offset-0'
+                      ? 'bg-[#006C49] text-white hover:bg-[#006C49]/90 hover:text-white'
                       : 'text-muted-foreground hover:bg-background/80 hover:text-foreground',
                     isPending && tab === 'kpi' && 'opacity-70'
                   )}

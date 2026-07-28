@@ -1,22 +1,22 @@
-﻿import { useMemo } from 'react'
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Cell,
-} from 'recharts'
-import { AlertTriangle, GraduationCap } from 'lucide-react'
+﻿import { InfoHint } from '@/components/shared/InfoHint'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useLearningOpsSummary } from '@/features/dashboard/hooks'
-import { InfoHint } from '@/components/shared/InfoHint'
 import { CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
 import { LEVEL_LABELS, LEVELS, type LevelCode } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
+import { AlertTriangle, GraduationCap } from 'lucide-react'
+import { useMemo } from 'react'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
 const quartOut = '[transition-timing-function:cubic-bezier(0.25,1,0.48,1)]'
 
@@ -211,15 +211,13 @@ export function ManagerLearningOpsZone({
         )}
         style={{ animationDelay: '40ms', ...staggerStyle(0, 50) }}
       >
-        <div className="mb-3 flex items-start gap-2">
+        <div className="mb-3 flex items-center gap-2">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary">
             <GraduationCap className="h-4 w-4" strokeWidth={2} aria-hidden />
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-primary">
-              Phân bổ nhân sự theo cấp bậc
-            </p>
-          </div>
+          <h3 className="text-sm font-bold tracking-tight text-foreground">
+            Phân bổ nhân sự theo cấp bậc
+          </h3>
           <InfoHint text={LEVELS_HINT} label="Cách tính phân bổ cấp độ" />
         </div>
         {isLoading && !data ? (
@@ -248,7 +246,7 @@ export function ManagerLearningOpsZone({
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400">
             <AlertTriangle className="h-4 w-4" strokeWidth={2} aria-hidden />
           </div>
-          <h3 className="min-w-0 flex-1 text-sm font-bold tracking-tight text-foreground">
+          <h3 className="text-sm font-bold tracking-tight text-foreground">
             Học viên trượt thi trong kỳ
           </h3>
           <InfoHint text={FAIL_TABLE_HINT} label="Cách tính danh sách trượt thi" />

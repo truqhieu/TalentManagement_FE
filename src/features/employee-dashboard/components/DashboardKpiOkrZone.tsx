@@ -1,4 +1,22 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useMyDashboard } from '@/features/dashboard/hooks'
+import { useHrOrgTree } from '@/features/hr-admin/useHrOrgTree'
+import { useDebounce } from '@/hooks/useDebounce'
+import { CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
+import { STARS_PER_LEVEL, type LevelCode } from '@/lib/constants'
+import { isManagerLikeRole } from '@/lib/managerLikeRole'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth.store'
+import type { Role, StaffLevel } from '@/types/auth'
 import { Link } from '@tanstack/react-router'
 import {
   Activity,
@@ -8,42 +26,18 @@ import {
   RefreshCw,
   Target,
   TrendingUp,
-  Trophy,
   Users,
 } from 'lucide-react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
-import { CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
-import { cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { useAuthStore } from '@/stores/auth.store'
-import { useDebounce } from '@/hooks/useDebounce'
-import { useHrOrgTree } from '@/features/hr-admin/useHrOrgTree'
-import { useMyDashboard } from '@/features/dashboard/hooks'
-import { STARS_PER_LEVEL, type LevelCode } from '@/lib/constants'
-import type { Role, StaffLevel } from '@/types/auth'
-import { isManagerLikeRole } from '@/lib/managerLikeRole'
-import { useKpiDashboardData } from './useKpiDashboardData'
-import {
+  EvalBreakdownDonut,
   GradeDonut,
   KpiGauge,
-  PerPersonBar,
-  EvalBreakdownDonut,
   MemberKpiPanel,
+  PerPersonBar,
   TrendLine,
 } from './kpiCharts'
+import { useKpiDashboardData } from './useKpiDashboardData'
 
 export type KpiOkrPaths = { kpiOkr: string }
 
@@ -287,26 +281,7 @@ export function DashboardKpiOkrZone({
   const periodSummary = monthRangeLabel(reportYear, rangeStartMonth, rangeEndMonth)
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-8 text-sm text-foreground">
-      {/* 1. Tiêu đề — chỉ nhận diện màn, không chen filter */}
-      <section
-        className={cn(
-          PAGE_HEADER_SURFACE,
-          'motion-safe:animate-[dash-fade-up_0.45s_ease-out_both] motion-reduce:animate-none'
-        )}
-      >
-        <h1 className={PAGE_HEADER_TITLE}>
-          <span className={PAGE_HEADER_GRADIENT}>KPI · OKR · Báo cáo</span>
-        </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          {isMember
-            ? 'Tổng quan cá nhân: chỉ tiêu được giao, đánh giá quản lý và khảo sát theo kỳ (năm + từ tháng đến tháng) — cùng cách lọc với trưởng nhóm / quản lý.'
-            : isLeader
-              ? 'Theo dõi tiến độ nhóm: chỉ tiêu đã giao, đánh giá quản lý và mức độ tham gia khảo sát theo kỳ bạn chọn.'
-              : 'Tổng quan nhiều nhóm: so sánh KPI/OKR và khảo sát trên cùng một kỳ thời gian.'}
-        </p>
-      </section>
-
+    <div className="mx-auto space-y-8 text-sm text-foreground">
       {/* 2. Thanh ngữ cảnh: Phạm vi (team) → Kỳ — đúng thứ tự “xem gì, trong lúc nào” */}
       <section
         className={cn(
