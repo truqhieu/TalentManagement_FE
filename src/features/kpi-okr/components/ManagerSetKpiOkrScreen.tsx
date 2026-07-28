@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { Settings2, Target } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { KpiOkrWorkspace } from '@/features/kpi-okr/components/KpiOkrWorkspace'
 import { SalesKpiCatalogScreen } from '@/features/kpi-okr/components/SalesKpiCatalogScreen'
+import { cn } from '@/lib/utils'
+import { Settings2, Target } from 'lucide-react'
+import { useState } from 'react'
 
 type ManagerKpiTab = 'workspace' | 'sales-config'
 
@@ -31,8 +31,8 @@ export function ManagerSetKpiOkrScreen() {
   const [activeTab, setActiveTab] = useState<ManagerKpiTab>('workspace')
 
   return (
-    <div className="space-y-2 pb-6">
-      <div className="mx-auto max-w-[1400px] px-3 pt-6 md:px-4">
+    <div className="space-y-2">
+      <div className="">
         <div
           role="tablist"
           aria-label="Màn KPI/OKR manager"

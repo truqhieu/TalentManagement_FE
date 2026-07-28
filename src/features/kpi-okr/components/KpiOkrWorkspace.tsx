@@ -680,7 +680,7 @@ export function KpiOkrWorkspace({
   const mockHint = isMockApiEnabled()
 
   return (
-    <div className="relative isolate mx-auto max-w-[1400px] px-3 py-6 md:px-4">
+    <div className="relative isolate p-3">
       {/* ── Ambient background glow ── */}
       <div
         aria-hidden
@@ -4201,10 +4201,7 @@ function ManagerCascadeAddForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          className="rounded-lg bg-primary px-4 font-semibold shadow-sm transition-all hover:bg-primary/90"
-        >
+        <Button type="button" className="rounded-lg px-4 font-semibold transition-all ">
           Thêm chỉ số cho team
         </Button>
       </DialogTrigger>
