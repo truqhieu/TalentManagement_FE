@@ -1,40 +1,41 @@
-import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react'
-import { createPortal } from 'react-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { CustomSelect } from '@/components/shared/CustomSelect'
+import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
+import { getVnNow, useVnTime } from '@/hooks/useVnTime'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth.store'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSearch } from '@tanstack/react-router'
 import {
-  Plus,
-  Clock,
-  CheckCircle2,
   AlertCircle,
-  X,
-  Volume2,
-  Loader2,
-  Upload,
+  CheckCircle2,
+  Clock,
   FileText,
+  Loader2,
+  Plus,
+  Upload,
+  Volume2,
+  X,
 } from 'lucide-react'
-import { CustomSelect } from '@/components/shared/CustomSelect'
-import { DatePicker } from '@/components/ui/date-picker'
-import { useAuthStore } from '@/stores/auth.store'
-import {
-  getBookings,
-  getAvailability,
-  createBooking,
-  updateBooking,
-  deleteBooking,
-  approveBooking,
-  rejectBooking,
-  finishBooking,
-  uploadMeetingDocument,
-  type MeetingBooking,
-  type BookedSlot,
-} from './api'
-import { cn } from '@/lib/utils'
-import { useVnTime, getVnNow } from '@/hooks/useVnTime'
-import { RoomScheduleTimeline } from './RoomScheduleTimeline'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { RoomBookingDetailModal } from './RoomBookingDetailModal'
-import { RoomBookingPendingPanel, RoomBookingRecentPanel } from './RoomBookingSidebar'
 import { RoomBookingMinutesTable } from './RoomBookingMinutesTable'
+import { RoomBookingPendingPanel, RoomBookingRecentPanel } from './RoomBookingSidebar'
+import { RoomScheduleTimeline } from './RoomScheduleTimeline'
+import {
+  approveBooking,
+  createBooking,
+  deleteBooking,
+  finishBooking,
+  getAvailability,
+  getBookings,
+  rejectBooking,
+  updateBooking,
+  uploadMeetingDocument,
+  type BookedSlot,
+  type MeetingBooking,
+} from './api'
 import {
   LEGEND_ITEMS,
   MEETING_ROOMS,
@@ -829,9 +830,9 @@ export default function RoomBookingPage() {
   }
 
   return (
-    <div className="animate-page-entrance min-h-screen bg-background pb-10">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col gap-6 pt-8 sm:flex-row sm:items-end sm:justify-between border-b border-border/40 pb-8">
+    <div className="animate-page-entrance bg-background pb-4">
+      <div className="">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-border/40 pb-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <div className="h-2 w-8 rounded-full bg-primary" />
@@ -875,17 +876,17 @@ export default function RoomBookingPage() {
               onClick={() => speak('Hệ thống đặt phòng Lumina xin chào bạn')}
               className="p-3 rounded-full bg-secondary hover:bg-secondary/80 transition shadow-sm"
             >
-              <Volume2 className="h-5 w-5 text-primary" />
+              <Volume2 className="h-5 w-5 text-[#006C49]" />
             </button>
-            <button
+            <Button
               onClick={() => {
                 resetForm()
                 setShowModal(true)
               }}
-              className="group relative flex items-center gap-3 overflow-hidden rounded-2xl bg-primary px-8 py-4 text-sm font-bold text-primary-foreground shadow-2xl shadow-primary/30 transition-all hover:scale-105 active:scale-95"
+              className="group relative flex items-center gap-3 overflow-hidden rounded-2xl px-8 py-4 text-sm font-bold cursor-pointer"
             >
               <Plus className="h-5 w-5" /> Đặt phòng ngay
-            </button>
+            </Button>
           </div>
         </div>
 

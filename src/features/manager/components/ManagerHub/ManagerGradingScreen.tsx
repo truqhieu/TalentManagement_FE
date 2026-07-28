@@ -279,10 +279,6 @@ export function ManagerGradingScreen() {
       <div className="mb-4 flex flex-col gap-4">
         <div className={cn('min-w-0')}>
           <h1 className="text-2xl font-bold">Chấm bài thi</h1>
-          <p className={PAGE_HEADER_DESCRIPTION}>
-            Quản lý và chấm điểm bài thi đã nộp của các thành viên. Bấm &quot;Xem tất cả bài
-            nộp&quot; để bắt đầu chấm bài.
-          </p>
         </div>
 
         {/* Stats summary */}
@@ -575,8 +571,8 @@ export function ManagerGradingScreen() {
                             className={cn(
                               'font-bold whitespace-nowrap',
                               row.total > 0 && row.pending === 0 && row.drafts === 0
-                                ? 'border-primary text-primary hover:bg-primary/5'
-                                : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                                ? 'border-[#006C49] text-[#006C49] hover:bg-[#006C49]/5'
+                                : 'bg-[#006C49] hover:bg-[#006C49]/90 text-white'
                             )}
                             onClick={() => gotoGrading(row)}
                           >
