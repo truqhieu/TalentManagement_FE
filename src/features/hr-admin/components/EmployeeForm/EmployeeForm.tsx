@@ -1,5 +1,24 @@
-import type { ReactNode } from 'react'
-import { useMemo } from 'react'
+import { BRAND_BTN_GHOST } from '@/components/shared/brandButtonStyles'
+import { Button } from '@/components/ui/button'
+import {
+  CheckboxController,
+  DateController,
+  InputController,
+  SelectController,
+  TextareaController,
+} from '@/components/ui/form-controllers'
+import { SelectItem } from '@/components/ui/select'
+import { EmployeeExtraTeamsField } from '@/features/hr-admin/components/EmployeeExtraTeamsField'
+import { buildDirectManagerSelectOptions } from '@/features/hr-admin/directManagerOptions'
+import { useAnyActionPending, useDirectManagerOptions } from '@/features/hr-admin/hooks'
+import type { CreateEmployeeForm } from '@/features/hr-admin/schemas'
+import { teamPositionOptions } from '@/features/hr-admin/teamPositionOptions'
+import { useHrOrgSelectOptions } from '@/features/hr-admin/useHrOrgTree'
+import { profileApi } from '@/features/profile/api'
+import { CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
+import { cn } from '@/lib/utils'
+import { useQuery } from '@tanstack/react-query'
+import { Link, useNavigate } from '@tanstack/react-router'
 import type { LucideIcon } from 'lucide-react'
 import {
   ArrowLeft,
@@ -12,33 +31,9 @@ import {
   User,
   Users,
 } from 'lucide-react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
+import { useMemo } from 'react'
 import { FormProvider, useWatch, type UseFormReturn } from 'react-hook-form'
-import { useQuery } from '@tanstack/react-query'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
-import { Button } from '@/components/ui/button'
-import {
-  CheckboxController,
-  DateController,
-  InputController,
-  SelectController,
-  TextareaController,
-} from '@/components/ui/form-controllers'
-import { SelectItem } from '@/components/ui/select'
-import { CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
-import { cn } from '@/lib/utils'
-import type { CreateEmployeeForm } from '@/features/hr-admin/schemas'
-import { EmployeeExtraTeamsField } from '@/features/hr-admin/components/EmployeeExtraTeamsField'
-import { useHrOrgSelectOptions } from '@/features/hr-admin/useHrOrgTree'
-import { useAnyActionPending, useDirectManagerOptions } from '@/features/hr-admin/hooks'
-import { buildDirectManagerSelectOptions } from '@/features/hr-admin/directManagerOptions'
-import { teamPositionOptions } from '@/features/hr-admin/teamPositionOptions'
-import { profileApi } from '@/features/profile/api'
 
 const ROLE_OPTIONS: { value: CreateEmployeeForm['role']; label: string }[] = [
   { value: 'MEMBER', label: 'Nhân viên' },
@@ -99,27 +94,23 @@ export function EmployeeForm({ form, onSubmit, isSubmitting }: EmployeeFormProps
         noValidate
       >
         <div className="page-shell">
-          <div className="mx-auto max-w-[1400px] space-y-8 pb-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div className={cn('min-w-0 flex-1', PAGE_HEADER_SURFACE)}>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="mb-4 h-auto justify-start gap-2 px-0 py-0 text-sm font-semibold text-primary hover:bg-transparent hover:text-primary/90"
-                  onClick={() =>
-                    void navigate({ to: '/hr-admin', search: { page: 1, pageSize: 15 } })
-                  }
-                >
-                  <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
-                  Quay lại
-                </Button>
-                <h1 className={PAGE_HEADER_TITLE}>
-                  <span className={PAGE_HEADER_GRADIENT}>Thêm nhân sự mới</span>
-                </h1>
-                <p className={PAGE_HEADER_DESCRIPTION}>
-                  Điền thông tin để tạo tài khoản nhân sự mới trong hệ thống.
-                </p>
-              </div>
+          <div className="animate-page-entrance flex flex-col gap-4 pb-4">
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className={cn('h-9 w-9 shrink-0 rounded-lg border-border bg-card', BRAND_BTN_GHOST)}
+                aria-label="Quay lại danh sách nhân sự"
+                onClick={() =>
+                  void navigate({ to: '/hr-admin', search: { page: 1, pageSize: 15 } })
+                }
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden />
+              </Button>
+              <h1 className="min-w-0 text-2xl font-bold tracking-tight text-foreground">
+                Thêm nhân sự mới
+              </h1>
             </div>
 
             <div className="grid grid-cols-1 gap-8">
@@ -581,7 +572,7 @@ function SectionCard({
     >
       <div className="mb-6 flex items-center gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/5">
-          <Icon className="h-5 w-5 text-primary" aria-hidden />
+          <Icon className="h-5 w-5 text-[#006C49]" aria-hidden />
         </div>
         <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       </div>

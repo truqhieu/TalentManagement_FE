@@ -1,15 +1,9 @@
-import { useMemo, useState, useEffect } from 'react'
-import { createPortal } from 'react-dom'
-import { BarChart3, Calendar, Loader2, Pencil, Plus, Search, Trash2, UserX, X } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import type { z } from 'zod'
-import { toast } from 'sonner'
 import { BRAND_BTN_SOLID, BRAND_TEXT } from '@/components/shared/brandButtonStyles'
 import { OrgUserAvatar } from '@/components/shared/EmployeeAvatar'
 import { Button } from '@/components/ui/button'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
 import { NumberedPaginationBar } from '@/components/ui/pagination'
-import { DatePicker } from '@/components/ui/date-picker'
 import {
   Select,
   SelectContent,
@@ -17,7 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+import {
+  DEFAULT_ESSAY_CRITERIA_WEIGHTS,
+  ESSAY_CRITERIA,
+  sumCriteriaWeights,
+  type EssayCriteriaWeights,
+} from '@/features/exam-papers/criteria'
+import { useExamPapers } from '@/features/exam-papers/hooks'
+import { ClassMembersScoresModal } from '@/features/manager/components/ClassMembersScoresModal'
 import {
   useAllExams,
   useCreateClassSchedule,
@@ -26,6 +27,7 @@ import {
   useTeacherOptions,
   useUpdateClassSchedule,
 } from '@/features/manager/hooks'
+import type { managerClassApiSchema } from '@/features/manager/schemas'
 import { formatViDate } from '@/lib/date'
 import {
   addMinutesToHm,
@@ -34,19 +36,17 @@ import {
   getExamDurationMinutes,
   mergeScheduleExamQuestions,
 } from '@/lib/examScheduleTime'
-import { ExamPaperAssignmentFields } from './ExamPaperAssignmentFields'
-import { ExamManagementTabs } from './ExamManagementTabs'
+import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth.store'
+import { BarChart3, Calendar, Loader2, Pencil, Plus, Search, Trash2, UserX, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import type { z } from 'zod'
+import { ExamManagementTabs } from './ExamManagementTabs'
+import { ExamPaperAssignmentFields } from './ExamPaperAssignmentFields'
 import { ManagerScreenLayout } from './ManagerScreenLayout'
-import { ClassMembersScoresModal } from '@/features/manager/components/ClassMembersScoresModal'
-import { useExamPapers } from '@/features/exam-papers/hooks'
-import {
-  DEFAULT_ESSAY_CRITERIA_WEIGHTS,
-  ESSAY_CRITERIA,
-  sumCriteriaWeights,
-  type EssayCriteriaWeights,
-} from '@/features/exam-papers/criteria'
-import type { managerClassApiSchema } from '@/features/manager/schemas'
 
 type ManagerClassRow = z.infer<typeof managerClassApiSchema>
 
@@ -350,8 +350,7 @@ export function ManagerExamScheduleScreen() {
       <ManagerScreenLayout hideHubNav hideToolbar>
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
-            <h1 className="text-xl font-bold text-foreground">Lịch thi & Người chấm</h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">{PAGE_SUBTITLE}</p>
+            <h1 className="text-2xl font-bold text-foreground">Lịch thi & Người chấm</h1>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <ExamManagementTabs active="/manager/exam-schedule" className="mb-0" />
@@ -370,7 +369,7 @@ export function ManagerExamScheduleScreen() {
 
         <div className="mb-4 rounded-xl border border-border bg-card p-3 shadow-sm">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative min-w-[240px] flex-1">
+            <div className="relative flex-1">
               {loadingExams ? (
                 <Loader2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
               ) : (
@@ -380,7 +379,7 @@ export function ManagerExamScheduleScreen() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm kiếm tên lớp học hoặc kỳ thi..."
-                className="h-10 w-full rounded-lg border-transparent bg-muted/40 pl-10 pr-4 text-sm shadow-none"
+                className="h-12 w-full rounded-lg border-transparent bg-muted/40 pl-10 pr-4 text-sm shadow-none"
               />
             </div>
 
@@ -552,22 +551,22 @@ export function ManagerExamScheduleScreen() {
 
           {/* Desktop: bảng */}
           <div className="hidden md:block md:overflow-x-auto">
-            <table className="w-full min-w-[720px] border-collapse text-left">
+            <table className="w-full table-fixed border-collapse text-left">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
-                  <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <th className="w-[30%] max-w-[300px] px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     Tên lớp & Kỳ thi
                   </th>
-                  <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <th className="w-[20%] px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     Thời gian
                   </th>
-                  <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <th className="w-[18%] px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     Người chấm
                   </th>
-                  <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <th className="w-[20%] px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     Đề thi & Tình trạng
                   </th>
-                  <th className="px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <th className="w-[12%] px-4 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                     Thao tác
                   </th>
                 </tr>
@@ -593,11 +592,11 @@ export function ManagerExamScheduleScreen() {
 
                     return (
                       <tr key={e.id} className="transition-colors hover:bg-muted/20">
-                        <td className="px-4 py-3">
-                          <p className="text-sm font-semibold leading-tight text-foreground">
+                        <td className="min-w-0 max-w-[300px] px-4 py-3">
+                          <p className="truncate text-sm font-semibold leading-tight text-foreground">
                             {e.className}
                           </p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">{e.topic}</p>
+                          <p className="mt-0.5 truncate text-xs text-muted-foreground">{e.topic}</p>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">

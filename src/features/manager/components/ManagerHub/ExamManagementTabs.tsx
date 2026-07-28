@@ -1,6 +1,6 @@
+import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { Calendar, FileText } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 const TABS = [
   { to: '/manager/exam-schedule' as const, label: 'Lịch thi', icon: Calendar },
@@ -34,7 +34,7 @@ export function ExamManagementTabs({
           className={cn(
             'flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-colors',
             active === t.to
-              ? 'bg-card text-primary shadow-sm'
+              ? 'bg-[#006C49] text-white'
               : 'text-muted-foreground hover:text-foreground'
           )}
         >

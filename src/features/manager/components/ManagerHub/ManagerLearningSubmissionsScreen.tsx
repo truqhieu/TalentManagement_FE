@@ -1,35 +1,14 @@
-import { useState, useMemo, memo } from 'react'
-import {
-  FileText,
-  Users,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-  Search,
-  ExternalLink,
-  Filter,
-  Paperclip,
-  Loader2,
-  BookOpen,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react'
-import { toast } from 'sonner'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
-import { cn, getFileViewerUrl } from '@/lib/utils'
-import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
-import { useManagerSubmissions, useUpdateSubmissionStatus } from '@/features/manager/hooks'
-import { ManagerScreenLayout } from './ManagerScreenLayout'
-import { formatViDate } from '@/lib/date'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useManagerSubmissions } from '@/features/manager/hooks'
+import { CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
+import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
+import { cn, getFileViewerUrl } from '@/lib/utils'
+import { ChevronDown, ChevronUp, ExternalLink, Search, Users } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
+import { ManagerScreenLayout } from './ManagerScreenLayout'
 
 export const ManagerLearningSubmissionsScreen = () => {
   const { data: submissions, isLoading } = useManagerSubmissions()
@@ -65,18 +44,11 @@ export const ManagerLearningSubmissionsScreen = () => {
 
   return (
     <ManagerScreenLayout hideHubNav hideToolbar>
-      <div className="mb-8 flex flex-col gap-8">
+      <div className="animate-page-entrance flex flex-col gap-4 pb-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className={cn('min-w-0 flex-1', PAGE_HEADER_SURFACE)}>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
-                Kỳ thi hiện tại
-              </span>
-            </div>
-            <h1 className={PAGE_HEADER_TITLE}>
-              <span className={PAGE_HEADER_GRADIENT}>Phản tư lớp Biết việc 1</span>
-            </h1>
-            <p className={PAGE_HEADER_DESCRIPTION}>
+          <div className="">
+            <h1 className="text-2xl font-bold text-foreground mb-3">Phản tư lớp Biết việc 1</h1>
+            <p className="text-sm text-muted-foreground">
               Quản lý và tổng hợp kết quả phản tư của nhân sự trong kỳ thi lớp Biết việc 1.
             </p>
           </div>

@@ -1,15 +1,7 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { KeyRound, Search } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
 import { Button } from '@/components/ui/button'
-import { PaginationPrevNext } from '@/components/ui/pagination'
 import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { PaginationPrevNext } from '@/components/ui/pagination'
 import {
   Select,
   SelectContent,
@@ -17,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -25,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import type { EmployeeEntity } from '@/features/hr-admin/api'
 import {
   avatarClassForRole,
   employeeDeptDisplay,
@@ -33,17 +27,17 @@ import {
   statusDotClass,
   statusLabelVi,
 } from '@/features/hr-admin/components/HrEmployeeList/employeeListUtils'
-import type { EmployeeEntity } from '@/features/hr-admin/api'
-import { usePermissionsEmployeeList } from '@/features/permissions/employeeDirectoryHooks'
 import { requireBodOrManager } from '@/features/hr-admin/requireBodOrManager'
 import { ManagerScreenLayout } from '@/features/manager/components/ManagerHub/ManagerScreenLayout'
-import { requirePermissionPrefix } from '@/lib/permissionGuards'
+import { usePermissionsEmployeeList } from '@/features/permissions/employeeDirectoryHooks'
 import { getApiErrorMessage } from '@/lib/axios'
+import { requirePermissionPrefix } from '@/lib/permissionGuards'
 import { ROLE_LABEL_VI } from '@/lib/roleLabels'
-import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import type { Role } from '@/types/auth'
-import { Skeleton } from '@/components/ui/skeleton'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 /** Màn phân quyền: cố định 10 nhân viên mỗi trang. */
 const PERMISSIONS_PAGE_SIZE = 10
@@ -235,19 +229,9 @@ function PermissionsIndexPage() {
 
   return (
     <ManagerScreenLayout hideHubNav hideToolbar>
-      <div className="mb-8 flex flex-col gap-8">
-        <div className={cn('min-w-0', PAGE_HEADER_SURFACE)}>
-          <div className="mb-3 inline-flex items-center gap-2 rounded-lg border border-primary/15 bg-primary/5 px-3 py-1.5 text-sm font-medium text-primary">
-            <KeyRound className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
-            Phân quyền
-          </div>
-          <h1 className={PAGE_HEADER_TITLE}>
-            <span className={PAGE_HEADER_GRADIENT}>Phân quyền nhân viên</span>
-          </h1>
-          <p className={PAGE_HEADER_DESCRIPTION}>
-            Chọn nhân viên để gán vai trò mẫu và quyền chi tiết. Chỉ BOD và Quản lý có quyền truy
-            cập màn hình này.
-          </p>
+      <div className="animate-page-entrance flex flex-col gap-4 pb-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-foreground">Phân quyền nhân viên</h1>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:justify-between">

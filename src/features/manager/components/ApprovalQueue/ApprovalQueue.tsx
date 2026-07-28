@@ -1,13 +1,23 @@
-import * as React from 'react'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { SkeletonApprovalCardList } from '@/components/ui/skeleton'
+import { ManagerScreenLayout } from '@/features/manager/components/ManagerHub/ManagerScreenLayout'
+import type { ApprovalsPage } from '@/features/manager/types'
+import { CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth.store'
 import { Link } from '@tanstack/react-router'
 import {
   ArrowRight,
   Award,
   ChevronDown,
-  ChevronRight,
-  Filter,
   History,
-  LayoutList,
   Medal,
   RefreshCw,
   Search,
@@ -17,28 +27,8 @@ import {
   UserCheck,
   Users,
 } from 'lucide-react'
+import * as React from 'react'
 import { toast } from 'sonner'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
-import { Button } from '@/components/ui/button'
-import { SkeletonApprovalCardList } from '@/components/ui/skeleton'
-import { CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
-import { cn } from '@/lib/utils'
-import { ROLE_LABEL_VI } from '@/lib/roleLabels'
-import { useAuthStore } from '@/stores/auth.store'
-import { ManagerScreenLayout } from '@/features/manager/components/ManagerHub/ManagerScreenLayout'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import type { ApprovalsPage } from '@/features/manager/types'
 
 function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/)
@@ -142,15 +132,13 @@ export function ApprovalQueue({
 
   return (
     <ManagerScreenLayout hideHubNav hideToolbar>
-      <div className="animate-page-entrance flex flex-col gap-6 pb-12">
+      <div className="animate-page-entrance flex flex-col gap-4 pb-4">
         {/* Header Section */}
-        <div className={cn('rounded-[32px] p-8 md:p-10', PAGE_HEADER_SURFACE)}>
+        <div className={cn('')}>
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div className="max-w-2xl">
-              <h1 className={cn(PAGE_HEADER_TITLE, 'mb-3')}>
-                <span className={PAGE_HEADER_GRADIENT}>Quản lý thăng tiến</span>
-              </h1>
-              <p className={cn(PAGE_HEADER_DESCRIPTION, 'max-w-lg')}>
+            <div className="">
+              <h1 className="text-2xl font-bold text-foreground mb-3">Quản lý thăng tiến</h1>
+              <p className="text-sm text-muted-foreground">
                 Phê duyệt thăng cấp bậc và thăng sao cho nhân sự đủ điều kiện. Hệ thống tự động gợi
                 ý dựa trên kết quả học tập và KPI.
               </p>
@@ -159,7 +147,7 @@ export function ApprovalQueue({
               <Link
                 to="/hr-admin"
                 search={{ page: 1, pageSize: 15 }}
-                className="inline-flex items-center gap-2 rounded-2xl border border-primary/10 bg-card px-5 py-3 text-sm font-bold text-primary shadow-sm transition-all hover:bg-muted/50 active:scale-95"
+                className="inline-flex items-center gap-2 rounded-2xl border border-[#006C49]/10 bg-[#006C49]/0.2 px-5 py-3 text-sm font-bold text-[#006C49] shadow-sm transition-all hover:bg-[#006C49]/50 active:scale-95"
               >
                 <History className="h-4 w-4" />
                 Lịch sử duyệt

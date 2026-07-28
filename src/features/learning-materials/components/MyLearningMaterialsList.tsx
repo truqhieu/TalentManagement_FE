@@ -1,8 +1,8 @@
-import { BookOpen, Link as LinkIcon, Upload } from 'lucide-react'
-import { Card } from '@/components/ui/card'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { Card } from '@/components/ui/card'
 import { SkeletonSubmissionCardList } from '@/components/ui/skeleton'
 import { useMyLearningMaterials } from '@/features/learning-materials/hooks'
+import { BookOpen, Link as LinkIcon, Upload } from 'lucide-react'
 
 export function MyLearningMaterialsList() {
   const { data: materials = [], isLoading } = useMyLearningMaterials()
@@ -14,6 +14,7 @@ export function MyLearningMaterialsList() {
         icon={<BookOpen className="h-8 w-8" />}
         title="Chưa có tài liệu học"
         description="Giáo viên/quản lý sẽ cập nhật tài liệu học cho lớp của bạn tại đây."
+        className="border border-[#006C49]/20 bg-[#006C49]/0.2 rounded-3xl"
       />
     )
   }
