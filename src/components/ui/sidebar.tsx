@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const sidebarVariants = cva(
-  'relative flex h-full min-h-0 shrink-0 flex-col border-r border-indigo-200/70 bg-gradient-to-b from-slate-50 via-indigo-50/40 to-cyan-50/35 transition-[width] duration-200 dark:border-indigo-900/60 dark:from-slate-950 dark:via-indigo-950/35 dark:to-cyan-950/25',
+  'relative flex h-full min-h-0 shrink-0 flex-col border-r border-[#006C49]/15 bg-card transition-[width] duration-200 dark:border-emerald-800/40',
   {
     variants: {
       collapsed: {
@@ -36,7 +36,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="sidebar-header"
-      className={cn('border-b border-indigo-200/60 dark:border-indigo-900/60', className)}
+      className={cn('border-b border-[#006C49]/15 dark:border-emerald-800/40', className)}
       {...props}
     />
   )
@@ -56,7 +56,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="sidebar-footer"
-      className={cn('border-t border-indigo-200/60 dark:border-indigo-900/60', className)}
+      className={cn('border-t border-[#006C49]/15 dark:border-emerald-800/40', className)}
       {...props}
     />
   )
@@ -87,9 +87,9 @@ const sidebarMenuButtonVariants = cva(
         false: 'px-3',
       },
       active: {
-        true: 'border-indigo-500 bg-gradient-to-r from-indigo-500/14 via-violet-500/10 to-cyan-400/10 font-semibold text-indigo-700 shadow-[0_8px_18px_-14px_rgba(67,56,202,0.55)] dark:border-indigo-400 dark:text-indigo-200',
+        true: 'border-[#006C49] bg-[#006C49]/10 font-semibold text-[#006C49] shadow-sm dark:border-emerald-500 dark:bg-emerald-500/15 dark:text-emerald-400',
         false:
-          'border-transparent text-muted-foreground hover:bg-white/65 hover:text-foreground dark:hover:bg-white/5',
+          'border-transparent text-muted-foreground hover:bg-[#006C49]/5 hover:text-foreground dark:hover:bg-emerald-500/10',
       },
     },
     defaultVariants: {

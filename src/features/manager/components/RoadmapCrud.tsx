@@ -448,7 +448,7 @@ export function RoadmapCrud() {
     <>
       <PageHeader
         title="Quản lý lộ trình học"
-        description="Thêm, sửa, xoá các đầu mục lộ trình tự động hóa cho nhân sự"
+        // description="Thêm, sửa, xoá các đầu mục lộ trình tự động hóa cho nhân sự"
       />
 
       <div className="space-y-6">

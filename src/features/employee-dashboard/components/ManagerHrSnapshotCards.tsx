@@ -57,7 +57,7 @@ export function ManagerHrSnapshotCards({
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-card via-card to-primary/[0.06] p-4 shadow-[var(--shadow-game-float)] sm:p-5">
+      <div className="overflow-hidden rounded-2xl border border-[#006C49]/15 bg-white sm:p-5">
         {/* Header */}
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-600/15 text-indigo-700 dark:text-indigo-300">
