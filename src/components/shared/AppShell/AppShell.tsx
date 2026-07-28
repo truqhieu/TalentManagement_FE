@@ -120,7 +120,7 @@ export function AppShell({ children, title }: AppShellProps) {
               className="flex cursor-pointer flex-col items-stretch gap-0.5 py-2.5 !no-underline"
             >
               <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <UserCircle className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
+                <UserCircle className="h-4 w-4 shrink-0 text-[#006C49]" strokeWidth={2} />
                 Hồ sơ cá nhân
               </span>
               <span className="pl-6 text-xs leading-snug text-muted-foreground">
