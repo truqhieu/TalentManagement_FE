@@ -98,8 +98,10 @@ export const learningOpsSummarySchema = z.object({
   classesCreatedInPeriod: z.number().int().nonnegative(),
   /** Trong kỳ: học viên trượt thi (Chờ học lại / Chia tay), mỗi buổi/kỳ thi tính một lần. */
   usersWithAtLeastTwoExamFails: z.array(learningOpsExamRepeatFailUserSchema).default([]),
-  /** Đang làm việc (không thuộc trạng thái nghỉ / inactive). */
+  /** Tổng toàn bộ hồ sơ nhân sự (mọi trạng thái) — khớp "Tổng nhân sự" của trang Danh sách nhân sự. */
   totalHeadcount: z.number().int().nonnegative(),
+  /** Đúng trạng thái ACTIVE (loại inactive lẫn probation/reserved/transferred). */
+  activeHeadcount: z.number().int().nonnegative(),
   /** Ngày vào làm (`startDateWork`) nằm trong kỳ lọc. */
   newHiresInPeriod: z.number().int().nonnegative(),
   /** Nghỉ / off: ưu tiên ngày trong dữ liệu Lark (`Ngày nghỉ việc`); không có thì fallback `updatedAt` khi đã inactive. */

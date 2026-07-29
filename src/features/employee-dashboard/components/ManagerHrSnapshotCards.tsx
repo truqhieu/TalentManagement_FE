@@ -12,7 +12,7 @@ export type ManagerHrSnapshotCardsProps = {
 }
 
 const HR_HINT =
-  'Tổng: không tính trạng thái đã nghỉ / inactive trên hồ sơ HR. Off: theo ngày nghỉ trong dữ liệu đồng bộ; thiếu ngày thì ước lượng theo lần cập nhật gần nhất. Mới: ngày vào làm (startDateWork) nằm trong kỳ đã chọn.'
+  'Tổng: toàn bộ hồ sơ nhân sự, mọi trạng thái (khớp "Tổng nhân sự" ở trang Danh sách nhân sự). Đang hoạt động: đúng trạng thái ACTIVE, không tính đã nghỉ / thử việc / bảo lưu / điều chuyển. Off: theo ngày nghỉ trong dữ liệu đồng bộ; thiếu ngày thì ước lượng theo lần cập nhật gần nhất. Mới: ngày vào làm (startDateWork) nằm trong kỳ đã chọn.'
 
 function pct(part: number, total: number): string {
   if (!total) return '—'
@@ -34,6 +34,7 @@ export function ManagerHrSnapshotCards({
   const inSingleMonth = rangeStartMonth === rangeEndMonth
   const periodSuffix = inSingleMonth ? 'trong tháng' : 'trong kỳ'
   const total = data?.totalHeadcount ?? 0
+  const active = data?.activeHeadcount ?? 0
   const off = data?.offboardedInPeriod ?? 0
   const newHires = data?.newHiresInPeriod ?? 0
 
@@ -67,19 +68,20 @@ export function ManagerHrSnapshotCards({
           </h3>
           <InfoHint
             text={HR_HINT}
-            label="Cách tính nhân sự Tổng / Off / Mới"
+            label="Cách tính nhân sự Tổng / Đang hoạt động / Off / Mới"
             className="self-start"
           />
         </div>
 
         {isLoading && !data ? (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Skeleton className="h-24 w-full rounded-xl" />
             <Skeleton className="h-24 w-full rounded-xl" />
             <Skeleton className="h-24 w-full rounded-xl" />
             <Skeleton className="h-24 w-full rounded-xl" />
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {/* Tổng nhân sự */}
             <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-violet-500/10 to-indigo-600/5 p-3 ring-1 ring-indigo-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-indigo-500/40 sm:p-4">
               <div
@@ -97,7 +99,29 @@ export function ManagerHrSnapshotCards({
               >
                 {total.toLocaleString('vi-VN')}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">nhân sự đang làm việc</p>
+              <p className="mt-1 text-xs text-muted-foreground">toàn bộ hồ sơ nhân sự</p>
+            </div>
+
+            {/* Đang hoạt động */}
+            <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-sky-500/10 to-cyan-600/5 p-3 ring-1 ring-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-sky-500/40 sm:p-4">
+              <div
+                className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-sky-500/8 blur-xl"
+                aria-hidden
+              />
+              <p className="mb-1 text-xs font-bold uppercase tracking-wider text-sky-600/80 dark:text-sky-400">
+                Đang hoạt động
+              </p>
+              <p
+                className={cn(
+                  'font-black tabular-nums text-foreground',
+                  active >= 1000 ? 'text-2xl' : 'text-3xl'
+                )}
+              >
+                {active.toLocaleString('vi-VN')}
+              </p>
+              <p className="mt-1 text-xs font-medium text-sky-600/70 dark:text-sky-400">
+                {pct(active, total)} tổng
+              </p>
             </div>
 
             {/* Off */}
@@ -116,7 +140,7 @@ export function ManagerHrSnapshotCards({
                 {off.toLocaleString('vi-VN')}
               </p>
               <p className="mt-1 text-xs font-medium text-rose-600/70 dark:text-rose-400">
-                {pct(off, total)} tổng
+                {pct(off, active)} đang hoạt động
               </p>
             </div>
 
@@ -136,7 +160,7 @@ export function ManagerHrSnapshotCards({
                 {newHires.toLocaleString('vi-VN')}
               </p>
               <p className="mt-1 text-xs font-medium text-emerald-600/70 dark:text-emerald-400">
-                {pct(newHires, total)} tổng
+                {pct(newHires, active)} đang hoạt động
               </p>
             </div>
           </div>
