@@ -306,7 +306,7 @@ function LoginPage() {
                 <Button
                   type="submit"
                   disabled={login.isPending || isRedirecting}
-                  className="mt-5 h-12 w-full rounded-lg text-base shadow-sm transition-all hover:opacity-[0.96] active:scale-[0.98]"
+                  className="mt-5 h-12 w-full rounded-lg text-base shadow-sm bg-primary text-white hover:bg-primary/90 transition-all hover:opacity-[0.96] active:scale-[0.98]"
                 >
                   {login.isPending || isRedirecting ? (
                     <Loader2 className="h-5 w-5 animate-spin" />

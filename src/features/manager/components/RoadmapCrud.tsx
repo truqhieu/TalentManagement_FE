@@ -26,7 +26,7 @@ import {
   useTeacherOptions,
   useUpdateManagerRoadmapItem,
 } from '@/features/manager/hooks'
-import { cn } from '@/lib/utils'
+import { cn, randomId } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   ArrowUpRight,
@@ -279,10 +279,10 @@ export function RoadmapCrud() {
   }
 
   const [materials, setMaterials] = useState<{ id: string; name: string; link: string }[]>([
-    { id: crypto.randomUUID(), name: '', link: '' },
+    { id: randomId(), name: '', link: '' },
   ])
   const [objectives, setObjectives] = useState<{ id: string; text: string }[]>([
-    { id: crypto.randomUUID(), text: '' },
+    { id: randomId(), text: '' },
   ])
   const [trainerSearch, setTrainerSearch] = useState('')
   const [debouncedTrainerSearch, setDebouncedTrainerSearch] = useState('')
@@ -298,26 +298,26 @@ export function RoadmapCrud() {
     useTeacherOptions(debouncedTrainerSearch)
 
   const addMaterial = () => {
-    setMaterials([...materials, { id: crypto.randomUUID(), name: '', link: '' }])
+    setMaterials([...materials, { id: randomId(), name: '', link: '' }])
   }
 
   const removeMaterial = (id: string) => {
     if (materials.length > 1) {
       setMaterials(materials.filter((m) => m.id !== id))
     } else {
-      setMaterials([{ id: crypto.randomUUID(), name: '', link: '' }])
+      setMaterials([{ id: randomId(), name: '', link: '' }])
     }
   }
 
   const addObjective = () => {
-    setObjectives([...objectives, { id: crypto.randomUUID(), text: '' }])
+    setObjectives([...objectives, { id: randomId(), text: '' }])
   }
 
   const removeObjective = (id: string) => {
     if (objectives.length > 1) {
       setObjectives(objectives.filter((o) => o.id !== id))
     } else {
-      setObjectives([{ id: crypto.randomUUID(), text: '' }])
+      setObjectives([{ id: randomId(), text: '' }])
     }
   }
 
@@ -352,8 +352,8 @@ export function RoadmapCrud() {
 
   const handleCancel = () => {
     form.reset(defaultValues)
-    setMaterials([{ id: crypto.randomUUID(), name: '', link: '' }])
-    setObjectives([{ id: crypto.randomUUID(), text: '' }])
+    setMaterials([{ id: randomId(), name: '', link: '' }])
+    setObjectives([{ id: randomId(), text: '' }])
     setEditingId(null)
     setIsFormVisible(false)
   }
@@ -382,7 +382,7 @@ export function RoadmapCrud() {
       // Bulk creation for multiple objectives
       const validObjectives = objectives.filter((o) => o.text.trim() !== '')
       if (validObjectives.length === 0) {
-        validObjectives.push({ id: crypto.randomUUID(), text: values.objective })
+        validObjectives.push({ id: randomId(), text: values.objective })
       }
 
       for (const obj of validObjectives) {
@@ -413,16 +413,16 @@ export function RoadmapCrud() {
       if (parts[1]) setLevelEnd(reverseMap[parts[1]] || 'biet_viec')
     }
 
-    setObjectives([{ id: crypto.randomUUID(), text: item.objective || '' }])
+    setObjectives([{ id: randomId(), text: item.objective || '' }])
     try {
       const parsedMaterials = JSON.parse(item.materialRef || '[]')
       setMaterials(
         Array.isArray(parsedMaterials) && parsedMaterials.length > 0
           ? parsedMaterials
-          : [{ id: crypto.randomUUID(), name: '', link: '' }]
+          : [{ id: randomId(), name: '', link: '' }]
       )
     } catch {
-      setMaterials([{ id: crypto.randomUUID(), name: '', link: '' }])
+      setMaterials([{ id: randomId(), name: '', link: '' }])
     }
 
     form.reset({
