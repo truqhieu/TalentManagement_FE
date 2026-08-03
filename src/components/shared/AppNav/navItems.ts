@@ -542,7 +542,7 @@ export type AppNavGroup = {
 }
 
 /**
- * Sidebar có nhóm: gom theo luồng sử dụng (Tổng quan → Học tập → Quản lý lớp →
+ * Sidebar có nhóm: gom theo luồng sử dụng (Tổng quan → Lớp học và thi cử →
  * Nhân sự → Cài đặt → …) thay vì danh sách phẳng dài. Mỗi item chỉ xuất hiện
  * 1 lần (dedupe theo `to`+`search`); nhóm rỗng (sau filter quyền) sẽ bị ẩn.
  */
@@ -582,24 +582,13 @@ export function groupedSidebarNavItems(
       ]),
     },
     {
-      id: 'learning',
-      label: 'Học tập & Thi cử',
+      id: 'classes-exams',
+      label: 'Lớp học và thi cử',
       items: take([
         ...find(MEMBER_SELF_ITEMS, '/learning-path'),
         ...find(MEMBER_SELF_ITEMS, '/learning-classes'),
         ...find(MEMBER_SELF_ITEMS, '/other-classes'),
         ...find(MEMBER_SELF_ITEMS, '/exam'),
-      ]),
-    },
-    {
-      id: 'room-booking',
-      label: 'Phòng họp',
-      items: take([...find(ROOM_BOOKING_ITEMS, '/room-booking')]),
-    },
-    {
-      id: 'manager',
-      label: 'Quản lý lớp & Thi',
-      items: take([
         ...find(MANAGER_OPS_ITEMS, '/manager/classes'),
         ...find(TEACHER_HEADER_ITEMS, '/teacher/classes'),
         ...find(MANAGER_OPS_ITEMS, '/manager/exam-schedule'),
@@ -607,6 +596,11 @@ export function groupedSidebarNavItems(
         ...find(MANAGER_OPS_ITEMS, '/manager/approvals'),
         ...find(MANAGER_OPS_ITEMS, '/manager/learning-submissions'),
       ]),
+    },
+    {
+      id: 'room-booking',
+      label: 'Phòng họp',
+      items: take([...find(ROOM_BOOKING_ITEMS, '/room-booking')]),
     },
     {
       id: 'hr',

@@ -17,13 +17,14 @@ import {
   formatUserDateForReadonlyDisplay,
   parseStoredDateToInputValue,
 } from '@/features/profile/profileDateUtils'
-import { useId, useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { profileApi } from '@/features/profile/api'
 import { toast } from 'sonner'
-import type { MyProfilePage } from '@/features/profile/types'
 import { getApiErrorMessage } from '@/lib/axios'
 import { EmployeeExtraTeamsField, extraTeamIdsEqual } from '../EmployeeExtraTeamsField'
+import { levelPillText } from '../HrEmployeeList/employeeListUtils'
 import { ROLE_LABEL_VI } from '@/lib/roleLabels'
+import type { Role } from '@/types/auth'
 import { EmployeeAvatar } from '@/components/shared/EmployeeAvatar'
 import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
 import { Building2, RefreshCw, Upload } from 'lucide-react'
@@ -61,7 +62,7 @@ import {
   type DirectManagerOption,
 } from '../../directManagerOptions'
 export interface HrEmployeeProfileProps {
-  employee: EmployeeEntity
+  employee: IHrEmployeeProfileState
   /** Mặc định mở tab khi vào từ URL `?mode=edit`. */
   initialTab?: number
 }
@@ -263,16 +264,10 @@ function userToEdit(
   return r
 }
 
-function mapCurrentTitleToLevelId(
-  title: string
-): 'tap_su' | 'biet_viec' | 'duoc_viec' | 'dong_gop_ket_qua' | 'tuong' {
-  const normalized = title.trim().toLowerCase()
-  if (normalized.includes('tập sự') || normalized.includes('tap su')) return 'tap_su'
-  if (normalized.includes('biết việc') || normalized.includes('biet viec')) return 'biet_viec'
-  if (normalized.includes('được việc') || normalized.includes('duoc viec')) return 'duoc_viec'
-  if (normalized.includes('đóng góp') || normalized.includes('dong gop')) return 'dong_gop_ket_qua'
-  if (normalized.includes('tướng') || normalized.includes('tuong')) return 'tuong'
-  return 'biet_viec'
+function toDisplayRole(role: string | null | undefined): Role {
+  const value = role ?? 'MEMBER'
+  if (value in ROLE_LABEL_VI) return value as Role
+  return 'MEMBER'
 }
 
 function toPatch(
@@ -627,6 +622,7 @@ function ProfileIdentityCard({
   u,
   role,
   currentLevelTitle,
+  departmentDisplayName,
   portraitUploading,
   uploadDisabled = false,
   avatarUploadInputId,
@@ -636,8 +632,9 @@ function ProfileIdentityCard({
 }: {
   control: Control<EditRecord>
   u: MeUserSelf
-  role: keyof typeof ROLE_LABEL_VI
+  role: Role
   currentLevelTitle: string
+  departmentDisplayName: string
   portraitUploading: boolean
   /** Khoá nút upload khi có thao tác khác đang chạy (không hiện overlay loading trên avatar). */
   uploadDisabled?: boolean
@@ -717,7 +714,7 @@ function ProfileIdentityCard({
           </Badge>
           <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
             <Building2 className="h-3 w-3" />
-            <span>{u.departmentName?.trim() || '—'}</span>
+            <span>{departmentDisplayName}</span>
           </div>
           <Badge
             variant="outline"
@@ -763,20 +760,14 @@ function SectionTitle({
   )
 }
 
-export function HrEmployeeProfile({
-  employee,
-  page,
-}: {
-  employee: IHrEmployeeProfileState
-  page: MyProfilePage
-}) {
-  const user = useAuthStore((s) => s.user)
+export function HrEmployeeProfile({ employee }: HrEmployeeProfileProps) {
+  const viewer = useAuthStore((s) => s.user)
   const { canId } = usePermission()
   const canDeactivate = canId('hr.employees.deactivate') || canId('hr.employees.edit')
   const canReactivate = canId('hr.employees.edit')
   const canEditLoginCredential = canId('hr.employees.edit')
   const { mutate: patchUser, isPending: patchPending } = useUpdateEmployeeById()
-  const { data: employeeSummary } = useEmployee(employee.id)
+  const { data: employeeSummary, isLoading: summaryLoading } = useEmployee(employee.id)
   const deactivate = useDeactivateEmployee()
   const updateEmployee = useUpdateEmployee()
   const [confirmPending, setConfirmPending] = useState<'deactivate' | 'reactivate' | null>(null)
@@ -800,26 +791,56 @@ export function HrEmployeeProfile({
   const form = useForm<EditRecord>({
     defaultValues: userToEdit(employee, managers),
   })
-  const { control, handleSubmit, reset } = form
+  const { control, handleSubmit, reset, setValue } = form
   const selectedTeamId = useWatch({ control, name: 'teamId' }) ?? ''
+  const selectedDivisionId = useWatch({ control, name: 'divisionId' }) ?? ''
+  const prevDivisionIdRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (prevDivisionIdRef.current === null) {
+      prevDivisionIdRef.current = selectedDivisionId
+      return
+    }
+    if (prevDivisionIdRef.current !== selectedDivisionId) {
+      setValue('teamId', '')
+      setValue('extraTeamIds', [])
+      prevDivisionIdRef.current = selectedDivisionId
+    }
+  }, [selectedDivisionId, setValue])
 
   useEffect(() => {
     reset({
       ...userToEdit(employee, managers),
       employmentStatusUi: resolveEmploymentStatusUi(employee, employeeSummary?.status),
     })
+    prevDivisionIdRef.current = employee.divisionId?.trim() ?? ''
   }, [employee, employeeSummary?.status, managers, reset])
 
   const divisions = useMemo(
     () => divisionsList.map((d) => ({ id: d.id, name: d.name })),
     [divisionsList]
   )
-  // Hiển thị tất cả nhóm, không lọc theo phòng ban
-  const teams = useMemo(() => teamsList.map((t) => ({ id: t.id, name: t.name })), [teamsList])
+  const teams = useMemo(() => {
+    const divisionId = selectedDivisionId.trim()
+    const mapped = teamsList.map((t) => ({
+      id: t.id,
+      name: t.name,
+      teamGroupId: t.teamGroupId,
+    }))
+    if (!divisionId) return mapped.map(({ id, name }) => ({ id, name }))
+    return mapped.filter((t) => t.teamGroupId === divisionId).map(({ id, name }) => ({ id, name }))
+  }, [teamsList, selectedDivisionId])
   const allTeamOptions = useMemo(
     () => teamsList.map((t) => ({ value: t.id, label: t.name })),
     [teamsList]
   )
+  const departmentDisplayName = useMemo(() => {
+    const divisionId = selectedDivisionId.trim()
+    if (divisionId) {
+      return divisions.find((d) => d.id === divisionId)?.name ?? '—'
+    }
+    return employee.departmentName?.trim() || '—'
+  }, [selectedDivisionId, divisions, employee.departmentName])
   const { data: positionsData } = useQuery({
     queryKey: ['profile', 'positions'],
     queryFn: () => profileApi.getPositions(),
@@ -831,18 +852,22 @@ export function HrEmployeeProfile({
   })
   const jobTitles = useMemo(() => jobTitlesData ?? [], [jobTitlesData])
 
-  const role = user?.role ?? 'MEMBER'
-  const canManageEmploymentStatus = canManageEmploymentStatusRole(role)
-  const currentLevelId = mapCurrentTitleToLevelId(page.currentLevel.title)
+  const canManageEmploymentStatus = canManageEmploymentStatusRole(viewer?.role)
+  const employeeRole = toDisplayRole(employeeSummary?.role ?? employee.role)
+  const currentLevelId = employeeSummary?.currentLevel ?? 'tap_su'
+  const currentLevelTitle = employeeSummary
+    ? levelPillText(employeeSummary.currentLevel)
+    : summaryLoading
+      ? '…'
+      : '—'
   const onPortraitFile = (file: File) => {
     uploadPortrait(file, {
       onSuccess: (res) => {
         toast.success('Đã cập nhật ảnh đại diện')
-        form.setValue('portraitRef', res.portraitRef)
-        // Cập nhật vào auth store để Navbar thay đổi ngay
-        if (user) {
+        setValue('portraitRef', res.portraitRef)
+        if (viewer) {
           useAuthStore.getState().setUser({
-            ...user,
+            ...viewer,
             portraitRef: res.portraitRef,
           })
         }
@@ -928,7 +953,6 @@ export function HrEmployeeProfile({
     directManagerOptions,
   }
   const avatarUploadInputId = useId()
-
   return (
     <Form {...form}>
       <div
@@ -963,14 +987,15 @@ export function HrEmployeeProfile({
                   <ProfileIdentityCard
                     control={control}
                     u={employee}
-                    role={role}
-                    currentLevelTitle={page.currentLevel.title}
+                    role={employeeRole}
+                    currentLevelTitle={currentLevelTitle}
+                    departmentDisplayName={departmentDisplayName}
                     portraitUploading={portraitUploading}
                     uploadDisabled={anyActionPending}
                     avatarUploadInputId={avatarUploadInputId}
                     onPortraitFile={onPortraitFile}
-                    fallbackUserName={user?.name ?? ''}
-                    fallbackUserEmail={user?.email ?? ''}
+                    fallbackUserName={employee.displayName ?? employee.fullNameLegal ?? ''}
+                    fallbackUserEmail={employee.email ?? ''}
                   />
                 </div>
               </section>

@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { HrEmployeeProfile } from '@/features/hr-admin/components/HrEmployeeProfile'
 import { useEmployeeById } from '@/features/hr-admin/hooks'
 import { requireEmployeeDirectoryAccess } from '@/features/hr-admin/requireHrAdmin'
-import { useMyProfilePage } from '@/features/profile/hooks'
 import { RefreshCw } from 'lucide-react'
 
 const employeeSearchSchema = z.object({
@@ -25,9 +24,7 @@ function EmployeeDetailPage() {
   const { employeeId } = Route.useParams()
   const { data, isLoading } = useEmployeeById(employeeId)
 
-  const { data: dataPage, isLoading: isLoadingPage } = useMyProfilePage()
-
-  if (isLoading || isLoadingPage) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center gap-4">
         <RefreshCw className="h-8 w-8 animate-spin text-primary/40" />
@@ -42,9 +39,6 @@ function EmployeeDetailPage() {
       </div>
     )
   }
-  if (!dataPage) {
-    return <div className="p-4 text-sm text-[#991B1B]">Không tìm thấy dữ liệu hồ sơ cá nhân.</div>
-  }
 
-  return <HrEmployeeProfile employee={data} page={dataPage} />
+  return <HrEmployeeProfile employee={data} />
 }

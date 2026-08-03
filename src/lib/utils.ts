@@ -22,18 +22,26 @@ export function safeParse<T>(
   return result.data
 }
 
-export function getFileViewerUrl(url: string | null | undefined): string {
+const OFFICE_FILE_EXT_RE = /\.(docx?|xlsx?|pptx?)$/i
+
+/** Relative `/uploads/...` paths → full API URL for browser / Office Online viewer. */
+export function resolveFileUrl(url: string | null | undefined): string {
   if (!url) return ''
   const cleanUrl = url.trim()
-  const lowerUrl = cleanUrl.toLowerCase()
-  if (
-    lowerUrl.endsWith('.docx') ||
-    lowerUrl.endsWith('.doc') ||
-    lowerUrl.endsWith('.xlsx') ||
-    lowerUrl.endsWith('.xls') ||
-    lowerUrl.endsWith('.pptx') ||
-    lowerUrl.endsWith('.ppt')
-  ) {
+  if (!cleanUrl.startsWith('/uploads/')) return cleanUrl
+  const apiBase = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? ''
+  return apiBase ? `${apiBase}${cleanUrl}` : cleanUrl
+}
+
+export function isOfficeDocumentUrl(url: string, fileName?: string): boolean {
+  const probe = (fileName?.trim() || url).toLowerCase()
+  return OFFICE_FILE_EXT_RE.test(probe)
+}
+
+export function getFileViewerUrl(url: string | null | undefined): string {
+  const cleanUrl = resolveFileUrl(url)
+  if (!cleanUrl) return ''
+  if (isOfficeDocumentUrl(cleanUrl)) {
     return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(cleanUrl)}`
   }
   return cleanUrl

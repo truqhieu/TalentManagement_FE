@@ -70,7 +70,9 @@ export function MemberSubmissionResultScreen({ submissionId }: MemberSubmissionR
           })
         })
       }
-    } catch {}
+    } catch {
+      console.error('Error parsing exam question bank from localStorage')
+    }
 
     return map
   }, [submission])
@@ -215,7 +217,15 @@ export function MemberSubmissionResultScreen({ submissionId }: MemberSubmissionR
                   {answeredEntries.map(([qId, answer], idx) => {
                     const questionData = questionMap[qId]
                     const questionText = questionData?.stem || `Câu hỏi ${idx + 1}`
-                    const questionGrade = grades[qId] || { criteria: [], score: 0 }
+                    const rawGrade = grades[qId] as
+                      | { criteria?: string[]; score?: number; note?: string; auto?: boolean }
+                      | undefined
+                    const questionGrade = {
+                      criteria: rawGrade?.criteria ?? [],
+                      score: rawGrade?.score ?? 0,
+                      note: rawGrade?.note,
+                    }
+                    const isAutoGraded = rawGrade?.auto === true
 
                     return (
                       <div
@@ -249,21 +259,23 @@ export function MemberSubmissionResultScreen({ submissionId }: MemberSubmissionR
                                 {questionGrade.score}%
                               </span>
                             </div>
-                            <div className="flex flex-wrap gap-4">
-                              {ESSAY_CRITERIA.map((c) => (
-                                <label
-                                  key={c.id}
-                                  className="flex cursor-default items-center gap-2 text-sm font-medium opacity-80"
-                                >
-                                  <Checkbox
-                                    className="shrink-0"
-                                    checked={questionGrade.criteria.includes(c.id)}
-                                    disabled
-                                  />
-                                  {c.label} ({criteriaWeights[c.id]}%)
-                                </label>
-                              ))}
-                            </div>
+                            {!isAutoGraded && (
+                              <div className="flex flex-wrap gap-4">
+                                {ESSAY_CRITERIA.map((c) => (
+                                  <label
+                                    key={c.id}
+                                    className="flex cursor-default items-center gap-2 text-sm font-medium opacity-80"
+                                  >
+                                    <Checkbox
+                                      className="shrink-0"
+                                      checked={questionGrade.criteria.includes(c.id)}
+                                      disabled
+                                    />
+                                    {c.label} ({criteriaWeights[c.id]}%)
+                                  </label>
+                                ))}
+                              </div>
+                            )}
 
                             {questionGrade.note && (
                               <div className="mt-4 border-t border-primary/10 pt-3">

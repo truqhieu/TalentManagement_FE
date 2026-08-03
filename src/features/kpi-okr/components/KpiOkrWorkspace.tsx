@@ -100,7 +100,6 @@ import {
   isMandatoryMetric,
   isTrafficTeam,
   requiresKpiApproval,
-  resolveTemplateCodeForTeam,
   filterKpiEligibleMembers,
   kpiEligibleUserIdSet,
   memberRequiresKpiOkr,
@@ -545,7 +544,6 @@ export function KpiOkrWorkspace({
     if (isTrafficTeamSelected) return 'TRAFFIC_TEAM_NV'
     if (!catalogSeedEnabledSelected) return undefined
     if (selectedTeamForSeed && isCatalogSeedExcludedTeam(selectedTeamForSeed)) return undefined
-    if (selectedTeamForSeed) return resolveTemplateCodeForTeam(selectedTeamForSeed)
     return 'SALES_NV'
   }, [catalogSeedEnabledSelected, isTrafficTeamSelected, selectedTeamForSeed])
 

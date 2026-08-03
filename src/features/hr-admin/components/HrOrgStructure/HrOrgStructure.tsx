@@ -8,22 +8,31 @@ import {
   Building2,
   ChevronDown,
   FolderOpen,
+  Gavel,
+  Headset,
+  IdCard,
+  Palette,
   Pencil,
   Plus,
   Search,
+  ShieldCheck,
+  SquareTerminal,
   Trash2,
+  User,
   UserMinus,
   UserPlus,
   Users,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { OrgUserAvatar } from '@/components/shared/EmployeeAvatar'
 import { useAnyActionPending } from '@/features/hr-admin/hooks'
+import { PAGE_HEADER_GRADIENT } from '@/components/shared/PageHeader'
 import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
+  BRAND_BTN_GHOST,
+  BRAND_BTN_OUTLINE,
+  BRAND_BTN_SOFT,
+  BRAND_BTN_SOLID,
+} from '@/components/shared/brandButtonStyles'
 import {
   Accordion,
   AccordionContent,
@@ -44,6 +53,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PaginationCardStepper } from '@/components/ui/pagination'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
@@ -96,6 +106,45 @@ function readApiErrorMessage(err: unknown): string {
   }
   if (err instanceof Error && err.message) return err.message
   return 'Đã xảy ra lỗi'
+}
+
+/** Màu badge mã phòng ban, lặp lại theo chỉ số ổn định (không đổi khi lọc). */
+const DEPT_BADGE_PALETTE = [
+  'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300',
+  'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300',
+  'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/30 dark:text-indigo-300',
+  'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300',
+  'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300',
+  'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-800 dark:bg-cyan-950/30 dark:text-cyan-300',
+]
+
+const ORG_PAGE_SIZE = 10
+
+/** Icon theo mã phòng ban đã biết, có fallback theo từ khoá tên; mặc định Building2. */
+const DEPT_CODE_ICON: Record<string, LucideIcon> = {
+  PD: Palette,
+  ENG: SquareTerminal,
+  CS: Headset,
+  QA: ShieldCheck,
+  HR: IdCard,
+  LC: Gavel,
+}
+
+const DEPT_NAME_ICON_RULES: { keywords: string[]; icon: LucideIcon }[] = [
+  { keywords: ['thiết kế', 'design'], icon: Palette },
+  { keywords: ['kỹ thuật', 'công nghệ', 'engineering'], icon: SquareTerminal },
+  { keywords: ['khách hàng', 'customer'], icon: Headset },
+  { keywords: ['chất lượng', 'quality'], icon: ShieldCheck },
+  { keywords: ['nhân sự', 'human resources'], icon: IdCard },
+  { keywords: ['pháp lý', 'pháp chế', 'legal', 'compliance'], icon: Gavel },
+]
+
+function getDeptIcon(dept: OrgAdminDivisionRow): LucideIcon {
+  const code = dept.code?.trim().toUpperCase()
+  if (code && DEPT_CODE_ICON[code]) return DEPT_CODE_ICON[code]
+  const name = dept.name.toLowerCase()
+  const rule = DEPT_NAME_ICON_RULES.find((r) => r.keywords.some((k) => name.includes(k)))
+  return rule?.icon ?? Building2
 }
 
 function OrgCrudNameDialog({
@@ -152,7 +201,7 @@ function OrgCrudNameDialog({
           <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
             Hủy
           </Button>
-          <Button type="button" onClick={onSubmit} disabled={pending}>
+          <Button type="button" className={BRAND_BTN_SOLID} onClick={onSubmit} disabled={pending}>
             {pending ? 'Đang lưu…' : 'Lưu'}
           </Button>
         </DialogFooter>
@@ -202,7 +251,7 @@ function DivisionFormDialog({
         <div className="space-y-3 py-1">
           <div className="space-y-1.5">
             <Label htmlFor="division-name">
-              Tên <span className="text-destructive">*</span>
+              Tên <span className="text-danger">*</span>
             </Label>
             <Input
               id="division-name"
@@ -255,7 +304,7 @@ function DivisionFormDialog({
           <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
             Hủy
           </Button>
-          <Button type="button" onClick={onSubmit} disabled={pending}>
+          <Button type="button" className={BRAND_BTN_SOLID} onClick={onSubmit} disabled={pending}>
             {pending ? 'Đang lưu…' : 'Lưu'}
           </Button>
         </DialogFooter>
@@ -349,6 +398,7 @@ export function HrOrgStructure() {
   const [teamCountFilter, setTeamCountFilter] = useState<TeamCountFilter>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [sortKey, setSortKey] = useState<SortKey>('name-asc')
+  const [page, setPage] = useState(1)
 
   const queryClient = useQueryClient()
   const { canId } = usePermission()
@@ -712,6 +762,26 @@ export function HrOrgStructure() {
     return sorted
   }, [departments, deferredOrgSearch, teamCountFilter, statusFilter, sortKey])
 
+  /** Chỉ số ổn định theo danh sách gốc (chưa lọc) để màu badge không đổi khi gõ tìm kiếm. */
+  const deptColorIndex = useMemo(() => {
+    const map = new Map<string, number>()
+    departments.forEach((d, i) => map.set(d.id, i % DEPT_BADGE_PALETTE.length))
+    return map
+  }, [departments])
+
+  useEffect(() => {
+    setPage(1)
+  }, [deferredOrgSearch, teamCountFilter, statusFilter, sortKey])
+
+  const totalPages = Math.max(1, Math.ceil(filteredDepartments.length / ORG_PAGE_SIZE))
+  const currentPage = Math.min(Math.max(1, page), totalPages)
+  const rangeFrom = filteredDepartments.length === 0 ? 0 : (currentPage - 1) * ORG_PAGE_SIZE + 1
+  const rangeTo = Math.min(currentPage * ORG_PAGE_SIZE, filteredDepartments.length)
+  const pageDepartments = useMemo(
+    () => filteredDepartments.slice((currentPage - 1) * ORG_PAGE_SIZE, currentPage * ORG_PAGE_SIZE),
+    [filteredDepartments, currentPage]
+  )
+
   const hasActiveFilter =
     Boolean(orgSearch.trim()) ||
     teamCountFilter !== 'all' ||
@@ -738,9 +808,9 @@ export function HrOrgStructure() {
   if (structureQ.isError && !mockBanner) {
     return (
       <div className="mx-auto max-w-[1400px] px-3 py-10 md:px-4">
-        <Card className="border-destructive/40 bg-destructive/5">
+        <Card className="border-danger/40 bg-danger-muted">
           <CardContent className="py-8 text-center">
-            <p className="text-base font-medium text-destructive">
+            <p className="text-base font-medium text-danger">
               Không tải được dữ liệu. Kiểm tra quyền{' '}
               <code className="rounded bg-muted px-1">hr.org.manage</code> và kết nối máy chủ.
             </p>
@@ -751,25 +821,9 @@ export function HrOrgStructure() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-3 py-8 md:px-4">
-      <div
-        className={cn(
-          'mb-8 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-accent/10 to-transparent p-4 md:p-6',
-          PAGE_HEADER_SURFACE
-        )}
-      >
-        <h1 className={PAGE_HEADER_TITLE}>
-          <span className={PAGE_HEADER_GRADIENT}>Phòng ban & nhóm</span>
-        </h1>
-        <p className={PAGE_HEADER_DESCRIPTION}>
-          Một phòng ban (đơn vị tổ chức) chứa nhiều nhóm. Mở rộng từng phòng ban để xem nhóm và
-          thành viên. Khi có quyền <code className="rounded bg-muted px-1">hr.org.manage</code>, bạn
-          có thể thêm, sửa hoặc xóa phòng ban và nhóm trên hệ thống.
-        </p>
-      </div>
-
+    <div className="mx-auto max-w-[1400px] px-3 py-6 md:px-4">
       {mockBanner && (
-        <Card className="mb-6 border-amber-500/40 bg-amber-500/10 shadow-none">
+        <Card className="mb-4 border-amber-500/40 bg-amber-500/10 shadow-none">
           <CardContent className="py-3 text-sm text-amber-950 dark:text-amber-100">
             Đang bật chế độ giả lập — quản trị thật cần tắt giả lập và kết nối máy chủ.
           </CardContent>
@@ -777,157 +831,162 @@ export function HrOrgStructure() {
       )}
 
       <div className="space-y-4">
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <Card className="border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card shadow-sm">
-            <CardContent className="px-2.5 py-2 sm:p-6">
-              <p className="text-xs font-medium leading-tight text-primary sm:text-xs">Phòng ban</p>
-              <p className="mt-0.5 text-lg font-semibold tabular-nums text-foreground drop-shadow-sm sm:mt-0 sm:text-2xl">
-                {summary.deptCount}
-              </p>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
+          <div className="col-span-2 flex flex-col justify-center rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 to-transparent p-3 md:col-span-3">
+            <h1 className="text-2xl font-bold tracking-tight">
+              <span className={PAGE_HEADER_GRADIENT}>Phòng ban & nhóm</span>
+            </h1>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Quản lý cấu trúc tổ chức và thành viên nội bộ.
+            </p>
+          </div>
+          <Card className="border-border bg-card shadow-sm md:col-span-1">
+            <CardContent className="flex items-center gap-2 p-2">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Building2 className="h-4 w-4" />
+              </span>
+              <span className="min-w-0">
+                <p className="truncate text-xs font-medium text-muted-foreground">Phòng ban</p>
+                <p className="text-xl font-bold tabular-nums text-foreground">
+                  {summary.deptCount}
+                </p>
+              </span>
             </CardContent>
           </Card>
-          <Card className="border-accent/40 bg-gradient-to-br from-accent/15 via-card to-card shadow-sm">
-            <CardContent className="px-2.5 py-2 sm:p-6">
-              <p className="text-xs font-medium leading-tight text-accent sm:text-xs">Nhóm</p>
-              <p className="mt-0.5 text-lg font-semibold tabular-nums text-foreground drop-shadow-sm sm:mt-0 sm:text-2xl">
-                {summary.teamCount}
-              </p>
+          <Card className="border-border bg-card shadow-sm md:col-span-1">
+            <CardContent className="flex items-center gap-2 p-2">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                <Users className="h-4 w-4" />
+              </span>
+              <span className="min-w-0">
+                <p className="truncate text-xs font-medium text-muted-foreground">Nhóm</p>
+                <p className="text-xl font-bold tabular-nums text-foreground">
+                  {summary.teamCount}
+                </p>
+              </span>
             </CardContent>
           </Card>
-          <Card className="border-blue-500/35 bg-gradient-to-br from-blue-500/15 via-card to-card shadow-sm">
-            <CardContent className="px-2.5 py-2 sm:p-6">
-              <p className="text-xs font-medium leading-tight text-blue-700 dark:text-blue-300 sm:text-xs">
-                Thành viên (gộp nhóm)
-              </p>
-              <p className="mt-0.5 text-lg font-semibold tabular-nums text-foreground drop-shadow-sm sm:mt-0 sm:text-2xl">
-                {summary.memberCount}
-              </p>
+          <Card className="border-border bg-card shadow-sm md:col-span-1">
+            <CardContent className="flex items-center gap-2 p-2">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-300">
+                <User className="h-4 w-4" />
+              </span>
+              <span className="min-w-0">
+                <p className="truncate text-xs font-medium text-muted-foreground">Thành viên</p>
+                <p className="text-xl font-bold tabular-nums text-foreground">
+                  {summary.memberCount}
+                </p>
+              </span>
             </CardContent>
           </Card>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-xl border border-accent/25 bg-gradient-to-r from-card via-muted/25 to-accent/10 p-3">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="relative min-w-0 flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={orgSearch}
-                onChange={(e) => setOrgSearch(e.target.value)}
-                className="pl-9"
-                placeholder="Tìm theo tên / mã phòng ban, nhóm..."
-              />
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {canManageOrg && !mockBanner ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-                  onClick={openCreateDepartment}
-                >
-                  <Plus className="mr-1 h-3.5 w-3.5" />
-                  Phòng ban
-                </Button>
-              ) : null}
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="border-primary/35 text-primary hover:bg-primary/10"
-                onClick={() => setExpandedDeptIds(new Set(filteredDepartments.map((d) => d.id)))}
-              >
-                Mở tất cả
-              </Button>
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2.5 shadow-sm">
+          <div className="relative min-w-[180px] flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={orgSearch}
+              onChange={(e) => setOrgSearch(e.target.value)}
+              className="h-9 border-none bg-muted/40 pl-9 text-sm shadow-none"
+              placeholder="Tìm theo tên / mã phòng ban, nhóm..."
+            />
+          </div>
+
+          <Select
+            value={teamCountFilter}
+            onValueChange={(v) => setTeamCountFilter(v as TeamCountFilter)}
+          >
+            <SelectTrigger className="h-9 w-[150px] border-none bg-muted/40 text-xs font-medium shadow-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả nhóm</SelectItem>
+              <SelectItem value="with-teams">Có nhóm</SelectItem>
+              <SelectItem value="without-teams">Chưa có nhóm</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+            <SelectTrigger className="h-9 w-[150px] border-none bg-muted/40 text-xs font-medium shadow-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Mọi trạng thái</SelectItem>
+              <SelectItem value="active-only">Đang hoạt động</SelectItem>
+              <SelectItem value="inactive-only">Ngưng dùng</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+            <SelectTrigger className="h-9 w-[180px] border-none bg-muted/40 text-xs font-medium shadow-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name-asc">
+                <span className="flex items-center gap-2">
+                  <ArrowDownAZ className="h-3.5 w-3.5" /> Tên A → Z
+                </span>
+              </SelectItem>
+              <SelectItem value="name-desc">
+                <span className="flex items-center gap-2">
+                  <ArrowUpZA className="h-3.5 w-3.5" /> Tên Z → A
+                </span>
+              </SelectItem>
+              <SelectItem value="most-teams">Nhiều nhóm nhất</SelectItem>
+              <SelectItem value="most-members">Nhiều thành viên nhất</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {canManageOrg && !mockBanner ? (
+            <Button
+              type="button"
+              size="sm"
+              className={cn('rounded-lg', BRAND_BTN_SOLID)}
+              onClick={openCreateDepartment}
+            >
+              <Plus className="mr-1 h-3.5 w-3.5" />
+              Phòng ban
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className={cn('rounded-lg', BRAND_BTN_OUTLINE)}
+            onClick={() => setExpandedDeptIds(new Set(pageDepartments.map((d) => d.id)))}
+          >
+            Mở tất cả
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className={cn('rounded-lg', BRAND_BTN_GHOST)}
+            onClick={() => setExpandedDeptIds(new Set())}
+          >
+            Thu gọn
+          </Button>
+
+          <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="tabular-nums">
+              {filteredDepartments.length}/{departments.length} phòng ban
+            </span>
+            {hasActiveFilter ? (
               <Button
                 type="button"
                 size="sm"
                 variant="ghost"
-                className="text-accent hover:bg-accent/15 hover:text-accent"
-                onClick={() => setExpandedDeptIds(new Set())}
+                className="h-7 rounded-md px-2 text-xs"
+                onClick={() => {
+                  setOrgSearch('')
+                  setTeamCountFilter('all')
+                  setStatusFilter('all')
+                  setSortKey('name-asc')
+                }}
               >
-                Thu gọn
+                Xóa lọc
               </Button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 border-t border-border/40 pt-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="flex min-w-0 items-center gap-2">
-              <Label className="shrink-0 text-xs font-medium text-muted-foreground">Nhóm</Label>
-              <Select
-                value={teamCountFilter}
-                onValueChange={(v) => setTeamCountFilter(v as TeamCountFilter)}
-              >
-                <SelectTrigger className="h-9 w-[160px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="with-teams">Có nhóm</SelectItem>
-                  <SelectItem value="without-teams">Chưa có nhóm</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex min-w-0 items-center gap-2">
-              <Label className="shrink-0 text-xs font-medium text-muted-foreground">
-                Trạng thái
-              </Label>
-              <Select
-                value={statusFilter}
-                onValueChange={(v) => setStatusFilter(v as StatusFilter)}
-              >
-                <SelectTrigger className="h-9 w-[160px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="active-only">Đang hoạt động</SelectItem>
-                  <SelectItem value="inactive-only">Ngưng dùng</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex min-w-0 items-center gap-2">
-              <Label className="shrink-0 text-xs font-medium text-muted-foreground">Sắp xếp</Label>
-              <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
-                <SelectTrigger className="h-9 w-[200px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name-asc">
-                    <span className="flex items-center gap-2">
-                      <ArrowDownAZ className="h-3.5 w-3.5" /> Tên A → Z
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="name-desc">
-                    <span className="flex items-center gap-2">
-                      <ArrowUpZA className="h-3.5 w-3.5" /> Tên Z → A
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="most-teams">Nhiều nhóm nhất</SelectItem>
-                  <SelectItem value="most-members">Nhiều thành viên nhất</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="tabular-nums">
-                {filteredDepartments.length}/{departments.length} phòng ban
-              </span>
-              {hasActiveFilter ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 px-2 text-xs"
-                  onClick={() => {
-                    setOrgSearch('')
-                    setTeamCountFilter('all')
-                    setStatusFilter('all')
-                    setSortKey('name-asc')
-                  }}
-                >
-                  Xóa lọc
-                </Button>
-              ) : null}
-            </div>
+            ) : null}
           </div>
         </div>
 
@@ -948,7 +1007,7 @@ export function HrOrgStructure() {
                 <Button
                   type="button"
                   size="sm"
-                  className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  className={cn('rounded-lg', BRAND_BTN_SOLID)}
                   onClick={openCreateDepartment}
                 >
                   <Plus className="mr-1 h-3.5 w-3.5" />
@@ -964,31 +1023,37 @@ export function HrOrgStructure() {
           value={Array.from(expandedDeptIds)}
           onValueChange={(vals) => setExpandedDeptIds(new Set(vals))}
         >
-          {filteredDepartments.map((dept) => {
+          {pageDepartments.map((dept) => {
             const teamsToShow =
               dept.teams.length === 0
                 ? []
                 : expandedAllTeamsByDept[dept.id]
                   ? dept.teams
                   : dept.teams.slice(0, 6)
+            const deptMemberCount = dept.teams.reduce((acc, t) => acc + t._count.users, 0)
+            const badgeColor = DEPT_BADGE_PALETTE[deptColorIndex.get(dept.id) ?? 0]
+            const DeptIcon = getDeptIcon(dept)
 
             return (
               <AccordionItem
                 key={dept.id}
                 value={dept.id}
-                className="overflow-hidden rounded-2xl border border-primary/15 bg-card shadow-sm transition-[box-shadow,ring,border-color] data-[state=open]:border-primary/35 data-[state=open]:shadow-[0_10px_40px_rgb(106_90_224/0.16)] data-[state=open]:ring-1 data-[state=open]:ring-primary/20"
+                className="group/card overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-colors hover:border-primary/30 data-[state=open]:border-primary/30"
               >
-                <div className="flex items-start gap-1 border-b border-border/60 bg-gradient-to-r from-primary/10 via-card to-accent/10 px-2 py-3 sm:gap-2 sm:px-4 sm:py-4">
-                  <AccordionTrigger className="-mx-1 flex min-w-0 flex-1 justify-start gap-0 py-1 sm:-mx-0">
-                    <ChevronDown className="chevron-accordion mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
-                    <Building2 className="mx-2 mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                    <span className="flex min-w-0 flex-1 flex-col items-start gap-1.5 text-left">
+                <div className="flex items-center gap-1 border-b border-border/60 bg-muted/30 px-3 py-2.5 sm:gap-2 sm:px-5 sm:py-3">
+                  <AccordionTrigger className="-mx-1 flex min-w-0 flex-1 justify-start gap-0 py-0.5 sm:-mx-0">
+                    <ChevronDown className="chevron-accordion h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
+                    <DeptIcon className="mx-2 h-5 w-5 shrink-0 text-primary" />
+                    <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-left">
                       <span className="flex flex-wrap items-center gap-2">
-                        <span className="text-base font-semibold leading-snug">{dept.name}</span>
+                        <span className="font-bold leading-snug">{dept.name}</span>
                         {dept.code ? (
                           <Badge
                             variant="outline"
-                            className="border-primary/30 bg-primary/5 font-mono text-xs font-normal uppercase tracking-wide text-primary"
+                            className={cn(
+                              'rounded px-2 py-0 text-[10px] font-bold uppercase tracking-wider',
+                              badgeColor
+                            )}
                           >
                             {dept.code}
                           </Badge>
@@ -996,19 +1061,16 @@ export function HrOrgStructure() {
                         {!dept.isActive && (
                           <Badge
                             variant="outline"
-                            className="border-destructive/50 bg-destructive/10 text-destructive"
+                            className="rounded px-2 py-0 text-[10px] font-bold uppercase tracking-wider border-danger/50 bg-danger-muted text-danger"
                           >
                             Ngưng dùng
                           </Badge>
                         )}
                       </span>
-                      <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-normal text-muted-foreground">
-                        <Badge
-                          variant="outline"
-                          className="border-primary/30 bg-primary/10 font-normal tabular-nums text-primary"
-                        >
-                          {dept.teams.length} nhóm
-                        </Badge>
+                      <span className="flex flex-col gap-0.5 text-xs font-normal text-muted-foreground">
+                        <span>
+                          {dept.teams.length} nhóm · {deptMemberCount} thành viên
+                        </span>
                         {dept.description ? (
                           <span className="line-clamp-2 min-w-0 w-full text-xs text-muted-foreground/90 sm:line-clamp-1 sm:max-w-[420px]">
                             {dept.description}
@@ -1019,7 +1081,7 @@ export function HrOrgStructure() {
                   </AccordionTrigger>
                   {canManageOrg && !mockBanner ? (
                     <div
-                      className="flex shrink-0 items-center gap-1 pt-0.5"
+                      className="flex shrink-0 items-center gap-1 transition-opacity md:opacity-0 md:focus-within:opacity-100 md:group-hover/card:opacity-100"
                       onClick={(e) => e.stopPropagation()}
                       role="presentation"
                     >
@@ -1027,7 +1089,7 @@ export function HrOrgStructure() {
                         type="button"
                         size="sm"
                         variant="secondary"
-                        className="h-8 rounded-full px-2.5 text-xs"
+                        className={cn('h-8 rounded-md px-2.5 text-xs', BRAND_BTN_SOFT)}
                         onClick={() => openCreateTeamForDept(dept)}
                       >
                         <Plus className="mr-1 h-3.5 w-3.5" />
@@ -1037,7 +1099,7 @@ export function HrOrgStructure() {
                         type="button"
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        className="h-8 w-8 rounded-md text-muted-foreground hover:text-foreground"
                         aria-label="Sửa phòng ban"
                         onClick={() => openEditDepartment(dept)}
                       >
@@ -1047,7 +1109,7 @@ export function HrOrgStructure() {
                         type="button"
                         size="icon"
                         variant="ghost"
-                        className="h-8 w-8 text-destructive/80 hover:text-destructive"
+                        className="h-8 w-8 rounded-md text-danger/80 hover:text-danger"
                         aria-label="Xóa phòng ban"
                         onClick={() => setCrudModal({ kind: 'dept-delete', dept })}
                       >
@@ -1060,11 +1122,19 @@ export function HrOrgStructure() {
                   <div className="hidden overflow-x-auto md:block">
                     <Table className="min-w-[640px]">
                       <TableHeader>
-                        <TableRow className="border-b border-border/80 bg-gradient-to-r from-primary/10 via-muted/20 to-accent/10 hover:bg-muted/25">
-                          <TableHead className="w-[28%] pl-6">Nhóm</TableHead>
-                          <TableHead className="max-w-[260px]">Trưởng nhóm</TableHead>
-                          <TableHead className="w-[108px]">Thành viên</TableHead>
-                          <TableHead className="pr-6 text-right">Thao tác</TableHead>
+                        <TableRow className="border-b border-border/80 bg-muted/30 hover:bg-muted/30">
+                          <TableHead className="h-9 w-[28%] pl-6 text-[11px] uppercase tracking-wider">
+                            Tên nhóm
+                          </TableHead>
+                          <TableHead className="h-9 max-w-[260px] text-[11px] uppercase tracking-wider">
+                            Trưởng nhóm
+                          </TableHead>
+                          <TableHead className="h-9 w-[108px] text-[11px] uppercase tracking-wider">
+                            Thành viên
+                          </TableHead>
+                          <TableHead className="h-9 pr-6 text-right text-[11px] uppercase tracking-wider">
+                            Thao tác
+                          </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1080,7 +1150,7 @@ export function HrOrgStructure() {
                                     type="button"
                                     size="sm"
                                     variant="secondary"
-                                    className="rounded-full"
+                                    className={cn('rounded-lg', BRAND_BTN_SOFT)}
                                     onClick={() => openCreateTeamForDept(dept)}
                                   >
                                     <Plus className="mr-1 h-3.5 w-3.5" />
@@ -1125,7 +1195,7 @@ export function HrOrgStructure() {
                             type="button"
                             size="sm"
                             variant="secondary"
-                            className="rounded-full"
+                            className={cn('rounded-lg', BRAND_BTN_SOFT)}
                             onClick={() => openCreateTeamForDept(dept)}
                           >
                             <Plus className="mr-1 h-3.5 w-3.5" />
@@ -1159,11 +1229,12 @@ export function HrOrgStructure() {
                   </div>
 
                   {dept.teams.length > 6 ? (
-                    <div className="flex justify-center border-t border-border/60 bg-gradient-to-r from-primary/5 to-accent/5 px-4 py-2">
+                    <div className="flex justify-center border-t border-border/60 bg-muted/20 px-4 py-2">
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
+                        className={cn('rounded-md', BRAND_BTN_GHOST)}
                         onClick={() =>
                           setExpandedAllTeamsByDept((prev) => ({
                             ...prev,
@@ -1188,6 +1259,19 @@ export function HrOrgStructure() {
               Không có phòng ban hoặc nhóm nào khớp từ khóa tìm kiếm.
             </CardContent>
           </Card>
+        ) : null}
+
+        {filteredDepartments.length > 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/50 px-3 py-3 shadow-sm">
+            <span className="text-xs font-medium text-muted-foreground">
+              Hiển thị {rangeFrom}–{rangeTo} trên tổng số {filteredDepartments.length} phòng ban
+            </span>
+            <PaginationCardStepper
+              page={currentPage}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </div>
         ) : null}
       </div>
 
@@ -1332,12 +1416,12 @@ function TeamCardMobile({
       )}
     >
       <div className="min-w-0 space-y-2">
-        <div className="flex flex-wrap items-center gap-2 break-words text-base font-semibold leading-snug text-foreground">
+        <div className="flex flex-wrap items-center gap-2 break-words font-medium leading-snug text-foreground">
           {team.name}
           {team.requiresKpiApproval && (
             <Badge
               variant="outline"
-              className="border-sky-200 bg-sky-50 text-xs font-bold text-sky-600 dark:border-sky-800 dark:bg-sky-950/30 dark:text-sky-400"
+              className="rounded-full border-transparent bg-primary/10 px-2 py-0 text-[10px] font-medium text-primary"
             >
               Duyệt KPI/OKR
             </Badge>
@@ -1345,7 +1429,7 @@ function TeamCardMobile({
           {team.catalogSeedEnabled && (
             <Badge
               variant="outline"
-              className="border-indigo-200 bg-indigo-50 text-xs font-bold text-indigo-600 dark:border-indigo-800 dark:bg-indigo-950/30 dark:text-indigo-400"
+              className="rounded-full border-transparent bg-indigo-500/10 px-2 py-0 text-[10px] font-medium text-indigo-600 dark:text-indigo-400"
             >
               Seed KPI
             </Badge>
@@ -1356,12 +1440,9 @@ function TeamCardMobile({
         </div>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-muted-foreground">Thành viên</span>
-          <Badge
-            variant="outline"
-            className="border-accent/35 bg-accent/10 tabular-nums text-accent"
-          >
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold tabular-nums text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
             {team._count.users}
-          </Badge>
+          </span>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -1371,7 +1452,7 @@ function TeamCardMobile({
               type="button"
               size="icon"
               variant="ghost"
-              className="h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
+              className="h-9 w-9 shrink-0 rounded-md text-muted-foreground hover:text-foreground"
               aria-label="Sửa nhóm"
               onClick={onEditTeam}
             >
@@ -1381,7 +1462,7 @@ function TeamCardMobile({
               type="button"
               size="icon"
               variant="ghost"
-              className="h-9 w-9 shrink-0 text-destructive/80 hover:text-destructive"
+              className="h-9 w-9 shrink-0 rounded-md text-danger/80 hover:text-danger"
               aria-label="Xóa nhóm"
               onClick={onDeleteTeam}
             >
@@ -1393,7 +1474,10 @@ function TeamCardMobile({
           type="button"
           variant={membersOpen ? 'secondary' : 'outline'}
           size="sm"
-          className="min-w-0 flex-1 rounded-full sm:flex-initial"
+          className={cn(
+            'min-w-0 flex-1 rounded-lg sm:flex-initial',
+            membersOpen ? BRAND_BTN_SOFT : BRAND_BTN_OUTLINE
+          )}
           onClick={onOpenMembers}
         >
           <Users className="h-3.5 w-3.5" />
@@ -1424,17 +1508,17 @@ function FragmentTeamRow({
   return (
     <TableRow
       className={cn(
-        'group transition-colors odd:bg-muted/[0.16] even:bg-card hover:bg-primary/[0.06]',
-        membersOpen && 'bg-primary/[0.10]'
+        'group border-b border-border/60 transition-colors hover:bg-muted/30',
+        membersOpen && 'bg-primary/[0.08]'
       )}
     >
-      <TableCell className="pl-6 align-top">
-        <div className="flex items-center gap-2 font-semibold text-foreground">
+      <TableCell className="py-3 pl-6 align-middle text-sm">
+        <div className="flex items-center gap-2 font-medium text-foreground">
           {team.name}
           {team.requiresKpiApproval && (
             <Badge
               variant="outline"
-              className="border-sky-200 bg-sky-50 text-xs font-bold text-sky-600 dark:border-sky-800 dark:bg-sky-950/30 dark:text-sky-400"
+              className="rounded-full border-transparent bg-primary/10 px-2 py-0 text-[10px] font-medium text-primary"
             >
               Duyệt KPI/OKR
             </Badge>
@@ -1442,55 +1526,60 @@ function FragmentTeamRow({
           {team.catalogSeedEnabled && (
             <Badge
               variant="outline"
-              className="border-indigo-200 bg-indigo-50 text-xs font-bold text-indigo-600 dark:border-indigo-800 dark:bg-indigo-950/30 dark:text-indigo-400"
+              className="rounded-full border-transparent bg-indigo-500/10 px-2 py-0 text-[10px] font-medium text-indigo-600 dark:text-indigo-400"
             >
               Seed KPI
             </Badge>
           )}
         </div>
       </TableCell>
-      <TableCell className="max-w-[260px] align-top text-sm text-muted-foreground">—</TableCell>
-      <TableCell className="align-top">
-        <Badge variant="outline" className="border-accent/35 bg-accent/10 tabular-nums text-accent">
-          {team._count.users}
-        </Badge>
+      <TableCell className="max-w-[260px] py-3 align-middle text-sm text-muted-foreground">
+        —
       </TableCell>
-      <TableCell className="pr-6 text-right align-top">
-        <div className="flex flex-wrap items-center justify-end gap-2">
+      <TableCell className="py-3 align-middle">
+        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold tabular-nums text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+          {team._count.users}
+        </span>
+      </TableCell>
+      <TableCell className="py-3 pr-6 text-right align-middle">
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className={cn(
+              'h-auto gap-1 rounded-md px-1 py-0.5 text-xs font-medium text-[#006C49] hover:bg-transparent hover:text-[#006C49] hover:underline dark:text-emerald-400 dark:hover:text-emerald-400',
+              membersOpen && 'underline'
+            )}
+            onClick={onOpenMembers}
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            {membersOpen ? 'Đóng' : 'Thành viên'}
+          </Button>
           {canManageOrg && !mockBanner ? (
-            <>
+            <div className="flex items-center gap-1">
               <Button
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                className="h-7 w-7 shrink-0 rounded-md text-muted-foreground hover:text-[#006C49] dark:hover:text-emerald-400"
                 aria-label="Sửa nhóm"
                 onClick={onEditTeam}
               >
-                <Pencil className="h-4 w-4" />
+                <Pencil className="h-3.5 w-3.5" />
               </Button>
               <Button
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="h-8 w-8 shrink-0 text-destructive/80 hover:text-destructive"
+                className="h-7 w-7 shrink-0 rounded-md text-muted-foreground hover:text-danger"
                 aria-label="Xóa nhóm"
                 onClick={onDeleteTeam}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5" />
               </Button>
-            </>
+            </div>
           ) : null}
-          <Button
-            type="button"
-            variant={membersOpen ? 'secondary' : 'outline'}
-            size="sm"
-            className="rounded-full"
-            onClick={onOpenMembers}
-          >
-            <Users className="h-3.5 w-3.5" />
-            {membersOpen ? 'Đóng' : 'Thành viên'}
-          </Button>
         </div>
       </TableCell>
     </TableRow>
@@ -1508,7 +1597,7 @@ const MEMBER_STATUS_VI: Record<TeamMemberRow['status'], string> = {
 function memberStatusBadgeClassName(status: TeamMemberRow['status']) {
   return cn(
     'font-normal',
-    status === 'INACTIVE' && 'border-destructive/45 text-destructive',
+    status === 'INACTIVE' && 'border-danger/45 text-danger',
     status === 'PROBATION' && 'border-amber-500/45 text-amber-800 dark:text-amber-100',
     status === 'RESERVED' && 'border-blue-500/40 text-blue-800 dark:text-blue-100',
     status === 'TRANSFERRED' && 'border-sky-500/40 text-sky-800 dark:text-sky-100',
@@ -1679,7 +1768,7 @@ function TeamMembersPanel({
             {canManage ? (
               <Button
                 type="button"
-                className="sm:shrink-0"
+                className={cn('sm:shrink-0', BRAND_BTN_SOLID)}
                 onClick={() => setAddOpen(true)}
                 disabled={anyActionPending}
               >
@@ -1705,7 +1794,7 @@ function TeamMembersPanel({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="mt-3"
+                  className={cn('mt-3', BRAND_BTN_OUTLINE)}
                   onClick={() => setAddOpen(true)}
                 >
                   <UserPlus className="mr-2 h-4 w-4" />
@@ -1794,7 +1883,7 @@ function TeamMembersPanel({
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                className="h-8 text-danger hover:bg-danger-muted hover:text-danger"
                                 onClick={() => setPendingRemove(m)}
                                 disabled={removing || anyActionPending}
                                 title="Gỡ nhóm chính khỏi nhóm"
@@ -1917,7 +2006,7 @@ function AddTeamMemberDialog({
             </div>
           ) : eligibleQ.isError ? (
             <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
-              <p className="text-sm font-medium text-destructive">
+              <p className="text-sm font-medium text-danger">
                 {readApiErrorMessage(eligibleQ.error)}
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
@@ -1989,7 +2078,7 @@ function EligibleUserRowItem({
         type="button"
         size="sm"
         variant="outline"
-        className="shrink-0"
+        className={cn('shrink-0', BRAND_BTN_OUTLINE)}
         onClick={onPick}
         disabled={pending}
       >
