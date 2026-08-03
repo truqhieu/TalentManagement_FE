@@ -206,7 +206,7 @@ function BookingRowActions({
           </button>
         </>
       )}
-      {b.userId === user?.id && (
+      {(isOwner || isPrivileged) && (
         <div className={mobile ? 'flex w-full flex-col gap-2' : 'flex gap-2'}>
           <button
             type="button"
@@ -801,7 +801,8 @@ export default function RoomBookingPage() {
   }
 
   function canManageBooking(b: MeetingBooking): boolean {
-    if (b.userId !== user?.id) return false
+    const isOwner = b.userId === user?.id
+    if (!isOwner && !isPrivileged) return false
     if (b.status === 'rejected') return false
     const { date: td, time: ct } = vnTime
     const isPast = b.date < td || (b.date === td && b.timeTo <= ct)

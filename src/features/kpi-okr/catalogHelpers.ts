@@ -37,9 +37,7 @@ export function categoryBadgeClass(category: string | null | undefined): string 
   }
 }
 
-/**
- * Mapping team → templateCode (đồng bộ BE resolveTemplateCodeForTeam).
- */
+/** Chuẩn hoá tên/mã team để so khớp pattern (bỏ dấu, hạ chữ thường). */
 function normalizeTemplateKey(value: string | null | undefined): string {
   return (value ?? '')
     .normalize('NFD')
@@ -58,12 +56,6 @@ export function isLivestreamCatalogTeam(team: { code?: string | null; name: stri
 export function isCatalogSeedExcludedTeam(team: { code?: string | null; name: string }): boolean {
   const keys = [team.code, team.name].map(normalizeTemplateKey)
   return keys.some((key) => /^cua hang(?:\b|$)/.test(key))
-}
-
-export function resolveTemplateCodeForTeam(team: { code?: string | null; name: string }): string {
-  const key = normalizeTemplateKey(team.code ?? team.name)
-  if (/van[_\s.-]?don|bao[_\s]?hanh/.test(key)) return 'VAN_DON_NV'
-  return 'SALES_NV'
 }
 
 /** Chỉ env FE — bổ sung cho API; khi có `mergedDivisionIds` từ API thì ưu tiên tham số đó. */

@@ -62,7 +62,6 @@ import {
   kpiEligibleUserIdSet,
   memberRequiresKpiOkr,
   requiresKpiApproval,
-  resolveTemplateCodeForTeam,
   shouldShowAssignmentForMember,
 } from '@/features/kpi-okr/catalogHelpers'
 import { useKpiOkrAutoSeed } from '@/features/kpi-okr/components/hooks/useKpiOkrAutoSeed'
@@ -539,7 +538,6 @@ export function KpiOkrWorkspace({ variant, title, teamScope = 'all' }: KpiOkrWor
     if (isTrafficTeamSelected) return 'TRAFFIC_TEAM_NV'
     if (!catalogSeedEnabledSelected) return undefined
     if (selectedTeamForSeed && isCatalogSeedExcludedTeam(selectedTeamForSeed)) return undefined
-    if (selectedTeamForSeed) return resolveTemplateCodeForTeam(selectedTeamForSeed)
     return 'SALES_NV'
   }, [catalogSeedEnabledSelected, isTrafficTeamSelected, selectedTeamForSeed])
 

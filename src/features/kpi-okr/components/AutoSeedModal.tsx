@@ -24,7 +24,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { performanceApi, type AutoSeedResponse } from '@/features/kpi-okr/api'
 import { getApiErrorMessage } from '@/lib/axios'
-import { resolveTemplateCodeForTeam } from '@/features/kpi-okr/catalogHelpers'
 import type { TeamMemberRow } from '@/features/organization/api'
 import { Sparkles, Users } from 'lucide-react'
 
@@ -48,8 +47,6 @@ export function AutoSeedModal({
   year,
   month,
   members,
-  teamName,
-  teamCode,
   isTrafficTeam = false,
   assignmentWindowOpen,
   assignStartDay,
@@ -58,9 +55,7 @@ export function AutoSeedModal({
 }: AutoSeedModalProps) {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<'select' | 'preview' | 'done'>('select')
-  const [templateCode, setTemplateCode] = useState(() =>
-    resolveTemplateCodeForTeam({ name: teamName, code: teamCode })
-  )
+  const [templateCode, setTemplateCode] = useState('SALES_NV')
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectAll, setSelectAll] = useState(false)
   const [preview, setPreview] = useState<AutoSeedResponse | null>(null)
