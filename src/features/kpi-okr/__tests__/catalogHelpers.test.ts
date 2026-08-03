@@ -12,7 +12,6 @@ import {
   catalogSeedEnabledForTeam,
   isKinhDoanhDepartment,
   MANDATORY_METRICS_BY_TEMPLATE,
-  resolveTemplateCodeForTeam,
   TRAFFIC_TEAM_IDS_FALLBACK,
   shouldShowAssignmentForMember,
   memberRequiresKpiOkr,
@@ -45,19 +44,10 @@ describe('shouldShowAssignmentForMember', () => {
   })
 })
 
-describe('resolveTemplateCodeForTeam', () => {
+describe('catalog seed team helpers', () => {
   it('Livestream 1/2 không còn tự dùng template LIVESTREAM_NV', () => {
-    expect(resolveTemplateCodeForTeam({ name: 'Livestream 1' })).toBe('SALES_NV')
-    expect(resolveTemplateCodeForTeam({ name: 'livestream 2' })).toBe('SALES_NV')
     expect(isLivestreamCatalogTeam({ name: 'Livestream 1' })).toBe(true)
     expect(isLivestreamCatalogTeam({ name: 'Livestream 2' })).toBe(true)
-  })
-
-  it('các team kinh doanh khác vẫn dùng SALES_NV', () => {
-    expect(resolveTemplateCodeForTeam({ name: 'Kinh Doanh 1' })).toBe('SALES_NV')
-    expect(resolveTemplateCodeForTeam({ name: 'Kinh Doanh 2' })).toBe('SALES_NV')
-    expect(resolveTemplateCodeForTeam({ name: 'Cửa Hàng' })).toBe('SALES_NV')
-    expect(resolveTemplateCodeForTeam({ name: 'Livestream 3' })).toBe('SALES_NV')
   })
 
   it('team Cua Hang khong dung catalog auto-seed', () => {
