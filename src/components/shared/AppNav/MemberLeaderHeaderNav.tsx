@@ -134,7 +134,7 @@ export function MemberLeaderHeaderNav() {
       company: 'Công ty',
       dashboard: 'Tổng quan',
       learning: 'Học tập',
-      'room-booking': isPrivileged ? 'Duyệt lịch phòng họp' : 'Đặt phòng họp',
+      'room-booking': isPrivileged ? 'Duyệt phòng họp' : 'Đặt phòng họp',
       kpi: 'KPI / Báo cáo',
       // manager: 'Quản lý lớp',
       hr: 'Nhân sự',

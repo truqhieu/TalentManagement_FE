@@ -4,7 +4,6 @@ import RoomBookingPage from '@/features/room-booking/RoomBookingPage'
 import { z } from 'zod'
 
 const roomBookingSearchSchema = z.object({
-  tab: z.string().optional(),
   room: z.string().optional(),
 })
 

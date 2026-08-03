@@ -5,7 +5,6 @@ import { getVnNow, useVnTime } from '@/hooks/useVnTime'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth.store'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useSearch } from '@tanstack/react-router'
 import {
   AlertCircle,
   CheckCircle2,
@@ -42,6 +41,7 @@ import {
   STATUS_FILTER_OPTIONS,
   type StatusFilter,
 } from './roomBookingConstants'
+import { isRescheduleRequest } from './roomBookingStatus'
 import { formatDateLongVi, formatDateVi } from './roomBookingTimeUtils'
 
 // Chị Google nói
@@ -103,11 +103,6 @@ function BookingStatusBadge({
     rejected: b.isOverridden ? 'Bị ghi đè' : 'Từ chối',
     pending: 'Chờ duyệt',
   }
-  const isModified =
-    b.status === 'pending' &&
-    b.updatedAt &&
-    new Date(b.updatedAt).getTime() > new Date(b.createdAt).getTime() + 5000
-
   return (
     <div className="flex flex-col gap-1">
       <span
@@ -115,7 +110,7 @@ function BookingStatusBadge({
       >
         {label[b.status]}
       </span>
-      {isModified && (
+      {isRescheduleRequest(b) && (
         <span className="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold uppercase text-indigo-700">
           Yêu cầu đổi lịch
         </span>
@@ -394,7 +389,6 @@ const BookingRow = memo(
 export default function RoomBookingPage() {
   const queryClient = useQueryClient()
   const vnTime = useVnTime()
-  const search = useSearch({ from: '/_protected/room-booking' }) as any
   const user = useAuthStore((s) => s.user)
   const isPrivileged = user?.role === 'HR' || user?.role === 'MANAGER' || user?.role === 'BOD'
 
@@ -575,12 +569,6 @@ export default function RoomBookingPage() {
     },
     onSettled: () => setProcessingId(null),
   })
-
-  useEffect(() => {
-    if (search.tab === 'requests') {
-      setViewDate(getVnNow().date)
-    }
-  }, [search.tab])
 
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
