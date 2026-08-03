@@ -1,22 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { useForm, useWatch, Controller } from 'react-hook-form'
-import { Calendar, Loader2, PlusCircle, Search, UserPlus2, Users, X } from 'lucide-react'
-import { toast } from 'sonner'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog/ConfirmDialog'
 import { Button } from '@/components/ui/button'
-import { Form } from '@/components/ui/form'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
+import { Form } from '@/components/ui/form'
 import { InputController, SelectController } from '@/components/ui/form-controllers'
-import { CARD_ENTRANCE_HOVER } from '@/lib/cardMotion'
+import { Input } from '@/components/ui/input'
 import { SelectItem } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
 import {
   useClassMemberOptions,
   useCreateManagerClass,
@@ -25,9 +13,15 @@ import {
   useTeacherOptions,
   useUpdateManagerClass,
 } from '@/features/manager/hooks'
-import { ManagerScreenLayout } from './ManagerScreenLayout'
+import { CARD_ENTRANCE_HOVER } from '@/lib/cardMotion'
+import { cn } from '@/lib/utils'
+import { Calendar, Loader2, PlusCircle, Search, UserPlus2, Users, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { Controller, useForm, useWatch } from 'react-hook-form'
+import { toast } from 'sonner'
 import { ClassCard } from './ClassCard'
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog/ConfirmDialog'
+import { ManagerScreenLayout } from './ManagerScreenLayout'
 
 const LEVEL_LABELS: Record<string, string> = {
   tap_su: 'Tập sự',
@@ -226,14 +220,8 @@ export function ManagerClassesScreen() {
       <ManagerScreenLayout hideHubNav hideToolbar>
         <div className="mb-8 flex flex-col gap-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div className={cn('min-w-0 flex-1', PAGE_HEADER_SURFACE)}>
-              <h1 className={PAGE_HEADER_TITLE}>
-                <span className={PAGE_HEADER_GRADIENT}>Chia lớp học</span>
-              </h1>
-              <p className={PAGE_HEADER_DESCRIPTION}>
-                Quản lý và điều phối nhân sự vào các lớp đào tạo. Dữ liệu lấy trực tiếp từ API
-                manager/classes.
-              </p>
+            <div className={cn('min-w-0 flex-1')}>
+              <h1 className="text-2xl font-bold text-foreground">Chia lớp học</h1>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-card px-3 py-2.5 text-sm font-semibold text-foreground shadow-sm ring-1 ring-primary/10">

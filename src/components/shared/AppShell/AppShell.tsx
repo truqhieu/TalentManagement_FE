@@ -120,7 +120,7 @@ export function AppShell({ children, title }: AppShellProps) {
               className="flex cursor-pointer flex-col items-stretch gap-0.5 py-2.5 !no-underline"
             >
               <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <UserCircle className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
+                <UserCircle className="h-4 w-4 shrink-0 text-[#006C49]" strokeWidth={2} />
                 Hồ sơ cá nhân
               </span>
               <span className="pl-6 text-xs leading-snug text-muted-foreground">
@@ -150,7 +150,7 @@ export function AppShell({ children, title }: AppShellProps) {
         </div>
       ) : null}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="sticky top-0 z-30 shrink-0 border-b border-primary-300/40 bg-[#005236] to-accent shadow-[0_8px_24px_-14px_rgba(79,70,229,0.45)] backdrop-blur-sm dark:border-primary/30 dark:from-primary/60 dark:via-primary/45 dark:to-primary/60">
+        <header className="sticky top-0 z-30 shrink-0 border-b border-primary-300/40 bg-[#005236] backdrop-blur-sm dark:border-primary/30 dark:from-primary/60 dark:via-primary/45 dark:to-primary/60">
           <div className="flex min-h-12 items-center justify-between gap-2 px-3 py-1.5 md:hidden">
             <div className="flex items-center gap-1.5">
               <MobileHeaderNav />
@@ -202,7 +202,7 @@ export function AppShell({ children, title }: AppShellProps) {
               ? cskhAuditLayout
                 ? 'h-full overflow-y-hidden p-3 sm:p-4'
                 : 'h-full min-h-0 overflow-hidden p-2 sm:p-3'
-              : 'overflow-y-auto p-5 md:p-6'
+              : 'overflow-y-auto p-6'
           )}
         >
           <div

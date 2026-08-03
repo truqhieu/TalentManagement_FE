@@ -1,10 +1,10 @@
-import { Link } from '@tanstack/react-router'
-import { Award, Presentation, School, TrendingUp, Users, Star, Crown, Target } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { CARD_ENTRANCE, staggerStyle } from '@/lib/cardMotion'
 import { cn } from '@/lib/utils'
+import { Link } from '@tanstack/react-router'
+import { Award, Crown, Presentation, School, Star, Target, TrendingUp, Users } from 'lucide-react'
 import type { TeacherClassRow } from './teacherClassTypes'
 
 export interface TeacherClassCardProps {
@@ -87,21 +87,11 @@ export function TeacherClassCard({
       <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/5 blur-2xl group-hover:bg-primary/10 transition-colors" />
 
       <div className="mb-5 flex items-start justify-between gap-3">
-        <div
-          className={cn(
-            'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br shadow-sm ring-1 transition-transform group-hover:scale-105',
-            ACCENT_CLASSES[c.accent] || ACCENT_CLASSES.primary
-          )}
-        >
-          <IconMain className="h-8 w-8" strokeWidth={2.5} aria-hidden />
-        </div>
-        <div className="flex min-w-0 flex-col items-end gap-1.5">
+        <div className="flex min-w-0 items-end gap-1.5">
           <Badge
             className={cn(
-              'max-w-[10rem] truncate px-2.5 py-1 text-xs font-bold uppercase tracking-wider',
-              BADGE_CLASSES[c.accent] || BADGE_CLASSES.primary
+              'w-fit truncate px-2.5 py-1 text-xs font-bold uppercase tracking-wider bg-[#006C49]/90 text-white'
             )}
-            variant="muted"
           >
             {c.periodBadge}
           </Badge>
@@ -121,7 +111,7 @@ export function TeacherClassCard({
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Badge className="inline-flex h-6 items-center gap-1.5 rounded-lg border-primary/20 bg-primary/5 px-2 text-xs font-bold text-primary">
+          <Badge className="inline-flex h-6 items-center gap-1.5 rounded-lg bg-[#006C49]/90 text-white px-2 text-xs font-bold">
             <MetaIcon className="size-3" strokeWidth={2.5} aria-hidden />
             {TRACK_LABELS[c.track] || c.track}
           </Badge>
@@ -148,7 +138,7 @@ export function TeacherClassCard({
       <Button
         asChild
         className={cn(
-          'h-11 w-full rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-md transition-all hover:translate-y-[-2px] hover:shadow-lg active:scale-95'
+          'h-11 w-full rounded-xl text-sm font-bold shadow-md transition-all hover:shadow-lg active:scale-95'
         )}
       >
         <Link

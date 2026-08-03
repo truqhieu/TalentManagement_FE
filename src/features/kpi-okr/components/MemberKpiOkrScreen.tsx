@@ -6,11 +6,7 @@ export function MemberKpiOkrScreen() {
   return (
     <div className="space-y-6">
       <VinhDanhSlide />
-      <KpiOkrWorkspace
-        variant="member"
-        title="KPI & OKR của tôi"
-        description="Mỗi lần nhập theo tháng: xem mục tiêu và cập nhật kết quả (tiến độ) cùng kỳ đã chọn. Có tổng chỉ số và form câu hỏi theo tháng."
-      />
+      <KpiOkrWorkspace variant="member" title="KPI & OKR của tôi" />
     </div>
   )
 }

@@ -575,9 +575,8 @@ function MyProfileScreenLoaded({ page, u }: { page: MyProfilePage; u: MeUserSelf
           <div className="absolute bottom-8 left-1/3 h-56 w-56 -translate-x-1/2 rounded-full bg-violet-500/10 blur-3xl" />
         </div>
 
-        <div className="mx-auto w-full max-w-[1400px] px-4 md:px-6">
-          <div className="mb-8 border-none bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-8 text-white shadow-2xl rounded-3xl relative overflow-hidden">
-            <div className="absolute right-0 top-0 h-full w-1/3 bg-white/10 [mask-image:linear-gradient(to_left,white,transparent)]" />
+        <div className="mx-auto w-full px-4 md:px-6">
+          <div className="mb-4 border-none bg-[#005236] p-8 text-white rounded-3xl relative overflow-hidden">
             <div className="relative z-10 flex flex-col gap-4">
               <div className="min-w-0">
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">
@@ -590,8 +589,8 @@ function MyProfileScreenLoaded({ page, u }: { page: MyProfilePage; u: MeUserSelf
             </div>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
-            <div className="space-y-6">
+          <div className="">
+            <div className="space-y-4">
               <section className="rounded-3xl border border-slate-200/60 bg-white p-8 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/50 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-indigo-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="absolute top-0 right-0 h-48 w-48 bg-primary/5 rounded-full -mr-24 -mt-24 blur-3xl" />

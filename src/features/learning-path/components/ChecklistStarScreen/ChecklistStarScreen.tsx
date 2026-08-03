@@ -1,37 +1,5 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { Link, useNavigate } from '@tanstack/react-router'
-import {
-  ChevronDown,
-  ChevronRight,
-  Clock,
-  CloudUpload,
-  ListChecks,
-  Lock,
-  Paperclip,
-  Loader2,
-  Eye,
-  Info,
-  ExternalLink,
-  CheckCircle2,
-  UserCheck,
-  MessageSquareQuote,
-  AlertCircle,
-  Trophy,
-  XCircle,
-} from 'lucide-react'
-import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
 import { StarEmblem } from '@/components/icons/StarEmblem'
-import {
-  useLearningChecklist,
-  useMyLearningPath,
-  useStarSubmissions,
-  useSubmitEvidence,
-} from '@/features/learning-path/hooks'
-import { useChecklistItem } from '@/features/learning-path/components/ChecklistItem/useChecklistItem'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
@@ -39,11 +7,43 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Skeleton, SkeletonApprovalCardRow } from '@/components/ui/skeleton'
-import { CARD_ENTRANCE, CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
-import { cn } from '@/lib/utils'
 import { Form } from '@/components/ui/form'
 import { InputController, TextareaController } from '@/components/ui/form-controllers'
+import { Input } from '@/components/ui/input'
+import { Skeleton, SkeletonApprovalCardRow } from '@/components/ui/skeleton'
+import { useChecklistItem } from '@/features/learning-path/components/ChecklistItem/useChecklistItem'
+import {
+  useLearningChecklist,
+  useMyLearningPath,
+  useStarSubmissions,
+  useSubmitEvidence,
+} from '@/features/learning-path/hooks'
+import { CARD_ENTRANCE, CARD_ENTRANCE_HOVER, staggerStyle } from '@/lib/cardMotion'
+import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
+import { cn } from '@/lib/utils'
+import { Link, useNavigate } from '@tanstack/react-router'
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  CloudUpload,
+  ExternalLink,
+  Eye,
+  Info,
+  ListChecks,
+  Loader2,
+  Lock,
+  MessageSquareQuote,
+  Paperclip,
+  Trophy,
+  UserCheck,
+  XCircle,
+} from 'lucide-react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
 const LEVEL_VI: Record<string, string> = {
   tap_su: 'Tập sự',
@@ -473,7 +473,7 @@ export function ChecklistStarScreen({
             </div>
           </div>
         ) : (
-          <div className="mx-auto max-w-[1400px]">
+          <div className="mx-auto">
             <nav className="mb-6 flex flex-wrap items-center gap-2 text-sm">
               <span className="font-bold uppercase tracking-wide text-gray-500">{levelName}</span>
               <ChevronRight className="h-4 w-4 shrink-0 text-gray-300" aria-hidden />
@@ -484,21 +484,15 @@ export function ChecklistStarScreen({
 
             <div
               className={cn(
-                'relative mb-8 overflow-hidden rounded-3xl vcb-banner-gradient text-white shadow-xl',
+                'relative mb-8 overflow-hidden rounded-3xl bg-[#005236] text-white',
                 embedInLearningPath ? 'px-4 py-6 sm:px-6 sm:py-8' : 'px-6 py-8 sm:px-8'
               )}
             >
-              <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
               <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0 space-y-2">
-                  <div className="mb-2 flex flex-wrap items-center gap-3">
-                    <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs font-bold uppercase tracking-tighter text-white">
-                      {hasStarProgression ? 'Level 1' : levelName}
-                    </span>
-                    {hasStarProgression ? (
-                      <BannerStars filled={Math.min(doneCount, 5)} total={5} />
-                    ) : null}
-                  </div>
+                  {hasStarProgression ? (
+                    <BannerStars filled={Math.min(doneCount, 5)} total={5} />
+                  ) : null}
                   <h1 className="text-[22px] font-extrabold leading-tight tracking-tight">
                     Lộ trình học {levelName}
                   </h1>
@@ -533,7 +527,7 @@ export function ChecklistStarScreen({
               >
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <h2 className="text-lg font-bold text-gray-900">Danh sách nhiệm vụ</h2>
-                  <span className="rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-700">
+                  <span className="rounded-full bg-[#006C49]/80 px-3 py-1 text-xs font-semibold text-white">
                     Ấn vào để xem chi tiết
                   </span>
                 </div>
@@ -1289,7 +1283,7 @@ const ChecklistTaskCard = memo(function ChecklistTaskCard({
                 'group relative flex flex-col rounded-xl border p-3.5 transition-all duration-200',
                 onSelectObjective ? 'cursor-pointer hover:shadow-md' : '',
                 isSelected
-                  ? 'border-primary-500 bg-white ring-1 ring-primary-500 shadow-sm'
+                  ? 'border-[#006C49] bg-white ring-1 ring-[#006C49] shadow-sm'
                   : 'border-gray-100 bg-white hover:border-gray-200'
               )}
             >
@@ -1298,7 +1292,7 @@ const ChecklistTaskCard = memo(function ChecklistTaskCard({
                   className={cn(
                     'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors',
                     isSelected
-                      ? 'bg-primary-600 text-white'
+                      ? 'bg-[#006C49] text-white'
                       : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
                   )}
                 >
@@ -1491,7 +1485,7 @@ const ChecklistTaskCard = memo(function ChecklistTaskCard({
     <div
       className={cn(
         'group relative rounded-xl border-l-4 p-5 shadow-sm ring-1 ring-gray-100 transition-all duration-300 hover:shadow-md',
-        expanded ? 'border-primary-600 bg-white' : 'border-transparent bg-white/50'
+        expanded ? 'border-[#006C49] bg-white' : 'border-transparent bg-white/50'
       )}
     >
       <Button
@@ -1505,11 +1499,11 @@ const ChecklistTaskCard = memo(function ChecklistTaskCard({
         <div
           className={cn(
             'mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 bg-white transition-colors',
-            expanded ? 'border-primary-600' : 'border-gray-300'
+            expanded ? 'border-[#006C49]' : 'border-gray-300'
           )}
         >
           <span
-            className="h-2 w-2 rounded-sm bg-primary-600 opacity-0 transition-opacity group-hover:opacity-20"
+            className="h-2 w-2 rounded-sm bg-[#006C49] opacity-0 transition-opacity group-hover:opacity-20"
             aria-hidden
           />
         </div>
@@ -1518,7 +1512,7 @@ const ChecklistTaskCard = memo(function ChecklistTaskCard({
             <h4
               className={cn(
                 'break-words text-base font-bold transition-colors',
-                expanded ? 'text-primary-600' : 'text-gray-700'
+                expanded ? 'text-[#006C49]' : 'text-gray-700'
               )}
             >
               {title}

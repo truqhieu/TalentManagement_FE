@@ -1,10 +1,10 @@
+import { ChevronLeft, ChevronRight, Download, FileText } from 'lucide-react'
 import { useState } from 'react'
-import { FileText, Download, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { MeetingBooking } from './api'
 import { BBH_REQUIRED_FROM_DATE } from './roomBookingConstants'
-import { formatDateVi, formatTimeRangeVi } from './roomBookingTimeUtils'
 import { requiresMeetingMinutes } from './roomBookingMinutes'
 import { RoomBookingMinutesCell } from './RoomBookingMinutesCell'
+import { formatDateVi, formatTimeRangeVi } from './roomBookingTimeUtils'
 
 type Props = {
   items: MeetingBooking[]
@@ -32,7 +32,7 @@ export function RoomBookingMinutesTable({ items, vnTime, currentUserId, showAllU
     <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 px-4 py-3 bg-muted/10">
         <div className="flex flex-wrap items-center gap-2">
-          <FileText className="h-4 w-4 text-primary" />
+          <FileText className="h-4 w-4 text-[#006C49]" />
           <h3 className="text-sm font-bold text-foreground">Biên bản họp (BBH)</h3>
           <span className="text-xs text-muted-foreground">
             Áp dụng từ {formatDateVi(BBH_REQUIRED_FROM_DATE)} · Nộp sau khi buổi họp kết thúc
@@ -41,7 +41,7 @@ export function RoomBookingMinutesTable({ items, vnTime, currentUserId, showAllU
         <a
           href="/Form_bien_ban_hop_Vien_Chi_Bao.docx"
           download="Bản sao của Form biên bản họp - Viễn Chí Bảo.docx"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition hover:bg-primary hover:text-primary-foreground"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-[#006C49]/10 px-3 py-1.5 text-xs font-bold text-[#006C49] transition hover:bg-[#006C49]/20 hover:text-[#006C49]"
         >
           <Download className="h-3.5 w-3.5" />
           Tải mẫu BBH

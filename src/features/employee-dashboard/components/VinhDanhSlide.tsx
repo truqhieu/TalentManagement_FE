@@ -292,15 +292,22 @@ function IndividualSlide({
   month,
   year,
   onNext,
+  compact,
 }: {
   slide: Extract<HonorSlide, { kind: 'individual' }>
   month: number
   year: number
   onNext: () => void
+  compact?: boolean
 }) {
   return (
     <div
-      className="relative grid min-h-[210px] items-center gap-5 px-5 py-6 sm:min-h-[240px] sm:px-8 lg:grid-cols-[148px_1fr_148px_56px] lg:gap-7 lg:px-12"
+      className={cn(
+        'relative grid items-center',
+        compact
+          ? 'min-h-[128px] gap-3 px-4 py-3 sm:min-h-[140px] sm:px-6 lg:grid-cols-[96px_1fr_96px_40px] lg:gap-4 lg:px-8'
+          : 'min-h-[210px] gap-5 px-5 py-6 sm:min-h-[240px] sm:px-8 lg:grid-cols-[148px_1fr_148px_56px] lg:gap-7 lg:px-12'
+      )}
       style={{ animation: 'vd-slide-in .55s cubic-bezier(.22,1,.36,1) both' }}
     >
       {/* Background decorations */}
@@ -476,17 +483,24 @@ function TeamSlide({
   month,
   year,
   onNext,
+  compact,
 }: {
   slide: Extract<HonorSlide, { kind: 'team' }>
   month: number
   year: number
   onNext: () => void
+  compact?: boolean
 }) {
   const nameParts = slide.teamName.replace(/^team\s*/i, '').trim()
 
   return (
     <div
-      className="relative grid min-h-[210px] items-center gap-5 px-5 py-7 sm:min-h-[240px] sm:px-8 lg:grid-cols-[1fr_auto] lg:gap-8 lg:px-12"
+      className={cn(
+        'relative grid items-center',
+        compact
+          ? 'min-h-[128px] gap-3 px-4 py-3 sm:min-h-[140px] sm:px-6 lg:grid-cols-[1fr_auto] lg:gap-4 lg:px-8'
+          : 'min-h-[210px] gap-5 px-5 py-7 sm:min-h-[240px] sm:px-8 lg:grid-cols-[1fr_auto] lg:gap-8 lg:px-12'
+      )}
       style={{ animation: 'vd-slide-in .55s cubic-bezier(.22,1,.36,1) both' }}
     >
       {/* Background decorations */}
@@ -619,7 +633,14 @@ function TeamSlide({
 
 // ─── Main component ─────────────────────────────────────────────────────────
 
-export function VinhDanhSlide({ className }: { className?: string }) {
+export function VinhDanhSlide({
+  className,
+  compact = false,
+}: {
+  className?: string
+  /** Shorter banner for dense dashboards (manager overview). */
+  compact?: boolean
+}) {
   const { year, month } = useMemo(() => {
     const d = new Date()
     return { year: d.getFullYear(), month: d.getMonth() + 1 }
@@ -700,7 +721,10 @@ export function VinhDanhSlide({ className }: { className?: string }) {
       <SlideKeyframes />
       <section
         className={cn(
-          'relative overflow-hidden rounded-[2.25rem] border border-white/15 shadow-[0_28px_90px_rgba(192,38,211,0.45)]',
+          'relative overflow-hidden border border-white/15',
+          compact
+            ? 'rounded-2xl shadow-[0_12px_40px_rgba(192,38,211,0.35)]'
+            : 'rounded-[2.25rem] shadow-[0_28px_90px_rgba(192,38,211,0.45)]',
           className
         )}
         onMouseEnter={() => setPaused(true)}
@@ -725,6 +749,7 @@ export function VinhDanhSlide({ className }: { className?: string }) {
               month={month}
               year={year}
               onNext={goNext}
+              compact={compact}
             />
           ) : (
             <TeamSlide
@@ -732,6 +757,7 @@ export function VinhDanhSlide({ className }: { className?: string }) {
               month={month}
               year={year}
               onNext={goNext}
+              compact={compact}
             />
           )}
         </div>

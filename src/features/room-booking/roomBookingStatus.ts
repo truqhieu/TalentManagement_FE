@@ -1,6 +1,15 @@
 import type { MeetingBooking } from './api'
 import { padTime } from './roomBookingTimeUtils'
 
+/** ponytail: heuristic updatedAt vs createdAt — BE flag would be cleaner */
+export function isRescheduleRequest(b: MeetingBooking): boolean {
+  return (
+    b.status === 'pending' &&
+    !!b.updatedAt &&
+    new Date(b.updatedAt).getTime() > new Date(b.createdAt).getTime() + 5000
+  )
+}
+
 export type BookingDisplayStatus = {
   text: string
   className: string

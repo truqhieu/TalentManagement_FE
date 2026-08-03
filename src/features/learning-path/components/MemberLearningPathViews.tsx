@@ -1,35 +1,10 @@
-import {
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useId,
-  useMemo,
-  useState,
-  useRef,
-  type ReactNode,
-} from 'react'
-import { toast } from 'sonner'
-import { useForm, useWatch } from 'react-hook-form'
-import {
-  Eye,
-  X,
-  Star,
-  Edit3,
-  School,
-  Calendar,
-  Send,
-  Sparkles,
-  FileText,
-  Upload,
-  Check,
-  AlertCircle,
-  Loader2,
-} from 'lucide-react'
+import { DialogCustom } from '@/components/shared/DialogCustom/DialogCustom'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { DateController } from '@/components/ui/form-controllers'
+import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -38,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useSubmitExam, useWithdrawExam } from '@/features/exam/hooks'
 import {
   useAvailableLearningClasses,
   useMyEnrolledClass,
@@ -48,14 +24,36 @@ import {
   useWithdrawEvidence,
 } from '@/features/learning-path/hooks'
 import type { MeEnrolledClass, MeEnrolledClassSchedule } from '@/features/learning-path/schemas'
-import { cn, getFileViewerUrl } from '@/lib/utils'
 import { SessionEvaluationModal } from '@/features/teacher/components/SessionEvaluationModal'
-import { useAuthStore } from '@/stores/auth.store'
-import { useSubmitExam, useWithdrawExam } from '@/features/exam/hooks'
 import { apiClient, getApiErrorMessage } from '@/lib/axios'
+import { cn, getFileViewerUrl } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth.store'
 import { useQueryClient } from '@tanstack/react-query'
-import { Input } from '@/components/ui/input'
-import { DialogCustom } from '@/components/shared/DialogCustom/DialogCustom'
+import {
+  Calendar,
+  Edit3,
+  Eye,
+  FileText,
+  Loader2,
+  School,
+  Send,
+  Sparkles,
+  Star,
+  Upload,
+  X,
+} from 'lucide-react'
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import { toast } from 'sonner'
 
 function Modal({
   open,

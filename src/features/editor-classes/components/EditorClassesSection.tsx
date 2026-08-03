@@ -1,25 +1,25 @@
-import { useState } from 'react'
-import { CalendarPlus, Loader2, RefreshCw, School } from 'lucide-react'
-import { toast } from 'sonner'
-import { addMinutesToHm } from '@/lib/examScheduleTime'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { ErrorState } from '@/components/shared/ErrorState'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { EmptyState } from '@/components/shared/EmptyState'
-import { ErrorState } from '@/components/shared/ErrorState'
 import { SkeletonSubmissionCardList } from '@/components/ui/skeleton'
-import { getApiErrorMessage } from '@/lib/axios'
 import {
   useBulkCreateExamSchedules,
   useEditorClasses,
   useSyncEditorClasses,
 } from '@/features/editor-classes/hooks'
-import { useExamPapers } from '@/features/exam-papers/hooks'
 import type {
   bulkExamScheduleResultApiSchema,
   editorClassSyncReportApiSchema,
 } from '@/features/editor-classes/schemas'
+import { useExamPapers } from '@/features/exam-papers/hooks'
+import { getApiErrorMessage } from '@/lib/axios'
+import { addMinutesToHm } from '@/lib/examScheduleTime'
+import { CalendarPlus, Loader2, RefreshCw, School } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 import type { z } from 'zod'
 
 type SyncReport = z.infer<typeof editorClassSyncReportApiSchema>
@@ -267,9 +267,6 @@ export function EditorClassesSection() {
     <div className="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.04)]">
       <div className="flex flex-col gap-4 border-b border-slate-50 px-8 py-5 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/60">
-            Quản lý
-          </p>
           <h3 className="text-lg font-black text-slate-900">Lớp Editor</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Mỗi team có editor sẽ có 1 lớp riêng — leader team làm giáo viên. Đồng bộ để tự động tạo

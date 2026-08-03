@@ -45,7 +45,7 @@ export function PageHeader({
     <div
       className={cn(
         'flex flex-col gap-4 sm:gap-5',
-        variant === 'default' && 'border-b border-border pb-5',
+        variant === 'default' && 'pb-5',
         surface && PAGE_HEADER_SURFACE,
         className
       )}

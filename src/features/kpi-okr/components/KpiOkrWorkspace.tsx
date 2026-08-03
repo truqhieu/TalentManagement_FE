@@ -1,6 +1,144 @@
-import { useCallback, useEffect, useMemo, useRef, useState, Fragment } from 'react'
+import { CustomSelect } from '@/components/shared/CustomSelect'
+import { OrgUserAvatar } from '@/components/shared/EmployeeAvatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import {
+  InputController,
+  SelectController,
+  TextareaController,
+} from '@/components/ui/form-controllers'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ORG_TREE_KEY, useHrOrgTree } from '@/features/hr-admin/useHrOrgTree'
+import {
+  performanceApi,
+  type ApprovalRequest,
+  type PerformanceAssignment,
+  type PerformanceQuestionnaire,
+  type PerformanceSummaryRow,
+} from '@/features/kpi-okr/api'
+import {
+  catalogSeedEnabledForTeam,
+  filterKpiEligibleMembers,
+  isCatalogEnabledDepartment,
+  isCatalogSeedExcludedTeam,
+  isMandatoryMetric,
+  isTrafficTeam,
+  kpiEligibleUserIdSet,
+  memberRequiresKpiOkr,
+  requiresKpiApproval,
+  shouldShowAssignmentForMember,
+} from '@/features/kpi-okr/catalogHelpers'
+import { useKpiOkrAutoSeed } from '@/features/kpi-okr/components/hooks/useKpiOkrAutoSeed'
+import {
+  ASSIGN_TABLE_HEAD,
+  AssignmentEpic4ReadCells,
+  AssignmentEpic4ReadStack,
+  CELL_EVIDENCE,
+  CELL_NUMERIC,
+  CELL_SELF_EVAL,
+  CELL_UNIT,
+  ContentCell,
+  EVAL_LEADER_CELL,
+  EVAL_MANAGER_CELL,
+  EvalStatusBadge,
+  GoalReviewStatusBadge,
+  GoalReviewSummary,
+  KindBadge,
+  PLANNING_ASSIGN_TABLE_HEAD,
+  PriorityBadge,
+  TABLE_INLINE_SELECT_TRIGGER,
+  XL_BORDER,
+  XL_TH,
+  formatKpiSetAt,
+  formatViNumber,
+  periodLabel,
+  resolveParentKpiDisplay,
+  resultsColumnHeadClass,
+  resultsTableMinWidthClass,
+  xlTd,
+} from '@/features/kpi-okr/components/kpiAssignmentTableShared'
+import { KpiEvidenceInput } from '@/features/kpi-okr/components/KpiEvidenceInput'
+import { KpiProgressBar } from '@/features/kpi-okr/components/KpiProgressBar'
+import {
+  AssignmentSubItemsInline,
+  SubItemsEditSection,
+  SubItemsEditorPanel,
+  mapSubItemsToPayload,
+  subItemsFromAssignment,
+} from '@/features/kpi-okr/components/kpiSubItemsShared'
+import {
+  SubItemsSelfEditInline,
+  isSubItemResultComplete,
+} from '@/features/kpi-okr/components/SubItemsSelfEdit'
+import {
+  parseKpiOkrImportFile,
+  type ImportAssignmentItem,
+} from '@/features/kpi-okr/kpiOkrSheetImport'
+import {
+  clampKpiPeriod,
+  formatKinhDoanhResultsCloseRange,
+  getAssignmentWindowPhase,
+  getKinhDoanhResultsCloseWindowPhase,
+  getMaxViewableYm,
+  isAnswerWindowOpen,
+  isAssignmentWindowOpen,
+  isKinhDoanhResultsCloseWindowOpen,
+  isKpiPeriodSelectable,
+  resolveAssignmentWindowForTeam,
+  resolveKinhDoanhResultsCloseWindowForTeam,
+} from '@/features/kpi-okr/kpiPeriodLimits'
+import { parseQuestionnaireImportFile } from '@/features/kpi-okr/questionnaireGridImport'
+import { useKpiOkrStream } from '@/features/kpi-okr/useKpiOkrStream'
+import type { SubItemDraft } from '@/features/kpi-okr/utils/kpiProgressUtils'
+import {
+  organizationApi,
+  type OrgTreeDepartment,
+  type TeamMemberRow,
+} from '@/features/organization/api'
+import { resolveEffectivePermissionSet } from '@/features/permissions/resolveEffective'
+import { getApiErrorMessage } from '@/lib/axios'
+import { CARD_ENTRANCE } from '@/lib/cardMotion'
+import { isManagerLikeRole } from '@/lib/managerLikeRole'
+import { isMockApiEnabled } from '@/lib/mockEnv'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth.store'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useForm, useFieldArray, useWatch, Controller } from 'react-hook-form'
 import {
   AlertTriangle,
   AlignLeft,
@@ -20,149 +158,9 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import { CustomSelect } from '@/components/shared/CustomSelect'
-import { cn } from '@/lib/utils'
-import { getApiErrorMessage } from '@/lib/axios'
-import { CARD_ENTRANCE } from '@/lib/cardMotion'
-import { useAuthStore } from '@/stores/auth.store'
-import { isManagerLikeRole } from '@/lib/managerLikeRole'
-import { resolveEffectivePermissionSet } from '@/features/permissions/resolveEffective'
-import { useHrOrgTree, ORG_TREE_KEY } from '@/features/hr-admin/useHrOrgTree'
-import { useKpiOkrAutoSeed } from '@/features/kpi-okr/components/hooks/useKpiOkrAutoSeed'
-import { useKpiOkrStream } from '@/features/kpi-okr/useKpiOkrStream'
-import {
-  performanceApi,
-  type ApprovalRequest,
-  type PerformanceAssignment,
-  type PerformanceQuestionnaire,
-  type PerformanceSummaryRow,
-} from '@/features/kpi-okr/api'
-import {
-  clampKpiPeriod,
-  getMaxViewableYm,
-  isKpiPeriodSelectable,
-  isAssignmentWindowOpen,
-  getAssignmentWindowPhase,
-  resolveAssignmentWindowForTeam,
-  resolveKinhDoanhResultsCloseWindowForTeam,
-  getKinhDoanhResultsCloseWindowPhase,
-  isKinhDoanhResultsCloseWindowOpen,
-  formatKinhDoanhResultsCloseRange,
-  isAnswerWindowOpen,
-} from '@/features/kpi-okr/kpiPeriodLimits'
-import { KpiEvidenceInput } from '@/features/kpi-okr/components/KpiEvidenceInput'
-import {
-  ASSIGN_TABLE_HEAD,
-  AssignmentEpic4ReadCells,
-  AssignmentEpic4ReadStack,
-  ContentCell,
-  CELL_EVIDENCE,
-  CELL_NUMERIC,
-  CELL_SELF_EVAL,
-  CELL_UNIT,
-  EVAL_LEADER_CELL,
-  EVAL_MANAGER_CELL,
-  EvalStatusBadge,
-  GoalReviewStatusBadge,
-  GoalReviewSummary,
-  KindBadge,
-  PLANNING_ASSIGN_TABLE_HEAD,
-  PriorityBadge,
-  resultsColumnHeadClass,
-  resultsTableMinWidthClass,
-  TABLE_INLINE_SELECT_TRIGGER,
-  XL_TH,
-  XL_BORDER,
-  formatKpiSetAt,
-  formatViNumber,
-  periodLabel,
-  resolveParentKpiDisplay,
-  xlTd,
-} from '@/features/kpi-okr/components/kpiAssignmentTableShared'
-import { KpiProgressBar } from '@/features/kpi-okr/components/KpiProgressBar'
-import {
-  AssignmentSubItemsInline,
-  SubItemsEditSection,
-  SubItemsEditorPanel,
-  mapSubItemsToPayload,
-  subItemsFromAssignment,
-} from '@/features/kpi-okr/components/kpiSubItemsShared'
-import {
-  SubItemsSelfEditInline,
-  isSubItemResultComplete,
-} from '@/features/kpi-okr/components/SubItemsSelfEdit'
-import type { SubItemDraft } from '@/features/kpi-okr/utils/kpiProgressUtils'
-import { emptySubItemLine } from '@/features/kpi-okr/utils/kpiProgressUtils'
-import {
-  catalogSeedEnabledForTeam,
-  isCatalogEnabledDepartment,
-  shouldShowAssignmentForMember,
-  isMandatoryMetric,
-  isTrafficTeam,
-  requiresKpiApproval,
-  filterKpiEligibleMembers,
-  kpiEligibleUserIdSet,
-  memberRequiresKpiOkr,
-  isCatalogSeedExcludedTeam,
-} from '@/features/kpi-okr/catalogHelpers'
-import {
-  parseKpiOkrImportFile,
-  type ImportAssignmentItem,
-} from '@/features/kpi-okr/kpiOkrSheetImport'
-import { parseQuestionnaireImportFile } from '@/features/kpi-okr/questionnaireGridImport'
-import { OrgUserAvatar } from '@/components/shared/EmployeeAvatar'
-import {
-  organizationApi,
-  type OrgTreeDepartment,
-  type TeamMemberRow,
-} from '@/features/organization/api'
-import { isMockApiEnabled } from '@/lib/mockEnv'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  InputController,
-  SelectController,
-  TextareaController,
-} from '@/components/ui/form-controllers'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 
 function nowYm() {
   const n = new Date()
@@ -180,7 +178,8 @@ function formatAnswerWindow(year: number, month: number): string {
 export type KpiOkrWorkspaceProps = {
   variant: 'leader' | 'member' | 'manager'
   title: string
-  description: string
+  /** @deprecated UI no longer renders this; kept optional for call-site compat. */
+  description?: string
   teamScope?: 'all' | 'business'
 }
 
@@ -199,12 +198,7 @@ function isBusinessDepartment(dept: OrgTreeDepartment): boolean {
   return label.includes('kinh doanh') || label.includes('sales')
 }
 
-export function KpiOkrWorkspace({
-  variant,
-  title,
-  description,
-  teamScope = 'all',
-}: KpiOkrWorkspaceProps) {
+export function KpiOkrWorkspace({ variant, title, teamScope = 'all' }: KpiOkrWorkspaceProps) {
   const user = useAuthStore((s) => s.user)
   const isMemberView = variant === 'member'
   const isManagerVariant = variant === 'manager'
@@ -680,29 +674,27 @@ export function KpiOkrWorkspace({
   const mockHint = isMockApiEnabled()
 
   return (
-    <div className="relative isolate mx-auto max-w-[1400px] px-3 py-6 md:px-4">
+    <div className="relative isolate p-1 sm:p-2">
       {/* ── Ambient background glow ── */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-3xl"
+        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-2xl"
       >
-        <div className="absolute -left-20 -top-16 h-72 w-72 rounded-full bg-primary/22 blur-3xl" />
-        <div className="absolute -right-16 top-24 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
-        <div className="absolute bottom-8 left-1/3 h-56 w-56 -translate-x-1/2 rounded-full bg-violet-500/16 blur-3xl" />
+        <div className="absolute -left-20 -top-16 h-56 w-56 rounded-full bg-primary/14 blur-3xl" />
+        <div className="absolute -right-16 top-24 h-64 w-64 rounded-full bg-accent/12 blur-3xl" />
       </div>
 
       {/* ── Unified toolbar (Linear-style): title + filters + context in one clean bar ── */}
-      <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:gap-4">
+      <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:gap-3">
         {/* Title */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="hidden sm:flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400">
-            <TrendingUp className="h-4.5 w-4.5" />
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 sm:flex dark:bg-indigo-900/40 dark:text-indigo-400">
+            <TrendingUp className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate">
+            <h1 className="truncate text-base font-bold text-slate-900 dark:text-slate-100">
               {title}
             </h1>
-            <p className="text-xs text-slate-500 truncate">{description}</p>
           </div>
         </div>
 
@@ -710,7 +702,7 @@ export function KpiOkrWorkspace({
         <div className="hidden h-8 w-px bg-slate-200 dark:bg-slate-700 sm:block" />
 
         {/* Filters — compact inline */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
           {!isManagerReadOnly && !isManagerVariant && (
             <Select
               value={selectedDept?.id ?? '__none'}
@@ -720,7 +712,7 @@ export function KpiOkrWorkspace({
                 setSelectedTeamId(d?.teams[0]?.id ?? '')
               }}
             >
-              <SelectTrigger className="h-9 w-[145px] rounded-lg border-0 bg-slate-100 text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 [&>span]:truncate [&>span]:whitespace-nowrap">
+              <SelectTrigger className="h-9 min-w-[12rem] w-auto max-w-[22rem] rounded-lg border-0 bg-slate-100 text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 [&>span]:whitespace-nowrap">
                 <SelectValue placeholder="Phòng ban" />
               </SelectTrigger>
               <SelectContent>
@@ -738,7 +730,7 @@ export function KpiOkrWorkspace({
             disabled={isMemberView && !memberMultiTeam}
             onValueChange={(value) => setSelectedTeamId(value === '__none' ? '' : value)}
           >
-            <SelectTrigger className="h-9 w-[135px] rounded-lg border-0 bg-slate-100 text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 [&>span]:truncate [&>span]:whitespace-nowrap">
+            <SelectTrigger className="h-9 min-w-[14rem] w-auto max-w-[28rem] rounded-lg border-0 bg-slate-100 text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 [&>span]:whitespace-nowrap">
               <SelectValue placeholder={memberMultiTeam ? 'Nhóm đang xem' : 'Nhóm'} />
             </SelectTrigger>
             <SelectContent>
@@ -768,7 +760,7 @@ export function KpiOkrWorkspace({
               setMonth(next.month)
             }}
           >
-            <SelectTrigger className="h-9 w-[105px] rounded-lg border-0 bg-slate-100 text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700">
+            <SelectTrigger className="h-9 w-[7.5rem] shrink-0 rounded-lg border-0 bg-slate-100 text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -784,7 +776,7 @@ export function KpiOkrWorkspace({
             value={year}
             min={2020}
             max={maxViewYm.year}
-            className="h-9 w-[90px] rounded-lg border-0 bg-slate-100 text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+            className="h-9 w-[5.5rem] shrink-0 rounded-lg border-0 bg-slate-100 text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
             onChange={(e) => {
               const v = Number(e.target.value)
               if (!Number.isFinite(v)) return
@@ -795,17 +787,8 @@ export function KpiOkrWorkspace({
           />
         </div>
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Badge pills + refresh */}
+        {/* Refresh */}
         <div className="flex items-center gap-2">
-          <Badge
-            variant="outline"
-            className="h-6 rounded-md border-blue-200 bg-blue-50 text-xs font-semibold text-blue-600 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
-          >
-            T{month}/{year}
-          </Badge>
           {selectedTeamId && (
             <Badge
               variant="outline"
@@ -838,14 +821,14 @@ export function KpiOkrWorkspace({
 
       {/* ── Context: mock hint, window lock, approval status ── */}
       {mockHint && (
-        <p className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
+        <p className="mb-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-sm text-amber-900 dark:text-amber-100">
           Đang bật chế độ giả lập — không tải được dữ liệu KPI từ máy chủ. Tắt giả lập để dùng đầy
           đủ.
         </p>
       )}
 
       {canEditTeam && selectedTeamId && !assignmentWindowOpen && !mockHint && (
-        <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/25 dark:text-amber-100">
+        <div className="mb-2 flex items-start gap-2 rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/25 dark:text-amber-100">
           <Lock className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p className="font-semibold">
@@ -853,7 +836,7 @@ export function KpiOkrWorkspace({
                 ? 'Cửa sổ giao mục tiêu chưa mở'
                 : 'Cửa sổ giao mục tiêu đã đóng'}
             </p>
-            <p className="mt-1 text-sm opacity-90">
+            <p className="mt-0.5 text-sm opacity-90">
               {assignmentWindowPhase === 'before' ? (
                 <>
                   Kỳ{' '}
@@ -883,10 +866,10 @@ export function KpiOkrWorkspace({
       {requiresKpiApprovalSelected && variant === 'leader' && selectedTeamId && (
         <>
           {/* Status banner — informational only, no action button here */}
-          <div className="mb-4">
+          <div className="mb-2 space-y-1.5">
             {goalApprovalRequest?.status === 'pending' && (
-              <div className="flex items-center gap-3 rounded-xl border border-yellow-400/50 bg-yellow-50 px-4 py-3 dark:border-yellow-700/40 dark:bg-yellow-950/30">
-                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-yellow-400" />
+              <div className="flex items-center gap-2 rounded-lg border border-yellow-400/50 bg-yellow-50 px-3 py-2 dark:border-yellow-700/40 dark:bg-yellow-950/30">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-yellow-400" />
                 <div className="flex-1 text-sm font-medium text-yellow-800 dark:text-yellow-200">
                   Mục tiêu KPI/OKR tháng {month}/{year} đang chờ Manager duyệt — không thể chỉnh
                   sửa.
@@ -894,7 +877,7 @@ export function KpiOkrWorkspace({
               </div>
             )}
             {goalApprovalRequest?.status === 'approved' && (
-              <div className="flex items-center gap-3 rounded-xl border border-green-400/50 bg-green-50 px-4 py-3 dark:border-green-700/40 dark:bg-green-950/30">
+              <div className="flex items-center gap-2 rounded-lg border border-green-400/50 bg-green-50 px-3 py-2 dark:border-green-700/40 dark:bg-green-950/30">
                 <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                 <div className="flex-1 text-sm font-medium text-green-800 dark:text-green-200">
                   Mục tiêu KPI/OKR tháng {month}/{year} đã được duyệt.
@@ -902,8 +885,8 @@ export function KpiOkrWorkspace({
               </div>
             )}
             {goalApprovalRequest?.status === 'rejected' && (
-              <div className="rounded-xl border border-red-400/50 bg-red-50 px-4 py-3 dark:border-red-700/40 dark:bg-red-950/30">
-                <div className="flex items-center gap-3">
+              <div className="rounded-lg border border-red-400/50 bg-red-50 px-3 py-2 dark:border-red-700/40 dark:bg-red-950/30">
+                <div className="flex items-center gap-2">
                   <X className="h-4 w-4 text-red-600 dark:text-red-400" />
                   <div className="flex-1 text-sm font-medium text-red-800 dark:text-red-200">
                     Mục tiêu KPI/OKR tháng {month}/{year} bị từ chối — bạn có thể chỉnh sửa và gửi
@@ -911,7 +894,7 @@ export function KpiOkrWorkspace({
                   </div>
                 </div>
                 {goalApprovalRequest.note && (
-                  <p className="mt-1.5 pl-7 text-xs text-red-700 dark:text-red-300">
+                  <p className="mt-1 pl-6 text-xs text-red-700 dark:text-red-300">
                     Lý do: {goalApprovalRequest.note}
                   </p>
                 )}
@@ -922,16 +905,16 @@ export function KpiOkrWorkspace({
           {/* Sticky bottom bar — modern SaaS pattern: context + action together */}
           {(!goalApprovalRequest || goalApprovalRequest.status === 'rejected') &&
             assignmentWindowOpen && (
-              <div className="sticky bottom-0 z-40 -mx-3 md:-mx-4">
-                <div className="mx-3 mb-3 md:mx-4 md:mb-4 rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95 sm:px-6">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="sticky bottom-0 z-40 -mx-1 sm:-mx-2">
+                <div className="mx-1 mb-2 rounded-xl border border-slate-200 bg-white/95 px-3 py-2 shadow-lg backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/95 sm:mx-2 sm:px-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     {/* Left: context */}
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="hidden sm:flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
-                        <ClipboardList className="h-4.5 w-4.5" />
+                    <div className="flex min-w-0 items-center gap-2">
+                      <div className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700 sm:flex dark:bg-blue-900/50 dark:text-blue-300">
+                        <ClipboardList className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+                        <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-200">
                           Gửi duyệt KPI/OKR —{' '}
                           {selectedTeamForSeed?.name ?? `Team ${selectedTeamId.slice(0, 8)}`}
                         </p>
@@ -947,7 +930,7 @@ export function KpiOkrWorkspace({
                       onClick={() => void handleSubmitForApproval()}
                       disabled={submittingGoalApproval || !assignmentsThisMonth.length}
                       size="default"
-                      className="shrink-0 gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all hover:shadow-lg hover:shadow-blue-500/30 disabled:opacity-50"
+                      className="shrink-0 gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-500/25 transition-all hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30 disabled:opacity-50"
                     >
                       {submittingGoalApproval ? (
                         <>
@@ -968,9 +951,9 @@ export function KpiOkrWorkspace({
         </>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {memberSelfKpiExempt && (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
             Bạn là nhân sự Part-time — không cần thiết lập KPI/OKR cho team này.
           </div>
         )}
@@ -3260,7 +3243,7 @@ function UserAssignmentWorkbench({
 
   if (!userEntries.length) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50">
+      <div className="flex h-24 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/50">
         <p className="text-sm text-slate-400">{emptyText}</p>
       </div>
     )
@@ -3300,22 +3283,22 @@ function UserAssignmentWorkbench({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 px-1 text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+    <div className="flex flex-col gap-3">
+      <div className="space-y-2">
+        <div className="flex items-center gap-1.5 px-0.5 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
           <Users
             className={cn(
-              'h-4 w-4 shrink-0',
+              'h-3.5 w-3.5 shrink-0',
               leaderMode === 'planning' ? 'text-blue-500' : 'text-emerald-500'
             )}
           />
-          Danh sách nhân sự
+          Nhân sự
         </div>
         <div
           role="tablist"
           aria-label="Chọn nhân sự"
           className={cn(
-            'flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:thin]',
+            'flex snap-x snap-mandatory gap-1.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:thin]',
             '[&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full',
             leaderMode === 'planning'
               ? '[&::-webkit-scrollbar-thumb]:bg-blue-200 dark:[&::-webkit-scrollbar-thumb]:bg-blue-900/60'
@@ -3336,20 +3319,20 @@ function UserAssignmentWorkbench({
                 id={`kpi-tab-${leaderMode}-${uid}`}
                 onClick={() => setSelectedUserId(uid)}
                 className={cn(
-                  'flex min-w-[160px] max-w-[240px] shrink-0 snap-start flex-col gap-1 rounded-xl px-4 py-2.5 text-left transition-all duration-200',
+                  'flex min-w-[120px] max-w-[200px] shrink-0 snap-start flex-col gap-0.5 rounded-lg px-2.5 py-1.5 text-left transition-all duration-200',
                   active
                     ? isPlanning
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-200 ring-1 ring-blue-600 dark:shadow-none'
-                      : 'bg-emerald-600 text-white shadow-md shadow-emerald-200 ring-1 ring-emerald-600 dark:shadow-none'
+                      ? 'bg-blue-600 text-white shadow-sm shadow-blue-200 ring-1 ring-blue-600 dark:shadow-none'
+                      : 'bg-emerald-600 text-white shadow-sm shadow-emerald-200 ring-1 ring-emerald-600 dark:shadow-none'
                     : 'border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-900'
                 )}
               >
-                <div className="flex min-w-0 items-center gap-2">
+                <div className="flex min-w-0 items-center gap-1.5">
                   <OrgUserAvatar
                     name={nameForMember(members, uid, rows)}
                     avatarUrl={teamMemberPortrait(findTeamMember(members, uid))}
                     className={cn(
-                      'h-8 w-8 shrink-0 text-[10px]',
+                      'h-7 w-7 shrink-0 text-[10px]',
                       active ? 'ring-2 ring-white/60' : ''
                     )}
                   />
@@ -3489,56 +3472,34 @@ function PlanningSection({
 }) {
   return (
     <section id="planning-section" className="scroll-mt-24">
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-6 w-1 rounded-full bg-blue-600" />
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              1. Chốt mục tiêu mới KPI/OKR cho tháng {month}/{year}
-            </h2>
-          </div>
-          <p className="text-sm text-slate-500">
-            Lập và chốt mục tiêu KPI/OKR mới cho team trong kỳ này.
-          </p>
+      <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div className="mb-0.5 flex items-center gap-2">
+          <div className="h-5 w-1 rounded-full bg-blue-600" />
+          <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-lg">
+            1. Chốt mục tiêu mới KPI/OKR cho tháng {month}/{year}
+          </h2>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex -space-x-2 overflow-hidden">
-            {members.slice(0, 5).map((m) => (
-              <OrgUserAvatar
-                key={m.userId}
-                name={m.displayName?.trim() || m.email?.trim() || '?'}
-                avatarUrl={teamMemberPortrait(m)}
-                className="h-7 w-7 text-[10px] ring-2 ring-white dark:ring-slate-950"
-              />
-            ))}
-            {members.length > 5 && (
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 ring-2 ring-white dark:bg-slate-800 dark:ring-slate-950 text-xs font-medium text-slate-500">
-                +{members.length - 5}
-              </div>
-            )}
-          </div>
-          {canEditTeam &&
-            selectedTeamId &&
-            !isMockApiEnabled() &&
-            assignmentWindowOpen &&
-            (isManagerCascade ? (
-              <ManagerCascadeAddForm
-                teamId={selectedTeamId}
-                year={year}
-                month={month}
-                onCreated={onRefresh}
-              />
-            ) : (
-              <MiniCreateForm
-                teamId={selectedTeamId}
-                year={year}
-                month={month}
-                members={members}
-                defaultAssigneeId={currentUserId ?? ''}
-                onCreated={onRefresh}
-              />
-            ))}
-        </div>
+        {canEditTeam &&
+          selectedTeamId &&
+          !isMockApiEnabled() &&
+          assignmentWindowOpen &&
+          (isManagerCascade ? (
+            <ManagerCascadeAddForm
+              teamId={selectedTeamId}
+              year={year}
+              month={month}
+              onCreated={onRefresh}
+            />
+          ) : (
+            <MiniCreateForm
+              teamId={selectedTeamId}
+              year={year}
+              month={month}
+              members={members}
+              defaultAssigneeId={currentUserId ?? ''}
+              onCreated={onRefresh}
+            />
+          ))}
       </div>
       <UserAssignmentWorkbench
         byUser={byUser}
@@ -3861,31 +3822,25 @@ function ResultsSection({
 
   return (
     <section id="results-section" className="scroll-mt-24">
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-6 w-1 rounded-full bg-emerald-600" />
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              2. Kết quả & đánh giá — T{month}/{year}
-            </h2>
-          </div>
-          <p className="text-sm text-slate-500">
-            Evidence / số liệu / tự đánh giá của nhân viên và đánh giá QL cho kỳ T{month}/{year}{' '}
-            (Epic 4).
-          </p>
+      <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <div className="mb-0.5 flex items-center gap-2">
+          <div className="h-5 w-1 rounded-full bg-emerald-600" />
+          <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-lg">
+            2. Kết quả & đánh giá — T{month}/{year}
+          </h2>
         </div>
       </div>
 
       {resultApprovalRequest?.status === 'pending' && (
-        <div className="mb-4 flex items-center gap-3 rounded-xl border border-yellow-400/50 bg-yellow-50 px-4 py-3 dark:border-yellow-700/40 dark:bg-yellow-950/30">
-          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-yellow-400" />
+        <div className="mb-2 flex items-center gap-2 rounded-lg border border-yellow-400/50 bg-yellow-50 px-3 py-2 dark:border-yellow-700/40 dark:bg-yellow-950/30">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-yellow-400" />
           <div className="flex-1 text-sm font-medium text-yellow-800 dark:text-yellow-200">
             Kết quả T{month}/{year} đang chờ Manager duyệt — không thể chỉnh sửa.
           </div>
         </div>
       )}
       {resultApprovalRequest?.status === 'approved' && (
-        <div className="mb-4 flex items-center gap-3 rounded-xl border border-green-400/50 bg-green-50 px-4 py-3 dark:border-green-700/40 dark:bg-green-950/30">
+        <div className="mb-2 flex items-center gap-2 rounded-lg border border-green-400/50 bg-green-50 px-3 py-2 dark:border-green-700/40 dark:bg-green-950/30">
           <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
           <div className="flex-1 text-sm font-medium text-green-800 dark:text-green-200">
             Kết quả T{month}/{year} đã được Manager duyệt.
@@ -3909,7 +3864,7 @@ function ResultsSection({
       )}
 
       {!goalApproved ? (
-        <div className="flex h-40 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-amber-300 bg-amber-50/50 px-6 text-center dark:border-amber-800/50 dark:bg-amber-950/20">
+        <div className="flex min-h-[100px] flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-amber-300 bg-amber-50/50 px-4 py-5 text-center dark:border-amber-800/50 dark:bg-amber-950/20">
           <AlertTriangle className="h-5 w-5 text-amber-500" />
           <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
             Mục tiêu KPI/OKR tháng {month}/{year} chưa được duyệt.
@@ -3921,7 +3876,7 @@ function ResultsSection({
       ) : (
         <>
           {isKinhDoanhTeam && !kinhDoanhResultsCloseOpen && kinhDoanhResultsCloseBounds ? (
-            <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-400/50 bg-amber-50 px-4 py-3 dark:border-amber-700/40 dark:bg-amber-950/30">
+            <div className="mb-2 flex items-start gap-2 rounded-lg border border-amber-400/50 bg-amber-50 px-3 py-2 dark:border-amber-700/40 dark:bg-amber-950/30">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
               <div className="text-sm text-amber-800 dark:text-amber-200">
                 {kinhDoanhResultsClosePhase === 'before' ? (
@@ -4063,7 +4018,7 @@ function WorkReportPanel({
   if (!selectedTeamId) {
     return (
       <Card className="border-dashed border-primary/25 bg-muted/20">
-        <CardContent className="pt-6 text-sm text-muted-foreground">
+        <CardContent className="py-4 text-sm text-muted-foreground">
           Chọn nhóm để xem báo cáo công việc.
         </CardContent>
       </Card>
@@ -4072,10 +4027,10 @@ function WorkReportPanel({
   if (loadingThis || membersLoading) {
     return (
       <Card className={cn(CARD_ENTRANCE)}>
-        <CardHeader>
-          <CardTitle className="text-xl">Đang tải dữ liệu KPI/OKR</CardTitle>
+        <CardHeader className="pb-2 pt-4">
+          <CardTitle className="text-base">Đang tải dữ liệu KPI/OKR</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-2 pb-4">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-8 w-10/12" />
@@ -4085,7 +4040,7 @@ function WorkReportPanel({
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-4">
       <PlanningSection
         byUser={byUser}
         members={members}
@@ -4201,10 +4156,7 @@ function ManagerCascadeAddForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          className="rounded-lg bg-primary px-4 font-semibold shadow-sm transition-all hover:bg-primary/90"
-        >
+        <Button type="button" className="rounded-lg px-4 font-semibold transition-all ">
           Thêm chỉ số cho team
         </Button>
       </DialogTrigger>
@@ -4861,12 +4813,12 @@ function SummaryPanel({
   if (loading) {
     return (
       <Card id="summary-section" className={cn('scroll-mt-24', CARD_ENTRANCE)}>
-        <CardHeader>
-          <CardTitle className="text-xl md:text-2xl font-bold text-amber-700">
+        <CardHeader className="pb-2 pt-4">
+          <CardTitle className="text-base font-bold text-amber-700 sm:text-lg">
             Tổng chỉ số hiệu suất — T{month}/{year}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-2 pb-4">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-8 w-full" />
         </CardContent>
@@ -4882,14 +4834,11 @@ function SummaryPanel({
           CARD_ENTRANCE
         )}
       >
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 pt-4">
           <div>
-            <CardTitle className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            <CardTitle className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-lg">
               Tổng chỉ số hiệu suất — T{month}/{year}
             </CardTitle>
-            <p className="mt-1 text-xs text-slate-500">
-              Bảng tổng hợp kết quả KPI/OKR của các thành viên.
-            </p>
           </div>
           {canRecalculate && teamId && !isMockApiEnabled() && (
             <Button
@@ -4925,14 +4874,11 @@ function SummaryPanel({
         CARD_ENTRANCE
       )}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 pt-4">
         <div>
-          <CardTitle className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <CardTitle className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-lg">
             Tổng chỉ số hiệu suất — T{month}/{year}
           </CardTitle>
-          <p className="mt-1 text-xs text-slate-500">
-            Bảng tổng hợp kết quả KPI/OKR của các thành viên.
-          </p>
         </div>
         {canRecalculate && teamId && !isMockApiEnabled() && (
           <Button
@@ -5116,6 +5062,7 @@ export function FormPanel({
   readOnly = false,
   showResponses,
   showQuestionForm,
+  embedded = false,
 }: {
   teamId: string
   year: number
@@ -5128,6 +5075,8 @@ export function FormPanel({
   showResponses?: boolean
   /** Nếu false: ẩn cột câu hỏi/trả lời khảo sát bên trái, chỉ giữ phản hồi nhân sự. */
   showQuestionForm?: boolean
+  /** Bỏ chrome/title nội bộ khi đã có wrapper bên ngoài (vd. báo cáo tháng). */
+  embedded?: boolean
 }) {
   const q = useQuery({
     queryKey: ['kpi-form', teamId, year, month],
@@ -5279,47 +5228,43 @@ export function FormPanel({
   if (!teamId) return null
   if (q.isLoading) {
     return (
-      <div id="form-section" className="scroll-mt-24 space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Card>
-          <CardContent className="py-12 flex items-center justify-center">
-            <RefreshCw className="h-6 w-6 animate-spin text-slate-300" />
-          </CardContent>
-        </Card>
+      <div id="form-section" className={cn('space-y-3', !embedded && 'scroll-mt-24')}>
+        {!embedded ? <Skeleton className="h-8 w-48" /> : null}
+        <div className="flex items-center justify-center py-6">
+          <RefreshCw className="h-5 w-5 animate-spin text-slate-300" />
+        </div>
       </div>
     )
   }
 
+  const responsesOnly = shouldShowResponses && !shouldShowQuestionForm
+  const sectionTitle = embedded
+    ? null
+    : responsesOnly
+      ? 'Phản hồi từ nhân sự'
+      : 'Form câu hỏi theo tháng'
+
   return (
-    <div id="form-section" className="scroll-mt-24 space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-6 w-1 rounded-full bg-fuchsia-600" />
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              3. Form câu hỏi theo tháng
-            </h2>
-          </div>
-          <p className="text-sm text-slate-500">Khảo sát và ghi nhận ý kiến phản hồi hàng tháng.</p>
+    <div id="form-section" className={cn(embedded ? 'space-y-3' : 'scroll-mt-24 space-y-4')}>
+      {sectionTitle ? (
+        <div className="flex items-center gap-2">
+          <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-lg">
+            {sectionTitle}
+          </h2>
         </div>
-      </div>
+      ) : null}
 
       <div
         className={cn(
-          'grid gap-6',
+          'grid gap-4',
           shouldShowQuestionForm && shouldShowResponses ? 'lg:grid-cols-2' : 'grid-cols-1'
         )}
       >
         {shouldShowQuestionForm ? (
           <Card className="border-slate-200/60 shadow-sm dark:border-slate-800/50">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                {isManagerViewOnly ? 'Câu hỏi khảo sát' : 'Trả lời khảo sát'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className={cn('space-y-5 pt-4', embedded ? 'p-3 sm:p-4' : 'p-4 sm:p-6')}>
               {!data && (
-                <div className="flex h-32 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/30">
+                <div className="flex min-h-[72px] flex-col items-center justify-center rounded-lg py-4">
                   <p className="text-sm text-slate-400">
                     {isManagerViewOnly
                       ? 'Chưa có form câu hỏi cho kỳ này.'
@@ -5329,9 +5274,9 @@ export function FormPanel({
               )}
 
               {data?.questions?.length ? (
-                <div className="space-y-5">
+                <div className="space-y-4">
                   {!readOnly && !windowOpen && (
-                    <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+                    <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
                       <Lock className="mt-0.5 h-4 w-4 shrink-0" />
                       <div>
                         <div className="font-semibold">
@@ -5350,7 +5295,7 @@ export function FormPanel({
                     </div>
                   )}
                   {!readOnly && windowOpen && hasExistingAnswer && !isEditingAnswers && (
-                    <div className="flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
+                    <div className="flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200">
                       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
                       <div>
                         <div className="font-semibold">Bạn đã gửi câu trả lời cho kỳ này.</div>
@@ -5366,33 +5311,22 @@ export function FormPanel({
                   {data.questions.map((qs, i) => (
                     <div
                       key={qs.id}
-                      className="rounded-xl border border-border bg-background p-4 shadow-sm dark:border-slate-800"
+                      className="rounded-lg border border-border bg-background p-3 shadow-sm dark:border-slate-800 sm:p-4"
                     >
-                      <div className="mb-3 flex gap-3">
+                      <div className="mb-2 flex gap-2.5">
                         <div
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/12 text-xs font-bold text-primary"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/12 text-xs font-bold text-primary"
                           aria-hidden
                         >
                           {i + 1}
                         </div>
-                        <div className="min-w-0 flex-1 space-y-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-bold text-foreground">Câu {i + 1}</p>
-                            <Badge
-                              variant="outline"
-                              className="rounded-md px-2 py-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-                            >
-                              Tự luận
-                            </Badge>
-                          </div>
-                          <p className="text-sm font-medium leading-relaxed text-foreground">
-                            {qs.prompt}
-                          </p>
-                        </div>
+                        <p className="min-w-0 flex-1 text-sm font-medium leading-snug text-foreground">
+                          {qs.prompt}
+                        </p>
                       </div>
                       <textarea
                         className={cn(
-                          'min-h-[100px] w-full rounded-lg border border-slate-200 bg-slate-50/30 p-3 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-primary/10 outline-none dark:border-slate-800 dark:bg-slate-900/30 dark:focus:bg-slate-950',
+                          'min-h-[88px] w-full rounded-lg border border-slate-200 bg-slate-50/30 p-3 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-primary/10 outline-none dark:border-slate-800 dark:bg-slate-900/30 dark:focus:bg-slate-950',
                           answerInputDisabled && 'cursor-not-allowed opacity-70'
                         )}
                         placeholder="Nhập câu trả lời của bạn..."
@@ -5511,9 +5445,9 @@ export function FormPanel({
           </Card>
         ) : null}
 
-        {/* Phần quản lý câu hỏi (dành cho Leader) */}
+        {/* Phần quản lý câu hỏi (dành cho Leader) + phản hồi */}
         {shouldShowResponses && (
-          <div className="space-y-6">
+          <div className={cn('space-y-4', embedded && responsesOnly && 'space-y-0')}>
             {canEditTeam && !isMockApiEnabled() && (
               <Card className="overflow-hidden border-border shadow-md dark:border-slate-800/50">
                 <CardHeader className="space-y-4 border-b border-border/80 bg-gradient-to-br from-muted/40 via-background to-background pb-4 dark:from-slate-900/50">
@@ -5822,53 +5756,104 @@ export function FormPanel({
               </Card>
             )}
 
-            <Card className="border-slate-200/60 shadow-sm dark:border-slate-800/50">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                  Phản hồi từ nhân sự
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {answersByRespondent.length === 0 ? (
-                  <div className="flex h-32 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/30">
-                    <p className="text-sm text-slate-400 text-center">
-                      Chưa có nhân sự nào trả lời khảo sát.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4 max-h-[500px] overflow-auto pr-1">
-                    {answersByRespondent.map((entry) => (
-                      <div
-                        key={entry.respondentUserId}
-                        className="rounded-xl border border-slate-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900/50"
-                      >
-                        <div className="mb-3 flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                            {entry.respondentName}
-                          </span>
-                        </div>
-                        <div className="space-y-3">
-                          {data?.questions?.map((qs) => (
-                            <div
-                              key={qs.id}
-                              className="rounded-lg bg-slate-50/80 p-3 dark:bg-slate-800/40"
-                            >
-                              <div className="text-xs font-bold text-slate-400 uppercase">
-                                {qs.prompt}
-                              </div>
-                              <div className="mt-1 text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                                {entry.answers[qs.id]?.trim() || '—'}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+            {embedded && responsesOnly ? (
+              answersByRespondent.length === 0 ? (
+                <div className="flex min-h-[72px] items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/40 px-3 py-4 dark:border-slate-700 dark:bg-slate-900/30">
+                  <p className="text-center text-sm text-slate-400">
+                    Chưa có nhân sự nào trả lời khảo sát.
+                  </p>
+                </div>
+              ) : (
+                <div className="max-h-[480px] space-y-2 overflow-auto pr-1">
+                  {answersByRespondent.map((entry) => (
+                    <div
+                      key={entry.respondentUserId}
+                      className="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950/40"
+                    >
+                      <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-slate-800">
+                        <span
+                          className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500"
+                          aria-hidden
+                        />
+                        <span className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          {entry.respondentName}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {(data?.questions ?? []).map((qs, idx) => (
+                          <li key={qs.id} className="px-3 py-2.5">
+                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                              <span className="tabular-nums text-slate-400">Câu {idx + 1}.</span>{' '}
+                              <span className="text-slate-600 dark:text-slate-300">
+                                {qs.prompt}
+                              </span>
+                            </p>
+                            <p className="mt-1 whitespace-pre-wrap text-sm leading-snug text-slate-800 dark:text-slate-200">
+                              {entry.answers[qs.id]?.trim() || '—'}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : (
+              <Card className="border-slate-200/60 shadow-sm dark:border-slate-800/50">
+                {!embedded ? (
+                  <CardHeader className="pb-3 pt-4">
+                    <CardTitle className="text-sm font-semibold tracking-tight text-slate-700 dark:text-slate-300">
+                      Phản hồi từ nhân sự
+                    </CardTitle>
+                  </CardHeader>
+                ) : null}
+                <CardContent className={cn(!embedded ? 'pt-0' : 'pt-4')}>
+                  {answersByRespondent.length === 0 ? (
+                    <div className="flex min-h-[72px] items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/40 px-3 py-4">
+                      <p className="text-center text-sm text-slate-400">
+                        Chưa có nhân sự nào trả lời khảo sát.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="max-h-[480px] space-y-2 overflow-auto pr-1">
+                      {answersByRespondent.map((entry) => (
+                        <div
+                          key={entry.respondentUserId}
+                          className="rounded-lg border border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-950/40"
+                        >
+                          <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2 dark:border-slate-800">
+                            <span
+                              className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500"
+                              aria-hidden
+                            />
+                            <span className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                              {entry.respondentName}
+                            </span>
+                          </div>
+                          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+                            {(data?.questions ?? []).map((qs, idx) => (
+                              <li key={qs.id} className="px-3 py-2.5">
+                                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                  <span className="tabular-nums text-slate-400">
+                                    Câu {idx + 1}.
+                                  </span>{' '}
+                                  <span className="text-slate-600 dark:text-slate-300">
+                                    {qs.prompt}
+                                  </span>
+                                </p>
+                                <p className="mt-1 whitespace-pre-wrap text-sm leading-snug text-slate-800 dark:text-slate-200">
+                                  {entry.answers[qs.id]?.trim() || '—'}
+                                </p>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
       </div>

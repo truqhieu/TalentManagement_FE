@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, Loader2 } from 'lucide-react'
 import type { MeetingBooking } from './api'
+import { isRescheduleRequest } from './roomBookingStatus'
 import { formatDateVi, formatTimeRangeVi, padTime } from './roomBookingTimeUtils'
 
 type PendingProps = {
@@ -30,6 +31,15 @@ export function RoomBookingPendingPanel({
       <div className="space-y-3">
         {items.slice(0, 5).map((b) => (
           <div key={b.id} className="rounded-xl border border-amber-200/80 bg-amber-50/50 p-3">
+            <span
+              className={`mb-1.5 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                isRescheduleRequest(b)
+                  ? 'border border-indigo-200 bg-indigo-50 text-indigo-700'
+                  : 'border border-amber-200 bg-amber-100 text-amber-800'
+              }`}
+            >
+              {isRescheduleRequest(b) ? 'Đổi lịch' : 'Đặt mới'}
+            </span>
             <p className="text-sm font-semibold text-foreground line-clamp-2">{b.reason}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               {b.userName} · {formatDateVi(b.date)} · {padTime(b.timeFrom).replace(/:/g, 'h')}–

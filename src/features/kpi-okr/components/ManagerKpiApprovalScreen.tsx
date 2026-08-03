@@ -1,20 +1,26 @@
-import { useState, useCallback, useMemo, useEffect, type ReactNode } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useKpiOkrStream } from '@/features/kpi-okr/useKpiOkrStream'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog/ConfirmDialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
-  CheckCircle2,
-  Clock,
-  X,
-  ChevronDown,
-  ChevronUp,
-  User,
-  Pencil,
-  Plus,
-  Trash2,
-} from 'lucide-react'
-import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
-import { getApiErrorMessage } from '@/lib/axios'
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Textarea } from '@/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   performanceApi,
   type ApprovalRequest,
@@ -30,50 +36,44 @@ import {
   formatViNumber,
   resolveParentKpiDisplay,
 } from '@/features/kpi-okr/components/kpiAssignmentTableShared'
-import { MemberEvaluationSummaryCard } from '@/features/kpi-okr/components/MemberEvaluationSummaryCard'
-import { MemberKpiDetailDrawer } from '@/features/kpi-okr/components/MemberKpiDetailDrawer'
-import { EvalToggleGroup, KpiProgressBar } from '@/features/kpi-okr/components/KpiProgressBar'
-import {
-  computeRowProgress,
-  computeSubItemProgress,
-} from '@/features/kpi-okr/utils/kpiProgressUtils'
-import {
-  AssignmentSubItemsInline,
-  mapSubItemsToPayload,
-  subItemsFromAssignment,
-  SubItemsDraftEditor,
-} from '@/features/kpi-okr/components/kpiSubItemsShared'
-import type { SubItemDraft } from '@/features/kpi-okr/utils/kpiProgressUtils'
 import {
   EvidenceImagePreviews,
   evidenceImageUrlsFromText,
   evidenceTextWithoutUploadPaths,
 } from '@/features/kpi-okr/components/KpiEvidenceInput'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
+import { EvalToggleGroup, KpiProgressBar } from '@/features/kpi-okr/components/KpiProgressBar'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog'
+  AssignmentSubItemsInline,
+  SubItemsDraftEditor,
+  mapSubItemsToPayload,
+  subItemsFromAssignment,
+} from '@/features/kpi-okr/components/kpiSubItemsShared'
+import { MemberEvaluationSummaryCard } from '@/features/kpi-okr/components/MemberEvaluationSummaryCard'
+import { MemberKpiDetailDrawer } from '@/features/kpi-okr/components/MemberKpiDetailDrawer'
+import { useKpiOkrStream } from '@/features/kpi-okr/useKpiOkrStream'
+import type { SubItemDraft } from '@/features/kpi-okr/utils/kpiProgressUtils'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog/ConfirmDialog'
-import { SECTION_FADE_UP, CARD_ENTRANCE } from '@/lib/cardMotion'
+  computeRowProgress,
+  computeSubItemProgress,
+} from '@/features/kpi-okr/utils/kpiProgressUtils'
+import { getApiErrorMessage } from '@/lib/axios'
+import { CARD_ENTRANCE } from '@/lib/cardMotion'
 import { isMockApiEnabled } from '@/lib/mockEnv'
+import { cn } from '@/lib/utils'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Pencil,
+  Plus,
+  Trash2,
+  User,
+  X,
+} from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { toast } from 'sonner'
 
 function nowYm() {
   const n = new Date()
@@ -1379,14 +1379,12 @@ export function ManagerKpiApprovalScreen() {
   }, [requests])
 
   return (
-    <div className="relative isolate mx-auto max-w-[1400px] px-3 py-6 md:px-4">
+    <div className="relative isolate ">
       <div
         className={cn(
-          'mb-8 border-none bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 px-4 py-5 text-white shadow-2xl rounded-3xl relative overflow-hidden sm:px-6 sm:py-6 md:p-8',
-          SECTION_FADE_UP
+          'mb-4 border-none bg-[#005236] px-4 py-5 text-white  rounded-3xl relative overflow-hidden sm:px-6 sm:py-6 md:p-8'
         )}
       >
-        <div className="absolute right-0 top-0 h-full w-1/3 bg-white/10 [mask-image:linear-gradient(to_left,white,transparent)]" />
         <div className="relative z-10">
           <h1 className="text-2xl font-black tracking-tight mb-2 sm:text-3xl">
             Duyệt KPI/OKR theo team

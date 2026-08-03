@@ -1,55 +1,16 @@
-import { useEffect, useState } from 'react'
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Edit,
-  Trash2,
-  Plus,
-  X,
-  ExternalLink,
-  BookOpen,
-  Target,
-  GraduationCap,
-  ClipboardCheck,
-  Search,
-  Type,
-  Files,
-  ArrowUpRight,
-  ChevronRight,
-  LayoutList,
-  Link as LinkIcon,
-  Loader2,
-  Check,
-  Book,
-  FileText,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-
-// Local utility to ensure 'cn' is always available even if module import fails
-const cnLocal = (...classes: any[]) => classes.filter(Boolean).join(' ')
-const safeCn = typeof cn !== 'undefined' ? cn : cnLocal
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -57,15 +18,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Textarea } from '@/components/ui/textarea'
 import {
-  useManagerRoadmapItems,
   useCreateManagerRoadmapItem,
-  useUpdateManagerRoadmapItem,
   useDeleteManagerRoadmapItem,
+  useManagerRoadmapItems,
   useTeacherOptions,
+  useUpdateManagerRoadmapItem,
 } from '@/features/manager/hooks'
+import { cn, randomId } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  ArrowUpRight,
+  Book,
+  BookOpen,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  ClipboardCheck,
+  Edit,
+  ExternalLink,
+  Files,
+  FileText,
+  GraduationCap,
+  Link as LinkIcon,
+  Loader2,
+  Plus,
+  Search,
+  Target,
+  Trash2,
+  Type,
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+
+// Local utility to ensure 'cn' is always available even if module import fails
+const cnLocal = (...classes: any[]) => classes.filter(Boolean).join(' ')
+const safeCn = typeof cn !== 'undefined' ? cn : cnLocal
 
 const formSchema = z.object({
   id: z.string().optional(),
@@ -125,6 +115,8 @@ export function RoadmapCrud() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isFormVisible, setIsFormVisible] = useState(false)
   const [filterLevel, setFilterLevel] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [collapsedLevels, setCollapsedLevels] = useState<Set<string>>(new Set())
 
   const uniqueLevels = Array.from(new Set(items?.map((i) => i.levelLabel).filter(Boolean)))
 
@@ -152,9 +144,23 @@ export function RoadmapCrud() {
       })
     : []
 
-  const filteredItems = sortedItems?.filter(
-    (item) => filterLevel === 'all' || item.levelLabel === filterLevel
-  )
+  const searchNorm = searchQuery.trim().toLowerCase()
+  const filteredItems = sortedItems?.filter((item) => {
+    if (filterLevel !== 'all' && item.levelLabel !== filterLevel) return false
+    if (!searchNorm) return true
+    const hay =
+      `${item.topic ?? ''} ${item.objective ?? ''} ${item.trainer ?? ''} ${item.assessment ?? ''}`.toLowerCase()
+    return hay.includes(searchNorm)
+  })
+
+  const toggleLevelCollapsed = (key: string) => {
+    setCollapsedLevels((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
 
   const levelSpans: Record<number, number> = {}
   const topicSpans: Record<number, number> = {}
@@ -290,10 +296,10 @@ export function RoadmapCrud() {
   }
 
   const [materials, setMaterials] = useState<{ id: string; name: string; link: string }[]>([
-    { id: crypto.randomUUID(), name: '', link: '' },
+    { id: randomId(), name: '', link: '' },
   ])
   const [objectives, setObjectives] = useState<{ id: string; text: string }[]>([
-    { id: crypto.randomUUID(), text: '' },
+    { id: randomId(), text: '' },
   ])
   const [trainerSearch, setTrainerSearch] = useState('')
   const [debouncedTrainerSearch, setDebouncedTrainerSearch] = useState('')
@@ -309,26 +315,26 @@ export function RoadmapCrud() {
     useTeacherOptions(debouncedTrainerSearch)
 
   const addMaterial = () => {
-    setMaterials([...materials, { id: crypto.randomUUID(), name: '', link: '' }])
+    setMaterials([...materials, { id: randomId(), name: '', link: '' }])
   }
 
   const removeMaterial = (id: string) => {
     if (materials.length > 1) {
       setMaterials(materials.filter((m) => m.id !== id))
     } else {
-      setMaterials([{ id: crypto.randomUUID(), name: '', link: '' }])
+      setMaterials([{ id: randomId(), name: '', link: '' }])
     }
   }
 
   const addObjective = () => {
-    setObjectives([...objectives, { id: crypto.randomUUID(), text: '' }])
+    setObjectives([...objectives, { id: randomId(), text: '' }])
   }
 
   const removeObjective = (id: string) => {
     if (objectives.length > 1) {
       setObjectives(objectives.filter((o) => o.id !== id))
     } else {
-      setObjectives([{ id: crypto.randomUUID(), text: '' }])
+      setObjectives([{ id: randomId(), text: '' }])
     }
   }
 
@@ -363,8 +369,8 @@ export function RoadmapCrud() {
 
   const handleCancel = () => {
     form.reset(defaultValues)
-    setMaterials([{ id: crypto.randomUUID(), name: '', link: '' }])
-    setObjectives([{ id: crypto.randomUUID(), text: '' }])
+    setMaterials([{ id: randomId(), name: '', link: '' }])
+    setObjectives([{ id: randomId(), text: '' }])
     setEditingId(null)
     setIsFormVisible(false)
   }
@@ -393,7 +399,7 @@ export function RoadmapCrud() {
       // Bulk creation for multiple objectives
       const validObjectives = objectives.filter((o) => o.text.trim() !== '')
       if (validObjectives.length === 0) {
-        validObjectives.push({ id: crypto.randomUUID(), text: values.objective })
+        validObjectives.push({ id: randomId(), text: values.objective })
       }
 
       for (const obj of validObjectives) {
@@ -424,16 +430,16 @@ export function RoadmapCrud() {
       if (parts[1]) setLevelEnd(reverseMap[parts[1]] || 'biet_viec')
     }
 
-    setObjectives([{ id: crypto.randomUUID(), text: item.objective || '' }])
+    setObjectives([{ id: randomId(), text: item.objective || '' }])
     try {
       const parsedMaterials = JSON.parse(item.materialRef || '[]')
       setMaterials(
         Array.isArray(parsedMaterials) && parsedMaterials.length > 0
           ? parsedMaterials
-          : [{ id: crypto.randomUUID(), name: '', link: '' }]
+          : [{ id: randomId(), name: '', link: '' }]
       )
     } catch {
-      setMaterials([{ id: crypto.randomUUID(), name: '', link: '' }])
+      setMaterials([{ id: randomId(), name: '', link: '' }])
     }
 
     form.reset({
@@ -459,16 +465,24 @@ export function RoadmapCrud() {
     <>
       <PageHeader
         title="Quản lý lộ trình học"
-        description="Thêm, sửa, xoá các đầu mục lộ trình tự động hóa cho nhân sự"
+        // description="Thêm, sửa, xoá các đầu mục lộ trình tự động hóa cho nhân sự"
       />
 
-      <div className="space-y-6">
+      <div className="space-y-3">
         {!isLoading && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <span className="text-sm font-medium text-gray-700 min-w-[70px]">Lọc cấp độ:</span>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="relative w-full sm:max-w-xs">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm chủ đề, mục tiêu…"
+                  className="h-8 pl-8 text-sm"
+                />
+              </div>
               <Select value={filterLevel} onValueChange={setFilterLevel}>
-                <SelectTrigger className="w-[200px] md:w-[280px]">
+                <SelectTrigger className="h-8 w-full sm:w-[220px] text-sm">
                   <SelectValue placeholder="Tất cả cấp độ" />
                 </SelectTrigger>
                 <SelectContent>
@@ -481,11 +495,8 @@ export function RoadmapCrud() {
                 </SelectContent>
               </Select>
             </div>
-            <Button
-              onClick={() => setIsFormVisible(true)}
-              className="w-full sm:w-auto mt-2 sm:mt-0 shadow-md transition-transform hover:scale-[1.02]"
-            >
-              <Plus className="mr-2 h-4 w-4" /> Thêm đầu mục mới
+            <Button onClick={() => setIsFormVisible(true)} size="sm" className="h-8 shrink-0">
+              <Plus className="mr-1.5 h-3.5 w-3.5" /> Thêm đầu mục
             </Button>
           </div>
         )}
@@ -496,62 +507,48 @@ export function RoadmapCrud() {
             if (!open) handleCancel()
           }}
         >
-          <DialogContent className="max-w-3xl h-[90vh] flex flex-col overflow-hidden rounded-[2rem] border-none p-0 shadow-2xl bg-white">
-            {/* Decorative background */}
-            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/5 blur-3xl opacity-60 pointer-events-none" />
-            <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl opacity-60 pointer-events-none" />
-
-            <DialogHeader className="shrink-0 relative border-b border-primary/5 px-8 pt-8 pb-6 bg-white/40 backdrop-blur-md">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-inner">
-                  {editingId ? <Edit className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
-                </div>
-                <div>
-                  <DialogTitle className="text-2xl font-black tracking-tight text-foreground">
-                    {editingId ? 'Chỉnh sửa lộ trình' : 'Tạo lộ trình học mới'}
-                  </DialogTitle>
-                  <p className="mt-1 text-sm font-medium text-muted-foreground opacity-70">
-                    Thiết lập các tiêu chuẩn đào tạo và tài liệu hỗ trợ
-                  </p>
-                </div>
-              </div>
+          <DialogContent className="flex h-[90vh] max-w-3xl flex-col overflow-hidden rounded-xl border bg-white p-0 shadow-lg">
+            <DialogHeader className="shrink-0 border-b px-5 py-3">
+              <DialogTitle className="text-base font-semibold tracking-tight">
+                {editingId ? 'Chỉnh sửa lộ trình' : 'Tạo lộ trình học mới'}
+              </DialogTitle>
             </DialogHeader>
 
-            <div className="flex-1 overflow-y-auto px-8 pt-6 pb-12 custom-scrollbar min-h-0">
+            <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4">
               <Form {...form}>
                 <form
                   id="roadmap-form"
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-8"
+                  className="space-y-5"
                 >
                   {/* Level Section */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-primary">
-                      <ArrowUpRight className="h-4 w-4" />
-                      <h4 className="text-xs font-bold uppercase tracking-widest">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-[#006C49]">
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                      <h4 className="text-xs font-semibold uppercase tracking-wide">
                         Tiến trình cấp độ
                       </h4>
                     </div>
                     <div
                       className={safeCn(
-                        'grid grid-cols-1 gap-6 rounded-3xl border border-primary/10 bg-primary/[0.02] p-6 transition-all',
+                        'grid grid-cols-1 gap-3 rounded-lg border border-[#006C49]/10 bg-[#006C49]/[0.04] p-3 transition-all',
                         levelStart !== 'tuong' ? 'md:grid-cols-2' : 'md:grid-cols-1'
                       )}
                     >
-                      <div className="space-y-2">
-                        <FormLabel className="text-xs font-bold uppercase text-muted-foreground ml-1">
+                      <div className="space-y-1.5">
+                        <FormLabel className="text-xs font-medium text-muted-foreground">
                           Cấp độ hiện tại
                         </FormLabel>
                         <Select value={levelStart} onValueChange={handleLevelStartChange}>
-                          <SelectTrigger className="h-12 rounded-2xl border-primary/10 bg-white shadow-sm transition-all hover:border-primary/30 focus:ring-2 focus:ring-primary/20">
+                          <SelectTrigger className="h-9 rounded-md border-[#006C49]/10 bg-white">
                             <SelectValue placeholder="Chọn cấp độ" />
                           </SelectTrigger>
-                          <SelectContent className="rounded-2xl border-primary/10 shadow-2xl">
+                          <SelectContent className="rounded-md border-[#006C49]/10">
                             {CAREER_LEVELS.map((k) => (
                               <SelectItem
                                 key={k}
                                 value={k}
-                                className="rounded-xl my-1 focus:bg-primary/10 focus:text-primary"
+                                className="rounded-sm my-0.5 focus:bg-primary/10 focus:text-primary"
                               >
                                 {CAREER_LEVEL_LABELS[k]}
                               </SelectItem>
@@ -561,29 +558,29 @@ export function RoadmapCrud() {
                       </div>
 
                       {levelStart !== 'tuong' && (
-                        <div className="space-y-2 animate-in fade-in slide-in-from-left-4 duration-300">
-                          <FormLabel className="text-xs font-bold uppercase text-muted-foreground ml-1">
+                        <div className="space-y-1.5 animate-in fade-in slide-in-from-left-4 duration-300">
+                          <FormLabel className="text-xs font-medium text-muted-foreground">
                             Cấp độ tiếp theo
                           </FormLabel>
                           <div className="relative group">
                             <Select value={levelEnd} onValueChange={setLevelEnd}>
-                              <SelectTrigger className="h-12 rounded-2xl border-primary/10 bg-white shadow-sm transition-all hover:border-primary/30 focus:ring-2 focus:ring-primary/20">
+                              <SelectTrigger className="h-9 rounded-md border-[#006C49]/10 bg-white">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent className="rounded-2xl border-primary/10 shadow-2xl">
+                              <SelectContent className="rounded-md border-[#006C49]/10">
                                 {CAREER_LEVELS.map((k) => (
                                   <SelectItem
                                     key={k}
                                     value={k}
-                                    className="rounded-xl my-1 focus:bg-primary/10 focus:text-primary"
+                                    className="rounded-sm my-0.5 focus:bg-primary/10 focus:text-primary"
                                   >
                                     {CAREER_LEVEL_LABELS[k]}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                            <div className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 hidden md:block border-2 border-white rounded-full">
-                              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+                            <div className="absolute -left-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-white md:block">
+                              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#006C49] text-white">
                                 <ChevronRight className="h-3 w-3" />
                               </div>
                             </div>
@@ -594,14 +591,14 @@ export function RoadmapCrud() {
                   </div>
 
                   {/* Content Section */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-primary">
-                      <BookOpen className="h-4 w-4" />
-                      <h4 className="text-xs font-bold uppercase tracking-widest">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-[#006C49]">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      <h4 className="text-xs font-semibold uppercase tracking-wide">
                         Nội dung đào tạo
                       </h4>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                       <FormField
                         control={form.control}
                         name="topic"
@@ -609,9 +606,9 @@ export function RoadmapCrud() {
                           <FormItem>
                             <FormLabel
                               className={safeCn(
-                                'text-xs font-bold uppercase transition-colors ml-1',
+                                'text-xs font-medium transition-colors',
                                 fieldState.error
-                                  ? 'text-red-600 font-black'
+                                  ? 'font-semibold text-red-600'
                                   : 'text-muted-foreground'
                               )}
                             >
@@ -622,7 +619,7 @@ export function RoadmapCrud() {
                                 <Input
                                   placeholder="Tư duy, Kĩ năng, Quy trình..."
                                   className={safeCn(
-                                    'h-12 rounded-2xl border-primary/10 bg-white pl-11 shadow-sm transition-all hover:border-primary/30 focus:ring-2 focus:ring-primary/20',
+                                    'h-9 rounded-md border-primary/10 bg-white pl-9 text-sm shadow-none transition-all hover:border-primary/30 focus:ring-1 focus:ring-primary/20',
                                     fieldState.error && 'border-red-500 bg-red-50/30'
                                   )}
                                   {...field}
@@ -630,7 +627,7 @@ export function RoadmapCrud() {
                                 />
                                 <Type
                                   className={safeCn(
-                                    'absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 transition-colors',
+                                    'absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors',
                                     fieldState.error
                                       ? 'text-red-500'
                                       : 'text-muted-foreground group-focus-within:text-primary'
@@ -648,7 +645,7 @@ export function RoadmapCrud() {
                         name="assessment"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs font-bold uppercase text-muted-foreground ml-1">
+                            <FormLabel className="text-xs font-medium text-muted-foreground">
                               Hình thức đánh giá
                             </FormLabel>
                             <FormControl>
@@ -667,7 +664,7 @@ export function RoadmapCrud() {
                                     )
                                   }
                                 >
-                                  <SelectTrigger className="h-12 rounded-2xl border-primary/10 bg-white pl-11 shadow-sm transition-all hover:border-primary/30 focus:ring-2 focus:ring-primary/20">
+                                  <SelectTrigger className="h-9 rounded-md border-primary/10 bg-white pl-9 text-sm shadow-none transition-all hover:border-primary/30 focus:ring-1 focus:ring-primary/20">
                                     <SelectValue placeholder="Chọn trạng thái nộp phản tư" />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -682,11 +679,11 @@ export function RoadmapCrud() {
                                 <Input
                                   type="hidden"
                                   placeholder="Review, Thi trắc nghiệm..."
-                                  className="h-12 rounded-2xl border-primary/10 bg-white pl-11 shadow-sm transition-all hover:border-primary/30 focus:ring-2 focus:ring-primary/20"
+                                  className="h-9 rounded-md border-primary/10 bg-white pl-9 shadow-none"
                                   {...field}
                                   value={field.value || ''}
                                 />
-                                <ClipboardCheck className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                <ClipboardCheck className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
                               </div>
                             </FormControl>
                             <FormMessage />
@@ -695,32 +692,32 @@ export function RoadmapCrud() {
                       />
 
                       {/* Multiple Objectives Section */}
-                      <div className="md:col-span-2 space-y-4">
+                      <div className="space-y-2 md:col-span-2">
                         <div className="flex items-center justify-between">
-                          <FormLabel className="text-xs font-bold uppercase text-muted-foreground ml-1">
+                          <FormLabel className="text-xs font-medium text-muted-foreground">
                             Mục tiêu chi tiết (Objective)
                           </FormLabel>
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="h-8 gap-1.5 rounded-full border-primary/20 bg-primary/[0.02] px-4 text-xs font-bold text-primary hover:bg-primary/5 active:scale-95 transition-all"
+                            className="h-7 gap-1 rounded-md border-[#006C49]/20 bg-[#006C49]/[0.06] px-2.5 text-xs font-medium text-[#006C49]"
                             onClick={addObjective}
                           >
-                            <Plus className="h-3.5 w-3.5" /> Thêm mục tiêu
+                            <Plus className="h-3 w-3" /> Thêm mục tiêu
                           </Button>
                         </div>
 
-                        <div className="space-y-3 rounded-2xl border border-dashed border-primary/20 bg-primary/[0.01] p-4">
+                        <div className="space-y-2 rounded-lg border border-dashed border-[#006C49]/20 bg-[#006C49]/[0.03] p-2.5">
                           {objectives.map((obj, idx) => (
                             <div
                               key={obj.id}
-                              className="group relative flex gap-3 items-start animate-in zoom-in-95 fade-in duration-200"
+                              className="group relative flex items-start gap-2 animate-in zoom-in-95 fade-in duration-200"
                             >
                               <div className="relative flex-1">
                                 <Textarea
                                   className={safeCn(
-                                    'min-h-[80px] rounded-xl border-primary/10 bg-white pt-8 px-4 shadow-sm hover:border-primary/20 transition-all',
+                                    'min-h-[64px] rounded-md border-primary/10 bg-white px-3 pt-7 text-sm shadow-none hover:border-primary/20 transition-all',
                                     form.formState.errors.objective &&
                                       obj.text.trim() === '' &&
                                       'border-red-500 bg-red-50/30'
@@ -731,7 +728,7 @@ export function RoadmapCrud() {
                                 />
                                 <div
                                   className={safeCn(
-                                    'absolute left-3.5 top-3 flex h-5 w-5 items-center justify-center rounded-lg transition-colors',
+                                    'absolute left-2.5 top-2 flex h-5 w-5 items-center justify-center rounded transition-colors',
                                     form.formState.errors.objective && obj.text.trim() === ''
                                       ? 'bg-red-100 text-red-500'
                                       : 'bg-primary/5 text-primary'
@@ -740,7 +737,7 @@ export function RoadmapCrud() {
                                   <Target className="h-3 w-3" />
                                 </div>
                                 {form.formState.errors.objective && obj.text.trim() === '' && (
-                                  <p className="mt-1.5 ml-1 text-xs font-bold text-red-500">
+                                  <p className="mt-1 text-xs font-medium text-red-500">
                                     Vui lòng nhập mục tiêu này hoặc xóa nếu không cần thiết
                                   </p>
                                 )}
@@ -749,10 +746,10 @@ export function RoadmapCrud() {
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="h-10 w-10 mt-2 rounded-xl text-red-400 hover:bg-red-50 hover:text-red-600 transition-all"
+                                className="mt-1 h-8 w-8 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600"
                                 onClick={() => removeObjective(obj.id)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                             </div>
                           ))}
@@ -762,11 +759,11 @@ export function RoadmapCrud() {
                   </div>
 
                   {/* Materials Section */}
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-primary">
-                        <Files className="h-4 w-4" />
-                        <h4 className="text-xs font-bold uppercase tracking-widest">
+                      <div className="flex items-center gap-2 text-[#006C49]">
+                        <Files className="h-3.5 w-3.5" />
+                        <h4 className="text-xs font-semibold uppercase tracking-wide">
                           Tài liệu học tập
                         </h4>
                       </div>
@@ -774,46 +771,46 @@ export function RoadmapCrud() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-8 gap-1.5 rounded-full border-primary/20 bg-primary/[0.02] px-4 text-xs font-bold text-primary hover:bg-primary/5 active:scale-95 transition-all"
+                        className="h-7 gap-1 rounded-md border-[#006C49]/20 bg-[#006C49]/[0.06] px-2.5 text-xs font-medium text-[#006C49]"
                         onClick={addMaterial}
                       >
-                        <Plus className="h-3.5 w-3.5" /> Thêm tài liệu
+                        <Plus className="h-3 w-3" /> Thêm tài liệu
                       </Button>
                     </div>
 
-                    <div className="space-y-4 rounded-3xl border border-dashed border-primary/20 bg-primary/[0.01] p-5">
+                    <div className="space-y-2 rounded-lg border border-dashed border-primary/20 bg-primary/[0.01] p-2.5">
                       {materials.map((m, idx) => (
                         <div
                           key={m.id}
-                          className="group relative grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 items-start animate-in zoom-in-95 fade-in duration-200"
+                          className="group relative grid grid-cols-1 items-start gap-2 animate-in zoom-in-95 fade-in duration-200 md:grid-cols-[1fr_1fr_auto]"
                         >
-                          <div className="space-y-1.5 pt-px">
+                          <div className="space-y-1 pt-px">
                             <Input
                               placeholder="Tên tài liệu..."
                               value={m.name}
-                              className="h-11 rounded-xl border-primary/5 bg-white shadow-sm hover:border-primary/20 transition-all font-medium"
+                              className="h-9 rounded-md border-primary/10 bg-white text-sm shadow-none hover:border-primary/20"
                               onChange={(e) => updateMaterial(m.id, 'name', e.target.value)}
                             />
                           </div>
-                          <div className="space-y-1.5">
+                          <div className="space-y-1">
                             <div className="relative">
                               <Input
                                 placeholder="Link hoặc Ghi chú (Sách, slide...)"
                                 value={m.link}
-                                className="h-11 rounded-xl border-primary/5 bg-white pl-10 shadow-sm hover:border-primary/20 transition-all"
+                                className="h-9 rounded-md border-primary/10 bg-white pl-9 text-sm shadow-none hover:border-primary/20"
                                 onChange={(e) => updateMaterial(m.id, 'link', e.target.value)}
                               />
-                              <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                              <FileText className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/60" />
                             </div>
                           </div>
                           <Button
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="h-11 w-11 rounded-xl text-red-400 hover:bg-red-50 hover:text-red-600 transition-all active:scale-90"
+                            className="h-9 w-9 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600"
                             onClick={() => removeMaterial(m.id)}
                           >
-                            <Trash2 className="h-5 w-5" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       ))}
@@ -821,14 +818,14 @@ export function RoadmapCrud() {
                   </div>
 
                   {/* Trainer Section */}
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-primary">
-                      <GraduationCap className="h-4 w-4" />
-                      <h4 className="text-xs font-bold uppercase tracking-widest">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-[#006C49]">
+                      <GraduationCap className="h-3.5 w-3.5" />
+                      <h4 className="text-xs font-semibold uppercase tracking-wide">
                         Phụ trách đào tạo
                       </h4>
                     </div>
-                    <div className="rounded-3xl border border-primary/10 bg-primary/[0.02] p-6">
+                    <div className="rounded-lg border border-[#006C49]/10 bg-[#006C49]/[0.04] p-3">
                       <FormField
                         control={form.control}
                         name="trainer"
@@ -836,9 +833,9 @@ export function RoadmapCrud() {
                           <FormItem className="search-dropdown-container relative max-w-md">
                             <FormLabel
                               className={safeCn(
-                                'text-xs font-bold uppercase transition-colors ml-1',
+                                'text-xs font-medium transition-colors',
                                 fieldState.error
-                                  ? 'text-red-600 font-black'
+                                  ? 'font-semibold text-red-600'
                                   : 'text-muted-foreground'
                               )}
                             >
@@ -852,7 +849,7 @@ export function RoadmapCrud() {
                                       <Input
                                         placeholder="Gõ tên để tìm người đào tạo..."
                                         className={safeCn(
-                                          'h-12 rounded-2xl border-primary/10 bg-white pl-11 shadow-sm transition-all hover:border-primary/30 focus:ring-2 focus:ring-primary/20',
+                                          'h-9 rounded-md border-primary/10 bg-white pl-9 text-sm shadow-none transition-all hover:border-primary/30 focus:ring-1 focus:ring-primary/20',
                                           fieldState.error && 'border-red-500 bg-red-50/30'
                                         )}
                                         value={trainerSearch || field.value || ''}
@@ -868,33 +865,35 @@ export function RoadmapCrud() {
                                           }
                                         }}
                                       />
-                                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
                                     </div>
                                   </PopoverTrigger>
                                   <PopoverContent
-                                    className="w-[var(--radix-popover-trigger-width)] rounded-2xl border-primary/10 bg-white p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200"
+                                    className="w-[var(--radix-popover-trigger-width)] rounded-md border-primary/10 bg-white p-1.5 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200"
                                     align="start"
-                                    sideOffset={8}
+                                    sideOffset={6}
                                     onOpenAutoFocus={(e) => e.preventDefault()}
                                   >
-                                    <div className="max-h-[300px] overflow-y-auto">
+                                    <div className="max-h-[240px] overflow-y-auto">
                                       {/* Default option: Tự học */}
                                       <Button
                                         type="button"
                                         variant="ghost"
-                                        className="flex h-10 w-full items-center justify-between rounded-xl px-3 text-left text-sm font-medium hover:bg-primary/5 hover:text-primary"
+                                        className="flex h-8 w-full items-center justify-between rounded-md px-2.5 text-left text-sm font-medium hover:bg-primary/5 hover:text-primary"
                                         onClick={() => {
                                           field.onChange('Tự học')
                                           setTrainerSearch('')
                                         }}
                                       >
                                         <span>Tự học</span>
-                                        {field.value === 'Tự học' && <Check className="h-4 w-4" />}
+                                        {field.value === 'Tự học' && (
+                                          <Check className="h-3.5 w-3.5" />
+                                        )}
                                       </Button>
 
                                       {/* API results */}
                                       {isFetchingTeachers && teacherOptions.length === 0 ? (
-                                        <div className="flex items-center justify-center gap-2 px-3 py-4 text-center text-xs text-muted-foreground">
+                                        <div className="flex items-center justify-center gap-2 px-3 py-3 text-center text-xs text-muted-foreground">
                                           <Loader2
                                             className="h-3.5 w-3.5 animate-spin"
                                             aria-hidden
@@ -908,7 +907,7 @@ export function RoadmapCrud() {
                                               key={t.userId}
                                               type="button"
                                               variant="ghost"
-                                              className="flex h-10 w-full items-center justify-between rounded-xl px-3 text-left text-sm font-medium hover:bg-primary/5 hover:text-primary"
+                                              className="flex h-8 w-full items-center justify-between rounded-md px-2.5 text-left text-sm font-medium hover:bg-primary/5 hover:text-primary"
                                               onClick={() => {
                                                 field.onChange(t.name)
                                                 setTrainerSearch('')
@@ -916,13 +915,13 @@ export function RoadmapCrud() {
                                             >
                                               <span>{t.name}</span>
                                               {field.value === t.name && (
-                                                <Check className="h-4 w-4" />
+                                                <Check className="h-3.5 w-3.5" />
                                               )}
                                             </Button>
                                           )
                                         )
                                       ) : (
-                                        <div className="px-3 py-4 text-center text-xs text-muted-foreground">
+                                        <div className="px-3 py-3 text-center text-xs text-muted-foreground">
                                           Không tìm thấy giáo viên phù hợp
                                         </div>
                                       )}
@@ -941,19 +940,19 @@ export function RoadmapCrud() {
               </Form>
             </div>
 
-            {/* Sticky Footer Actions */}
-            <div className="shrink-0 z-10 relative border-t border-primary/5 bg-white px-8 py-5 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
-              <div className="flex flex-col gap-3">
+            <div className="relative z-10 shrink-0 border-t bg-white px-5 py-3">
+              <div className="flex flex-col gap-2">
                 {Object.keys(form.formState.errors).length > 0 && (
-                  <div className="text-right text-xs font-bold text-red-500 animate-pulse">
+                  <div className="text-right text-xs font-medium text-red-500">
                     * Vui lòng kiểm tra lại các trường thông tin còn thiếu
                   </div>
                 )}
-                <div className="flex justify-end items-center gap-4">
+                <div className="flex items-center justify-end gap-2">
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-12 rounded-2xl px-10 font-bold text-muted-foreground hover:bg-muted/50"
+                    size="sm"
+                    className="h-8 px-3 text-muted-foreground"
                     onClick={handleCancel}
                   >
                     Hủy
@@ -961,15 +960,16 @@ export function RoadmapCrud() {
                   <Button
                     type="submit"
                     form="roadmap-form"
-                    className="h-12 min-w-[200px] rounded-2xl bg-primary px-12 font-black text-white shadow-xl shadow-primary/30 transition-all hover:scale-[1.03] active:scale-95"
+                    size="sm"
+                    className="h-8"
                     loading={createItem.isPending || updateItem.isPending}
                     onClick={() => form.handleSubmit(onSubmit)()}
                   >
                     {createItem.isPending || updateItem.isPending
                       ? 'Đang xử lý...'
                       : editingId
-                        ? 'Cập nhật lộ trình'
-                        : 'Kích hoạt lộ trình'}
+                        ? 'Cập nhật'
+                        : 'Tạo lộ trình'}
                   </Button>
                 </div>
               </div>
@@ -977,17 +977,20 @@ export function RoadmapCrud() {
           </DialogContent>
         </Dialog>
 
-        {/* Grouped Card Display Layout */}
-        <div className="mx-auto mt-6 max-w-7xl space-y-8 px-2 pb-16 sm:px-4">
+        {/* Flat level accordion list */}
+        <div className="space-y-2">
           {!isLoading && uniqueLevels.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 rounded-[3rem] border border-dashed border-gray-200 bg-white shadow-sm">
-              <div className="h-20 w-20 rounded-3xl bg-gray-50 flex items-center justify-center text-gray-300 font-black text-3xl mb-4">
-                ?
-              </div>
-              <h3 className="text-xl font-bold text-gray-900">Chưa có dữ liệu lộ trình</h3>
-              <p className="text-gray-500 mt-2 text-center max-w-xs text-sm">
-                Nhấn 'Thêm đầu mục mới' để bắt đầu
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-200 bg-white py-12">
+              <p className="text-sm font-medium text-gray-900">Chưa có dữ liệu lộ trình</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Nhấn &apos;Thêm đầu mục&apos; để bắt đầu
               </p>
+            </div>
+          )}
+
+          {!isLoading && uniqueLevels.length > 0 && filteredItems?.length === 0 && (
+            <div className="rounded-lg border border-dashed border-gray-200 bg-white px-4 py-8 text-center text-sm text-muted-foreground">
+              Không có kết quả phù hợp
             </div>
           )}
 
@@ -1007,136 +1010,89 @@ export function RoadmapCrud() {
             })
 
             return Array.from(levelGroups.values()).map((group) => {
-              const uniqueTopics = Array.from(
-                new Set(group.items.map((i) => (i.topic || '').trim().toLowerCase()))
-              )
+              const isOpen = !collapsedLevels.has(group.label)
+              let lastTopic = ''
 
               return (
                 <div
                   key={group.label}
-                  className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                  className="overflow-hidden rounded-lg border border-gray-200 bg-white"
                 >
-                  {/* Level Header - MORE COMPACT */}
-                  <div className="flex items-center gap-4 p-3 rounded-2xl bg-white border border-gray-100 shadow-sm">
-                    <div className="bg-primary h-10 w-10 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/10">
-                      <ArrowUpRight className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">
-                          {group.label}
-                        </h2>
-                        <span className="px-2 py-0.5 rounded-full bg-primary/10 text-xs font-black text-primary uppercase tracking-widest mt-0.5">
-                          Lộ trình
-                        </span>
+                  <button
+                    type="button"
+                    onClick={() => toggleLevelCollapsed(group.label)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-muted/40"
+                  >
+                    {isOpen ? (
+                      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    )}
+                    <span className="flex-1 text-sm font-semibold text-foreground">
+                      {group.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{group.items.length} mục</span>
+                  </button>
+
+                  {isOpen && (
+                    <div className="border-t border-gray-100">
+                      {/* Column headers — desktop */}
+                      <div className="hidden grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] gap-3 border-b border-gray-50 bg-muted/30 px-3 py-1.5 text-xs font-medium text-muted-foreground md:grid">
+                        <span>Mục tiêu</span>
+                        <span>Tài liệu</span>
+                        <span>Phụ trách</span>
+                        <span>Đánh giá</span>
+                        <span className="w-16" />
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="ml-2 grid grid-cols-1 gap-4 border-l border-gray-200 pl-3 sm:ml-4 sm:gap-6 sm:pl-5 md:ml-5 md:pl-6">
-                    {uniqueTopics.map((topicKey) => {
-                      const topicItems = group.items.filter(
-                        (i) => (i.topic || '').trim().toLowerCase() === topicKey
-                      )
-                      const displayTopic = topicItems[0]?.topic || topicKey
+                      {group.items.map((item) => {
+                        const topic = (item.topic || '').trim()
+                        const showTopic = topic && topic.toLowerCase() !== lastTopic.toLowerCase()
+                        if (topic) lastTopic = topic
 
-                      return (
-                        <div
-                          key={topicKey}
-                          className="bg-white rounded-[1.5rem] border border-gray-100 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300"
-                        >
-                          {/* Topic Header - COMPACT */}
-                          <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-3 py-3 sm:px-6">
-                            <div className="flex items-center gap-3">
-                              <div className="h-8 w-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center">
-                                <BookOpen className="h-4 w-4" />
+                        return (
+                          <div key={item.id}>
+                            {showTopic && (
+                              <div className="flex items-center gap-1.5 bg-muted/20 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                                <BookOpen className="h-3 w-3" />
+                                {topic}
                               </div>
-                              <h3 className="text-md font-bold text-gray-800">{displayTopic}</h3>
+                            )}
+                            <div className="grid grid-cols-1 gap-2 border-b border-gray-50 px-3 py-2 last:border-b-0 hover:bg-muted/20 md:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] md:items-center md:gap-3">
+                              <p className="text-sm leading-snug text-foreground">
+                                {item.objective}
+                              </p>
+                              <div className="text-xs text-muted-foreground">
+                                {parseAndRenderMaterial(item.materialRef)}
+                              </div>
+                              <p className="text-xs text-muted-foreground">{item.trainer || '—'}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {item.assessment || '—'}
+                              </p>
+                              <div className="flex items-center gap-0.5 md:justify-end">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-blue-600 hover:bg-blue-50"
+                                  onClick={() => handleEdit(item)}
+                                >
+                                  <Edit className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-red-500 hover:bg-red-50"
+                                  onClick={() => handleDelete(item.id)}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
                             </div>
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                              {topicItems.length} đầu mục
-                            </span>
                           </div>
-
-                          <div className="p-1 space-y-1">
-                            {topicItems.map((item, idx) => (
-                              <div
-                                key={item.id}
-                                className={safeCn(
-                                  'flex flex-col justify-between gap-4 rounded-xl px-3 py-3 transition-all hover:bg-primary/[0.02] sm:px-5 lg:flex-row lg:items-center',
-                                  idx % 2 === 0 ? 'bg-gray-50/30' : 'bg-white'
-                                )}
-                              >
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1.2fr_1fr_0.8fr] gap-4 flex-1">
-                                  {/* Objective */}
-                                  <div className="space-y-1">
-                                    <label className="text-xs uppercase font-black text-primary/40 tracking-wider flex items-center gap-1.5">
-                                      <Target className="h-3 w-3" /> Mục tiêu
-                                    </label>
-                                    <p className="text-sm font-semibold text-gray-900 leading-snug">
-                                      {item.objective}
-                                    </p>
-                                  </div>
-                                  {/* Materials */}
-                                  <div className="space-y-1">
-                                    <label className="text-xs uppercase font-black text-gray-400 tracking-wider flex items-center gap-1.5">
-                                      <Files className="h-3 w-3" /> Tài liệu
-                                    </label>
-                                    <div className="text-xs">
-                                      {parseAndRenderMaterial(item.materialRef)}
-                                    </div>
-                                  </div>
-                                  {/* Trainer */}
-                                  <div className="space-y-1">
-                                    <label className="text-xs uppercase font-black text-gray-400 tracking-wider flex items-center gap-1.5">
-                                      <GraduationCap className="h-3 w-3" /> Phụ trách
-                                    </label>
-                                    <div className="flex items-center gap-2">
-                                      <div className="h-5 w-5 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-xs font-bold">
-                                        {item.trainer?.[0] || '?'}
-                                      </div>
-                                      <p className="text-xs font-medium text-gray-700">
-                                        {item.trainer || '-'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  {/* Assessment */}
-                                  <div className="space-y-1">
-                                    <label className="text-xs uppercase font-black text-gray-400 tracking-wider flex items-center gap-1.5">
-                                      <ClipboardCheck className="h-3 w-3" /> Đánh giá
-                                    </label>
-                                    <p className="text-xs font-medium text-gray-700">
-                                      {item.assessment || '-'}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {/* Actions - COMPACT */}
-                                <div className="flex items-center lg:flex-row gap-1 border-t lg:border-t-0 pt-2 lg:pt-0">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-lg text-blue-500 hover:bg-blue-50"
-                                    onClick={() => handleEdit(item)}
-                                  >
-                                    <Edit className="h-3.5 w-3.5" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-lg text-red-500 hover:bg-red-50"
-                                    onClick={() => handleDelete(item.id)}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               )
             })

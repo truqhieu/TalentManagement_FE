@@ -142,7 +142,7 @@ export function periodLabel(row: PerformanceAssignment): string {
 export const XL_BORDER = 'border border-slate-200/60 dark:border-slate-800/50'
 export const XL_TH = cn(
   XL_BORDER,
-  'sticky top-0 z-10 whitespace-nowrap bg-slate-50/80 px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 shadow-sm backdrop-blur-md dark:bg-slate-900/90 dark:text-slate-400'
+  'sticky top-0 z-10 whitespace-nowrap bg-slate-50/80 px-3 py-2 text-left text-xs font-bold uppercase tracking-wider text-slate-500 shadow-sm backdrop-blur-md dark:bg-slate-900/90 dark:text-slate-400'
 )
 
 /** Width cột bảng Kết quả — đủ rộng để input không đè lên nhau (không dùng table-fixed). */
@@ -197,7 +197,7 @@ export const TABLE_INLINE_SELECT_TRIGGER = cn(
 export function xlTd(stripe: boolean) {
   return cn(
     XL_BORDER,
-    'px-4 py-3 align-middle text-sm leading-relaxed',
+    'px-3 py-2 align-middle text-sm leading-snug',
     stripe ? 'bg-slate-50/30 dark:bg-slate-900/20' : 'bg-transparent'
   )
 }

@@ -247,7 +247,11 @@ export function AboutUsPage() {
               </Button>
             ) : null}
             {isAuthed ? (
-              <Button size="sm" className="shadow-sm" asChild>
+              <Button
+                size="sm"
+                className="shadow-sm bg-primary text-white hover:bg-primary/90"
+                asChild
+              >
                 <Link
                   to={dashboardPath}
                   {...(dashboardPath === '/hr-admin' ? { search: { page: 1, pageSize: 15 } } : {})}
@@ -257,7 +261,11 @@ export function AboutUsPage() {
                 </Link>
               </Button>
             ) : (
-              <Button size="sm" className="shadow-sm" asChild>
+              <Button
+                size="sm"
+                className="shadow-sm bg-primary text-white hover:bg-primary/90"
+                asChild
+              >
                 <Link to="/login" preload={false}>
                   <LogIn className="h-4 w-4" aria-hidden />
                   Đăng nhập {appName}
@@ -303,7 +311,11 @@ export function AboutUsPage() {
                 {c.hero.subtitle}
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                <Button size="lg" className="shadow-md" asChild>
+                <Button
+                  size="lg"
+                  className="shadow-md bg-primary text-white hover:bg-primary/90"
+                  asChild
+                >
                   <a href="#vision-mission">
                     {c.hero.exploreCta}
                     <ChevronDown className="h-4 w-4" aria-hidden />

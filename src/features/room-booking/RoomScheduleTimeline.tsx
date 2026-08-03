@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import { Clock, LayoutGrid } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { MeetingBooking } from './api'
 import {
   HOUR_COL_PX,
@@ -8,12 +10,9 @@ import {
   TIMELINE_START_HOUR,
   type TimelineViewMode,
 } from './roomBookingConstants'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
 import { RoomBookingTimelineBlock } from './RoomBookingTimelineBlock'
 import { RoomBookingTimelineMarker } from './RoomBookingTimelineMarker'
 import { blockLayoutInWindow } from './roomBookingTimelineUtils'
-import { useTimelineDragPan } from './useTimelineDragPan'
 import {
   hourSlotEnd,
   hourSlotStart,
@@ -22,6 +21,7 @@ import {
   timeToPercent,
   timeToPercentInWindow,
 } from './roomBookingTimeUtils'
+import { useTimelineDragPan } from './useTimelineDragPan'
 
 const ROW_LABEL_W = 100
 const ROW_HEIGHT = 100
@@ -140,7 +140,7 @@ export function RoomScheduleTimeline({
       <div className="rounded-2xl border border-border/60 bg-card overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 px-3 py-2">
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-primary" />
+            <Clock className="h-4 w-4 text-[#006C49]" />
             <span className="text-sm font-semibold text-foreground">Lịch phòng</span>
           </div>
           <div className="flex gap-1 rounded-lg border border-border/60 bg-muted/30 p-0.5">
@@ -149,9 +149,9 @@ export function RoomScheduleTimeline({
               disabled={!isToday}
               onClick={() => setViewMode('live')}
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition',
+                'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition ',
                 viewMode === 'live'
-                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  ? 'bg-[#006C49] text-white'
                   : 'text-muted-foreground hover:bg-background',
                 !isToday && 'cursor-not-allowed opacity-40'
               )}
@@ -165,7 +165,7 @@ export function RoomScheduleTimeline({
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition',
                 viewMode === 'full'
-                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  ? 'bg-[#006C49] text-white'
                   : 'text-muted-foreground hover:bg-background'
               )}
             >

@@ -576,7 +576,7 @@ export function ManagerKpiOkrScreen() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="">
       {/* Header */}
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
@@ -598,10 +598,7 @@ export function ManagerKpiOkrScreen() {
               Cấu hình KPI Kinh doanh
             </Link>
           </Button>
-          <Button
-            onClick={() => setAddOpen(true)}
-            className="gap-2 bg-amber-500 hover:bg-amber-600 text-white"
-          >
+          <Button onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4" />
             Thêm chỉ số vinh danh
           </Button>

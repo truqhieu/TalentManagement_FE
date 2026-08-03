@@ -1,14 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ExternalLink } from 'lucide-react'
-import { toast } from 'sonner'
+import { PAGE_HEADER_TITLE } from '@/components/shared/PageHeader'
 import { Button } from '@/components/ui/button'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
 import {
   CompanyLandingSettingsForm,
   type CompanyLandingSettingsFormHandle,
@@ -20,8 +11,12 @@ import {
 import { DEFAULT_COMPANY_LANDING_CONTENT } from '@/features/landing/landingContent.defaults'
 import { mergeCompanyLandingContent } from '@/features/landing/landingContent.merge'
 import type { CompanyLandingContent } from '@/features/landing/landingContent.types'
-import { cn } from '@/lib/utils'
 import { getApiErrorMessage } from '@/lib/axios'
+import { cn } from '@/lib/utils'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ExternalLink } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 export function CompanyLandingSettingsScreen() {
   const qc = useQueryClient()
@@ -57,12 +52,12 @@ export function CompanyLandingSettingsScreen() {
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
-        <div className={cn('min-w-0 flex-1 py-2', PAGE_HEADER_SURFACE)}>
+      <div className="">
+        <div className={cn('min-w-0 flex-1 py-2')}>
           <h1 className={PAGE_HEADER_TITLE}>
-            <span className={PAGE_HEADER_GRADIENT}>Trang giới thiệu công ty</span>
+            <span className="text-2xl font-bold">Trang giới thiệu công ty</span>
           </h1>
-          <p className={PAGE_HEADER_DESCRIPTION}>
+          <p className="text-sm text-gray-500">
             Chỉnh sửa nội dung hiển thị tại trang chủ công khai (/) bằng các ô nhập có nhãn. Ảnh có
             thể tải lên máy chủ (hiển thị xem trước ngay trên form) hoặc dùng đường dẫn tĩnh trong
             dự án (ví dụ /Image_VCB/...). Sau khi lưu, mọi người sẽ thấy bản mới khi tải lại trang.

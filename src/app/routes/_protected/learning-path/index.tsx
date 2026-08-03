@@ -189,10 +189,10 @@ function LearningPathMemberPage() {
 
   return (
     <div className="min-w-0 space-y-6">
-      <PageHeader
+      {/* <PageHeader
         title="Lộ trình học"
         description={`${profile.currentLevel.progressLine} — Cấp và mốc do quản lý phân công.`}
-      />
+      /> */}
 
       {/* Star selector for levels with star progression */}
       {hasStarProgression && (

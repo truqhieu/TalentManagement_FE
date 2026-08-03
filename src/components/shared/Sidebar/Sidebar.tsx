@@ -1,15 +1,11 @@
-﻿import { memo, useEffect, useMemo, useState } from 'react'
-import { Link, useRouterState } from '@tanstack/react-router'
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
-import { toast } from 'sonner'
-import {
+﻿import {
   type AppNavItem,
   groupedSidebarNavItems,
   isNavItemActive,
 } from '@/components/shared/AppNav/navItems'
+import { BRAND_TEXT } from '@/components/shared/brandButtonStyles'
 import { Button } from '@/components/ui/button'
 import {
-  Sidebar as UiSidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
@@ -17,11 +13,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  Sidebar as UiSidebar,
 } from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
 import { usePermission } from '@/hooks/usePermission'
+import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUiStore } from '@/stores/ui.store'
+import { Link, useRouterState } from '@tanstack/react-router'
+import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { memo, useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 type NavItem = AppNavItem
 
 function navItemDedupeKey(item: NavItem): string {
@@ -55,7 +56,7 @@ const NavLink = memo(function NavLink({
       <Icon
         className={cn(
           'h-[18px] w-[18px] shrink-0',
-          active || childActive ? 'text-primary-600' : 'text-muted-foreground'
+          active || childActive ? BRAND_TEXT : 'text-muted-foreground'
         )}
         strokeWidth={2}
       />
@@ -89,7 +90,7 @@ const NavLink = memo(function NavLink({
           <div className="flex w-full items-center gap-2">{inner}</div>
         </SidebarMenuButton>
         {isOpen && !collapsed ? (
-          <div className="mb-1 ml-3 flex flex-col gap-0.5 border-l-2 border-indigo-100/90 pl-2">
+          <div className="mb-1 ml-3 flex flex-col gap-0.5 border-l-2 border-[#006C49]/25 pl-2 dark:border-emerald-500/30">
             {item.children.map((child) => {
               const subActive = isNavItemActive(pathname, child, currentSearch)
               const ChildIcon = child.icon
@@ -126,7 +127,7 @@ const NavLink = memo(function NavLink({
                     <ChildIcon
                       className={cn(
                         'h-4 w-4 shrink-0',
-                        subActive ? 'text-primary-600' : 'text-muted-foreground'
+                        subActive ? BRAND_TEXT : 'text-muted-foreground'
                       )}
                       strokeWidth={2}
                     />
@@ -224,7 +225,7 @@ function SidebarInner() {
       <SidebarHeader className={cn(collapsed ? 'px-2 pb-3 pt-4' : 'px-3 pb-3 pt-4')}>
         {collapsed ? (
           <div className="flex flex-col items-center gap-2">
-            <div className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-600 text-base font-extrabold text-white shadow-md ring-2 ring-primary-600/15">
+            <div className="mx-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base font-extrabold text-white shadow-sm ring-2 ring-[#006C49]/20 bg-[#006C49]">
               V
             </div>
             <Button
@@ -242,7 +243,7 @@ function SidebarInner() {
         ) : (
           <div className="flex items-start gap-1">
             <div className="min-w-0 flex-1 pl-1">
-              <div className="text-lg font-extrabold tracking-tight text-primary-600">VCB HRM</div>
+              <div className={cn('text-lg font-extrabold tracking-tight', BRAND_TEXT)}>VCB HRM</div>
               <div className="mt-1 text-sm leading-snug text-muted-foreground">{displayName}</div>
             </div>
             <Button
@@ -280,8 +281,8 @@ function SidebarInner() {
                         className={cn(
                           'group/header mx-1 flex items-center justify-between rounded-md px-2 py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors',
                           groupHasActive
-                            ? 'text-indigo-700 dark:text-indigo-200'
-                            : 'text-muted-foreground/75 hover:bg-white/55 hover:text-foreground dark:hover:bg-white/5',
+                            ? BRAND_TEXT
+                            : 'text-muted-foreground/75 hover:bg-[#006C49]/5 hover:text-foreground dark:hover:bg-emerald-500/10',
                           idx === 0 ? 'mt-0' : 'mt-1'
                         )}
                       >
@@ -298,7 +299,7 @@ function SidebarInner() {
                     ) : idx > 0 ? (
                       <div
                         aria-hidden
-                        className="mx-2 my-1 h-px bg-indigo-200/50 dark:bg-indigo-900/40"
+                        className="mx-2 my-1 h-px bg-[#006C49]/20 dark:bg-emerald-800/40"
                       />
                     ) : null}
                     {isOpen ? (

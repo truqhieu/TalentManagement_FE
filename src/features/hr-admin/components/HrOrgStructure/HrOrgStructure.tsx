@@ -1,7 +1,74 @@
-import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { OrgUserAvatar } from '@/components/shared/EmployeeAvatar'
+import {
+  BRAND_BTN_GHOST,
+  BRAND_BTN_OUTLINE,
+  BRAND_BTN_SOFT,
+  BRAND_BTN_SOLID,
+} from '@/components/shared/brandButtonStyles'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { PaginationCardStepper } from '@/components/ui/pagination'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Textarea } from '@/components/ui/textarea'
+import { useAnyActionPending } from '@/features/hr-admin/hooks'
+import { employeeKeys } from '@/features/hr-admin/queryKeys'
+import {
+  isCatalogSeedExcludedTeam,
+  isKinhDoanhDepartment,
+  isLivestreamCatalogTeam,
+} from '@/features/kpi-okr/catalogHelpers'
+import {
+  DIVISIONS_WITH_TEAMS_QUERY_KEY,
+  orgCrudApi,
+  organizationApi,
+  teamMembersQueryKey,
+  type EligibleUserRow,
+  type OrgAdminDivisionRow,
+  type OrgAdminTeamRow,
+  type TeamMemberRow,
+} from '@/features/organization/api'
+import { usePermission } from '@/hooks/usePermission'
+import { isMockApiEnabled } from '@/lib/mockEnv'
+import { ROLE_LABEL_VI } from '@/lib/roleLabels'
+import { cn } from '@/lib/utils'
+import type { ApiError } from '@/types/api'
+import type { Role } from '@/types/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
-import { toast } from 'sonner'
+import type { LucideIcon } from 'lucide-react'
 import {
   ArrowDownAZ,
   ArrowUpZA,
@@ -23,76 +90,8 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
-import { OrgUserAvatar } from '@/components/shared/EmployeeAvatar'
-import { useAnyActionPending } from '@/features/hr-admin/hooks'
-import { PAGE_HEADER_GRADIENT } from '@/components/shared/PageHeader'
-import {
-  BRAND_BTN_GHOST,
-  BRAND_BTN_OUTLINE,
-  BRAND_BTN_SOFT,
-  BRAND_BTN_SOLID,
-} from '@/components/shared/brandButtonStyles'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { PaginationCardStepper } from '@/components/ui/pagination'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { ROLE_LABEL_VI } from '@/lib/roleLabels'
-import { cn } from '@/lib/utils'
-import type { Role } from '@/types/auth'
-import {
-  DIVISIONS_WITH_TEAMS_QUERY_KEY,
-  orgCrudApi,
-  organizationApi,
-  teamMembersQueryKey,
-  type EligibleUserRow,
-  type OrgAdminDivisionRow,
-  type OrgAdminTeamRow,
-  type TeamMemberRow,
-} from '@/features/organization/api'
-import {
-  isKinhDoanhDepartment,
-  isCatalogSeedExcludedTeam,
-  isLivestreamCatalogTeam,
-} from '@/features/kpi-okr/catalogHelpers'
-import { employeeKeys } from '@/features/hr-admin/queryKeys'
-import { isMockApiEnabled } from '@/lib/mockEnv'
-import { usePermission } from '@/hooks/usePermission'
-import type { ApiError } from '@/types/api'
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 function isExtraTeamMember(m: TeamMemberRow): boolean {
   return m.membership === 'extra' || m.membership === 'secondary'
@@ -821,7 +820,7 @@ export function HrOrgStructure() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-3 py-6 md:px-4">
+    <div className="animate-page-entrance flex flex-col gap-4 pb-4">
       {mockBanner && (
         <Card className="mb-4 border-amber-500/40 bg-amber-500/10 shadow-none">
           <CardContent className="py-3 text-sm text-amber-950 dark:text-amber-100">
@@ -832,10 +831,8 @@ export function HrOrgStructure() {
 
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
-          <div className="col-span-2 flex flex-col justify-center rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 to-transparent p-3 md:col-span-3">
-            <h1 className="text-2xl font-bold tracking-tight">
-              <span className={PAGE_HEADER_GRADIENT}>Phòng ban & nhóm</span>
-            </h1>
+          <div className="col-span-2 flex flex-col justify-center rounded-xl border border-border bg-card p-3 md:col-span-3">
+            <h1 className="text-2xl font-bold tracking-tight">Phòng ban & nhóm</h1>
             <p className="mt-1 text-xs text-muted-foreground">
               Quản lý cấu trúc tổ chức và thành viên nội bộ.
             </p>

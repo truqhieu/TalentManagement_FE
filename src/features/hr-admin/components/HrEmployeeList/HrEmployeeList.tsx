@@ -1,29 +1,23 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
-import { getRouteApi, Link } from '@tanstack/react-router'
-import { useForm, useWatch } from 'react-hook-form'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
-import { Layers, Search, UserCheck, UserMinus, Users } from 'lucide-react'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog/ConfirmDialog'
 import { StatCard } from '@/components/shared/StatCard'
-import { toast } from 'sonner'
-import { EmployeeTable } from '@/features/hr-admin/components/EmployeeTable'
-import { useEmployeeTable } from '@/features/hr-admin/components/EmployeeTable/useEmployeeTable'
-import type { EmployeeEntity } from '@/features/hr-admin/api'
-import type { EmployeeFilters } from '@/features/hr-admin/types'
 import { Button } from '@/components/ui/button'
-import { PaginationCardStepper } from '@/components/ui/pagination'
-import { SkeletonEmployeeCardGrid, SkeletonStatTile } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
 import { Form } from '@/components/ui/form'
 import { InputFieldController } from '@/components/ui/form-controllers'
+import { PaginationCardStepper } from '@/components/ui/pagination'
+import { SkeletonEmployeeCardGrid, SkeletonStatTile } from '@/components/ui/skeleton'
+import type { EmployeeEntity } from '@/features/hr-admin/api'
+import { EmployeeTable } from '@/features/hr-admin/components/EmployeeTable'
+import { useEmployeeTable } from '@/features/hr-admin/components/EmployeeTable/useEmployeeTable'
+import type { EmployeeFilters } from '@/features/hr-admin/types'
 import { usePermission } from '@/hooks/usePermission'
 import { ROLE_LABEL_VI } from '@/lib/roleLabels'
+import { cn } from '@/lib/utils'
 import type { Role } from '@/types/auth'
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog/ConfirmDialog'
+import { getRouteApi, Link } from '@tanstack/react-router'
+import { Layers, Search, UserCheck, UserMinus, Users } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import { toast } from 'sonner'
 import { EmployeeCard } from './EmployeeCard'
 import { EmployeeDetailSheet } from './EmployeeDetailSheet'
 
@@ -186,29 +180,27 @@ export function HrEmployeeList({ initialFilters }: HrEmployeeListProps) {
   }
 
   const pageTitle = 'Danh sách nhân sự'
-  const pageSubtitle =
-    'Quản lý và theo dõi hiệu suất cũng như thành tích của nhân sự (HR, BOD, Quản lý dùng chung).'
+  // const pageSubtitle =
+  //   'Quản lý và theo dõi hiệu suất cũng như thành tích của nhân sự (HR, BOD, Quản lý dùng chung).'
 
   return (
-    <div className="-m-5 bg-gradient-to-b from-slate-50/95 via-slate-100/70 to-slate-100/90 pb-8 text-sm text-foreground md:-m-6 lg:-m-8 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
+    <div className="animate-page-entrance flex flex-col gap-4 pb-4 text-sm text-foreground">
       <div
-        className={cn(
-          'page-shell scrollbar-hide overflow-x-hidden',
-          selectedId ? 'lg:pr-[380px]' : undefined,
-          viewMode === 'cards' &&
-            (employees.length > 0 || pagination.total > 0) &&
-            !selectedId &&
-            'max-md:pb-[7.25rem]'
-        )}
+      // className={cn(
+      //   'page-shell scrollbar-hide overflow-x-hidden',
+      //   selectedId ? 'lg:pr-[380px]' : undefined,
+      //   viewMode === 'cards' &&
+      //     (employees.length > 0 || pagination.total > 0) &&
+      //     !selectedId &&
+      //     'max-md:pb-[7.25rem]'
+      // )}
       >
         {/* Tiêu đề + nút + thống kê — bố cục như code.html, giữ màu ô thống kê hiện tại */}
-        <div className="mb-8 flex flex-col gap-8">
+        <div className="mb-8 flex flex-col gap-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div className={cn('min-w-0 flex-1', PAGE_HEADER_SURFACE)}>
-              <h1 className={PAGE_HEADER_TITLE}>
-                <span className={PAGE_HEADER_GRADIENT}>{pageTitle}</span>
-              </h1>
-              <p className={PAGE_HEADER_DESCRIPTION}>{pageSubtitle}</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-foreground mb-3">{pageTitle}</h1>
+              {/* <p className="text-sm text-muted-foreground">{pageSubtitle}</p> */}
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <Button
@@ -237,7 +229,7 @@ export function HrEmployeeList({ initialFilters }: HrEmployeeListProps) {
               ) : null}
               <Button
                 type="button"
-                className="h-auto rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"
+                className="h-auto rounded-lg bg-[#006C49] px-5 py-2.5 text-sm font-semibold text-white"
                 onClick={() => toast.info('Xuất Excel sẽ được kết nối API sau.')}
               >
                 Xuất dữ liệu

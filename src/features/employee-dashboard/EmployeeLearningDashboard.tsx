@@ -1,16 +1,9 @@
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
-import { BarChart3, GraduationCap, Medal, Sparkles, Target, Trophy } from 'lucide-react'
 import { EmployeeAvatar } from '@/components/shared/EmployeeAvatar'
+import { PromotionCelebrationModal } from '@/components/shared/PromotionCelebrationModal'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  PAGE_HEADER_DESCRIPTION,
-  PAGE_HEADER_GRADIENT,
-  PAGE_HEADER_SURFACE,
-  PAGE_HEADER_TITLE,
-} from '@/components/shared/PageHeader'
 import { useMyDashboard } from '@/features/dashboard/hooks'
 import { DashboardKpiOkrZone } from '@/features/employee-dashboard/components/DashboardKpiOkrZone'
-import { VinhDanhSlide } from '@/features/employee-dashboard/components/VinhDanhSlide'
 import { DashboardLearningZone } from '@/features/employee-dashboard/components/DashboardLearningZone'
 import { ManagerHrSnapshotCards } from '@/features/employee-dashboard/components/ManagerHrSnapshotCards'
 import { ManagerLearningOpsZone } from '@/features/employee-dashboard/components/ManagerLearningOpsZone'
@@ -18,14 +11,15 @@ import {
   ManagerSharedReportPeriodFilter,
   type ManagerReportPeriod,
 } from '@/features/employee-dashboard/components/ManagerSharedReportPeriodFilter'
+import { VinhDanhSlide } from '@/features/employee-dashboard/components/VinhDanhSlide'
 import { LEVEL_LABELS, STARS_PER_LEVEL, type LevelCode } from '@/lib/constants'
-import { cn } from '@/lib/utils'
-import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
-import { Button } from '@/components/ui/button'
-import { PromotionCelebrationModal } from '@/components/shared/PromotionCelebrationModal'
-import { useAuthStore } from '@/stores/auth.store'
 import { isManagerLikeRole } from '@/lib/managerLikeRole'
+import { resolvePublicAssetUrl } from '@/lib/publicAssetUrl'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth.store'
 import type { Role, StaffLevel } from '@/types/auth'
+import { BarChart3, GraduationCap, Medal, Target, Trophy } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 function kpiOkrPaths(role: Role | undefined): { kpiOkr: string } {
   if (role === 'LEADER') return { kpiOkr: '/leader/kpi-okr' }
@@ -242,22 +236,26 @@ export function EmployeeLearningDashboard() {
       {/* Subtle background */}
       <div className="pointer-events-none absolute inset-0" aria-hidden />
 
-      <div className="relative z-[1] space-y-4 px-3 pb-8 pt-1 sm:px-4 sm:pb-10 md:px-6">
-        {isManagerLearningDash ? <VinhDanhSlide /> : null}
-
+      <div
+        className={cn(
+          'relative z-[1]',
+          isManagerLearningDash ? 'space-y-3 pb-4' : 'space-y-4 pb-8'
+        )}
+      >
         {isManagerLearningDash ? (
-          <section className={cn('min-w-0', PAGE_HEADER_SURFACE)}>
-            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-primary/20  px-3 py-0.5 text-xs font-bold uppercase tracking-widest text-primary shadow-sm">
-              <Sparkles className="h-3 w-3" aria-hidden />
-              Quản lý
-            </div>
-            <h1 className={PAGE_HEADER_TITLE}>
-              <span className={PAGE_HEADER_GRADIENT}>Tổng quan quản lý</span>
-            </h1>
-            <p className={PAGE_HEADER_DESCRIPTION}>
-              Tổng quan nhân sự, học tập &amp; KPI theo kỳ báo cáo.
-            </p>
-          </section>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <section className="min-w-0 shrink-0">
+              <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Tổng quan quản lý</h1>
+              <p className="text-sm text-muted-foreground">
+                Nhân sự, học tập &amp; KPI theo kỳ báo cáo.
+              </p>
+            </section>
+            <ManagerSharedReportPeriodFilter
+              value={managerReportPeriod}
+              onChange={setManagerReportPeriod}
+              className="w-full shrink-0 motion-reduce:animate-none sm:flex-1 sm:min-w-[min(100%,42rem)] lg:max-w-[48rem] !rounded-lg !border-border/80 !bg-card/90 !p-2 !shadow-sm [&>div:first-child]:hidden [&>div:last-child]:grid-cols-3 [&>div:last-child]:gap-2 [&>div>div]:space-y-1 [&>div>div>span]:text-sm [&>div>div>span]:font-semibold [&_input]:h-8 [&_input]:rounded-lg [&_input]:text-xs [&_button]:h-8 [&_button]:min-h-8 [&_button]:rounded-lg [&_button]:text-xs"
+            />
+          </div>
         ) : null}
 
         {/* MEMBER: Profile summary card — đặt trên cùng, không để VinhDanh/header rỗng chiếm chỗ */}
@@ -274,10 +272,6 @@ export function EmployeeLearningDashboard() {
                 showOnlineDot
               />
               <div className="min-w-0 space-y-0.5">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.08] px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
-                  <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  Cá nhân
-                </span>
                 <h2 className="text-xl font-black leading-tight tracking-tight text-foreground sm:text-2xl">
                   Tổng quan cá nhân
                 </h2>
@@ -293,15 +287,15 @@ export function EmployeeLearningDashboard() {
                 Cấp độ hiện tại
               </p>
               <div className="mb-1.5 flex items-center justify-between gap-2">
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-accent px-3.5 py-1 text-sm font-bold text-accent-foreground shadow-sm">
+                <div className="flex min-w-0 flex-wrap items-center gap-2 ">
+                  <span className="rounded-full px-3.5 py-1 text-sm font-bold text-accent-foreground shadow-sm bg-[#006C49]">
                     {levelLabelValue}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     Tháng {new Date().getMonth() + 1} - {new Date().getFullYear()}
                   </span>
                 </div>
-                <span className="shrink-0 text-lg font-black text-accent sm:text-xl">
+                <span className="shrink-0 text-lg font-black text-[#006C49] sm:text-xl">
                   XP {starPct}%
                 </span>
               </div>
@@ -323,27 +317,21 @@ export function EmployeeLearningDashboard() {
         {!isManagerLearningDash ? <VinhDanhSlide /> : null}
 
         {showKpiZone ? (
-          <div className="space-y-5">
+          <div className={isManagerLearningDash ? 'space-y-3' : 'space-y-5'}>
             {isManagerLearningDash && (
-              <>
-                <ManagerSharedReportPeriodFilter
-                  value={managerReportPeriod}
-                  onChange={setManagerReportPeriod}
-                />
-                <ManagerHrSnapshotCards
-                  reportYear={managerReportPeriod.reportYear}
-                  rangeStartMonth={managerReportPeriod.rangeStartMonth}
-                  rangeEndMonth={managerReportPeriod.rangeEndMonth}
-                />
-              </>
+              <ManagerHrSnapshotCards
+                reportYear={managerReportPeriod.reportYear}
+                rangeStartMonth={managerReportPeriod.rangeStartMonth}
+                rangeEndMonth={managerReportPeriod.rangeEndMonth}
+              />
             )}
             {/* Tab switcher */}
             <div
-              className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
               role="tablist"
               aria-label="Chuyển tab"
             >
-              <div className="inline-flex rounded-full border border-primary/20 bg-gradient-to-r from-primary/[0.1] via-card/95 to-accent/[0.1] p-1 shadow-inner shadow-primary/10">
+              <div className="inline-flex rounded-lg border p-0.5">
                 <Button
                   type="button"
                   variant="ghost"
@@ -354,14 +342,14 @@ export function EmployeeLearningDashboard() {
                   tabIndex={tab === 'learning' ? 0 : -1}
                   onClick={() => handleTabChange('learning')}
                   className={cn(
-                    'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all duration-300',
+                    'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-bold transition-all duration-300',
                     tab === 'learning'
-                      ? 'bg-gradient-to-r from-primary to-primary-600 text-primary-foreground shadow-[var(--shadow-game-float)] ring-2 ring-primary/25 ring-offset-2 ring-offset-background motion-reduce:ring-0 motion-reduce:ring-offset-0'
+                      ? 'bg-[#006C49] text-white hover:bg-[#006C49]/90 hover:text-white'
                       : 'text-muted-foreground hover:bg-background/80 hover:text-foreground',
                     isPending && tab === 'learning' && 'opacity-70'
                   )}
                 >
-                  <GraduationCap className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+                  <GraduationCap className="h-4 w-4 shrink-0" strokeWidth={2} />
                   Học tập
                 </Button>
                 <Button
@@ -374,14 +362,14 @@ export function EmployeeLearningDashboard() {
                   tabIndex={tab === 'kpi' ? 0 : -1}
                   onClick={() => handleTabChange('kpi')}
                   className={cn(
-                    'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all duration-300',
+                    'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-bold transition-all duration-300',
                     tab === 'kpi'
-                      ? 'bg-gradient-to-r from-primary to-primary-600 text-primary-foreground shadow-[var(--shadow-game-float)] ring-2 ring-primary/25 ring-offset-2 ring-offset-background motion-reduce:ring-0 motion-reduce:ring-offset-0'
+                      ? 'bg-[#006C49] text-white hover:bg-[#006C49]/90 hover:text-white'
                       : 'text-muted-foreground hover:bg-background/80 hover:text-foreground',
                     isPending && tab === 'kpi' && 'opacity-70'
                   )}
                 >
-                  <Target className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+                  <Target className="h-4 w-4 shrink-0" strokeWidth={2} />
                   KPI · OKR
                 </Button>
               </div>
@@ -416,7 +404,7 @@ export function EmployeeLearningDashboard() {
             >
               {tab === 'kpi' && (
                 <>
-                  {isManagerLearningDash && <VinhDanhSlide className="mb-6" />}
+                  {isManagerLearningDash && <VinhDanhSlide compact className="mb-3" />}
                   <DashboardKpiOkrZone
                     role={role as 'LEADER' | 'MANAGER' | 'MEMBER'}
                     paths={paths}
@@ -447,7 +435,7 @@ export function EmployeeLearningDashboard() {
               className="flex h-full flex-col rounded-2xl border border-border/80 bg-card/95 p-4 shadow-[var(--shadow-card)]"
               aria-label="Lịch sử thăng cấp"
             >
-              <div className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-primary">
+              <div className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
                 <Trophy className="h-4 w-4 text-amber-500" aria-hidden />
                 Lịch sử thăng cấp
               </div>
@@ -486,7 +474,7 @@ export function EmployeeLearningDashboard() {
             >
               <h2
                 id="dash-highlight-achievements"
-                className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-primary"
+                className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider"
               >
                 <Medal className="h-4 w-4 text-amber-500" aria-hidden />
                 Thành tựu
