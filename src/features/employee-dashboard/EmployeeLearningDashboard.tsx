@@ -236,15 +236,18 @@ export function EmployeeLearningDashboard() {
       {/* Subtle background */}
       <div className="pointer-events-none absolute inset-0" aria-hidden />
 
-      <div className="relative z-[1] space-y-4 pb-8">
-        {isManagerLearningDash ? <VinhDanhSlide /> : null}
-
+      <div
+        className={cn(
+          'relative z-[1]',
+          isManagerLearningDash ? 'space-y-3 pb-4' : 'space-y-4 pb-8'
+        )}
+      >
         {isManagerLearningDash ? (
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <section className="min-w-0 shrink-0">
-              <h1 className="text-2xl font-bold">Tổng quan quản lý</h1>
+              <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Tổng quan quản lý</h1>
               <p className="text-sm text-muted-foreground">
-                Tổng quan nhân sự, học tập &amp; KPI theo kỳ báo cáo.
+                Nhân sự, học tập &amp; KPI theo kỳ báo cáo.
               </p>
             </section>
             <ManagerSharedReportPeriodFilter
@@ -314,7 +317,7 @@ export function EmployeeLearningDashboard() {
         {!isManagerLearningDash ? <VinhDanhSlide /> : null}
 
         {showKpiZone ? (
-          <div className="space-y-5">
+          <div className={isManagerLearningDash ? 'space-y-3' : 'space-y-5'}>
             {isManagerLearningDash && (
               <ManagerHrSnapshotCards
                 reportYear={managerReportPeriod.reportYear}
@@ -324,11 +327,11 @@ export function EmployeeLearningDashboard() {
             )}
             {/* Tab switcher */}
             <div
-              className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
               role="tablist"
               aria-label="Chuyển tab"
             >
-              <div className="inline-flex rounded-full border p-1">
+              <div className="inline-flex rounded-lg border p-0.5">
                 <Button
                   type="button"
                   variant="ghost"
@@ -339,14 +342,14 @@ export function EmployeeLearningDashboard() {
                   tabIndex={tab === 'learning' ? 0 : -1}
                   onClick={() => handleTabChange('learning')}
                   className={cn(
-                    'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all duration-300',
+                    'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-bold transition-all duration-300',
                     tab === 'learning'
                       ? 'bg-[#006C49] text-white hover:bg-[#006C49]/90 hover:text-white'
                       : 'text-muted-foreground hover:bg-background/80 hover:text-foreground',
                     isPending && tab === 'learning' && 'opacity-70'
                   )}
                 >
-                  <GraduationCap className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+                  <GraduationCap className="h-4 w-4 shrink-0" strokeWidth={2} />
                   Học tập
                 </Button>
                 <Button
@@ -359,14 +362,14 @@ export function EmployeeLearningDashboard() {
                   tabIndex={tab === 'kpi' ? 0 : -1}
                   onClick={() => handleTabChange('kpi')}
                   className={cn(
-                    'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all duration-300',
+                    'inline-flex h-auto min-h-0 items-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-bold transition-all duration-300',
                     tab === 'kpi'
                       ? 'bg-[#006C49] text-white hover:bg-[#006C49]/90 hover:text-white'
                       : 'text-muted-foreground hover:bg-background/80 hover:text-foreground',
                     isPending && tab === 'kpi' && 'opacity-70'
                   )}
                 >
-                  <Target className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+                  <Target className="h-4 w-4 shrink-0" strokeWidth={2} />
                   KPI · OKR
                 </Button>
               </div>
@@ -401,7 +404,7 @@ export function EmployeeLearningDashboard() {
             >
               {tab === 'kpi' && (
                 <>
-                  {isManagerLearningDash && <VinhDanhSlide className="mb-6" />}
+                  {isManagerLearningDash && <VinhDanhSlide compact className="mb-3" />}
                   <DashboardKpiOkrZone
                     role={role as 'LEADER' | 'MANAGER' | 'MEMBER'}
                     paths={paths}

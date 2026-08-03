@@ -58,7 +58,7 @@ function LevelBarChart({
 
   return (
     <div className="space-y-4">
-      <div className="h-52 w-full sm:h-60">
+      <div className="h-40 w-full sm:h-48">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -161,10 +161,10 @@ export function ManagerLearningOpsZone({
   const hasAnyLevel = levelChart.some((d) => d.value > 0)
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
       <div
         className={cn(
-          'flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between',
+          'flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between',
           'motion-safe:animate-[dash-fade-up_0.55s_cubic-bezier(0.22,1,0.36,1)_both] motion-reduce:animate-none'
         )}
       >
@@ -186,7 +186,7 @@ export function ManagerLearningOpsZone({
 
       {isError ? (
         <div
-          className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
           role="alert"
         >
           Không tải được thống kê.{' '}
@@ -203,7 +203,7 @@ export function ManagerLearningOpsZone({
 
       <div
         className={cn(
-          'overflow-hidden rounded-2xl border border-border/80 bg-card/95 p-4 shadow-[var(--shadow-card)] sm:p-5',
+          'overflow-hidden rounded-xl border border-border/80 bg-card/95 p-3 shadow-[var(--shadow-card)] sm:p-4',
           quartOut,
           CARD_ENTRANCE_HOVER,
           'transition-all duration-300 hover:border-primary/20',
@@ -211,9 +211,9 @@ export function ManagerLearningOpsZone({
         )}
         style={{ animationDelay: '40ms', ...staggerStyle(0, 50) }}
       >
-        <div className="mb-3 flex items-center gap-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 text-primary">
-            <GraduationCap className="h-4 w-4" strokeWidth={2} aria-hidden />
+        <div className="mb-2.5 flex items-center gap-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/15 to-accent/10 text-primary">
+            <GraduationCap className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
           </div>
           <h3 className="text-sm font-bold tracking-tight text-foreground">
             Phân bổ nhân sự theo cấp bậc
@@ -221,9 +221,9 @@ export function ManagerLearningOpsZone({
           <InfoHint text={LEVELS_HINT} label="Cách tính phân bổ cấp độ" />
         </div>
         {isLoading && !data ? (
-          <Skeleton className="h-56 w-full rounded-xl" />
+          <Skeleton className="h-44 w-full rounded-lg" />
         ) : !hasAnyLevel ? (
-          <p className="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-border/80 bg-muted/25 px-4 text-center text-sm text-muted-foreground">
+          <p className="flex min-h-[140px] items-center justify-center rounded-lg border border-dashed border-border/80 bg-muted/25 px-4 text-center text-sm text-muted-foreground">
             Chưa có dữ liệu cấp độ trong kỳ này.
           </p>
         ) : (
@@ -233,7 +233,7 @@ export function ManagerLearningOpsZone({
 
       <section
         className={cn(
-          'overflow-hidden rounded-2xl border border-amber-500/20 bg-card/95 p-4 shadow-[var(--shadow-card)] sm:p-5',
+          'overflow-hidden rounded-xl border border-amber-500/20 bg-card/95 p-3 shadow-[var(--shadow-card)] sm:p-4',
           quartOut,
           CARD_ENTRANCE_HOVER,
           'transition-all duration-300 hover:border-amber-500/30',
@@ -242,9 +242,9 @@ export function ManagerLearningOpsZone({
         style={{ animationDelay: '100ms' }}
         aria-label="Học viên trượt thi trong kỳ"
       >
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400">
-            <AlertTriangle className="h-4 w-4" strokeWidth={2} aria-hidden />
+        <div className="mb-2.5 flex flex-wrap items-center gap-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400">
+            <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
           </div>
           <h3 className="text-sm font-bold tracking-tight text-foreground">
             Học viên trượt thi trong kỳ
@@ -254,12 +254,12 @@ export function ManagerLearningOpsZone({
 
         {isLoading && !data ? (
           <div className="space-y-2">
-            <Skeleton className="h-10 w-full rounded-lg" />
-            <Skeleton className="h-10 w-full rounded-lg" />
-            <Skeleton className="h-10 w-full rounded-lg" />
+            <Skeleton className="h-9 w-full rounded-lg" />
+            <Skeleton className="h-9 w-full rounded-lg" />
+            <Skeleton className="h-9 w-full rounded-lg" />
           </div>
         ) : repeatFails.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border/80 bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-border/80 bg-muted/30 px-4 py-4 text-center text-sm text-muted-foreground">
             Không có bản ghi nào trong kỳ này.
           </p>
         ) : (

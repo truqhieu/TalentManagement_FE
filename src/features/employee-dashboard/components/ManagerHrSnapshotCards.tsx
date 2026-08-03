@@ -39,10 +39,10 @@ export function ManagerHrSnapshotCards({
   const newHires = data?.newHiresInPeriod ?? 0
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {isError ? (
         <div
-          className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
           role="alert"
         >
           Không tải được thống kê nhân sự.{' '}
@@ -57,13 +57,12 @@ export function ManagerHrSnapshotCards({
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-2xl border border-[#006C49]/15 bg-white sm:p-5">
-        {/* Header */}
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-600/15 text-indigo-700 dark:text-indigo-300">
-            <Users className="h-4 w-4" strokeWidth={2} aria-hidden />
+      <div className="overflow-hidden rounded-xl border border-border/80 bg-card p-3 shadow-sm">
+        <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Users className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
           </div>
-          <h3 className="min-w-0 flex-1 text-sm font-bold tracking-tight text-foreground">
+          <h3 className="min-w-0 flex-1 text-sm font-semibold tracking-tight text-foreground">
             Nhân sự
           </h3>
           <InfoHint
@@ -71,104 +70,83 @@ export function ManagerHrSnapshotCards({
             label="Cách tính nhân sự Tổng / Đang hoạt động / Off / Mới"
             className="self-start"
           />
+          {isFetching && data ? (
+            <span className="text-xs text-muted-foreground">Đang cập nhật…</span>
+          ) : null}
         </div>
 
         {isLoading && !data ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Skeleton className="h-24 w-full rounded-xl" />
-            <Skeleton className="h-24 w-full rounded-xl" />
-            <Skeleton className="h-24 w-full rounded-xl" />
-            <Skeleton className="h-24 w-full rounded-xl" />
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <Skeleton className="h-20 w-full rounded-lg" />
+            <Skeleton className="h-20 w-full rounded-lg" />
+            <Skeleton className="h-20 w-full rounded-lg" />
+            <Skeleton className="h-20 w-full rounded-lg" />
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {/* Tổng nhân sự */}
-            <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-violet-500/10 to-indigo-600/5 p-3 ring-1 ring-indigo-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-indigo-500/40 sm:p-4">
-              <div
-                className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-indigo-500/8 blur-xl"
-                aria-hidden
-              />
-              <p className="mb-1 text-xs font-bold uppercase tracking-wider text-indigo-600/80 dark:text-indigo-400">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Tổng nhân sự
               </p>
               <p
                 className={cn(
-                  'font-black tabular-nums text-foreground',
-                  total >= 1000 ? 'text-2xl' : 'text-3xl'
+                  'mt-1 font-bold tabular-nums text-foreground',
+                  total >= 1000 ? 'text-xl' : 'text-2xl'
                 )}
               >
                 {total.toLocaleString('vi-VN')}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">toàn bộ hồ sơ nhân sự</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">toàn bộ hồ sơ</p>
             </div>
 
-            {/* Đang hoạt động */}
-            <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-sky-500/10 to-cyan-600/5 p-3 ring-1 ring-sky-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-sky-500/40 sm:p-4">
-              <div
-                className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-sky-500/8 blur-xl"
-                aria-hidden
-              />
-              <p className="mb-1 text-xs font-bold uppercase tracking-wider text-sky-600/80 dark:text-sky-400">
+            <div className="rounded-lg border border-sky-500/20 bg-sky-500/5 px-3 py-2.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-sky-700/80 dark:text-sky-400">
                 Đang hoạt động
               </p>
               <p
                 className={cn(
-                  'font-black tabular-nums text-foreground',
-                  active >= 1000 ? 'text-2xl' : 'text-3xl'
+                  'mt-1 font-bold tabular-nums text-foreground',
+                  active >= 1000 ? 'text-xl' : 'text-2xl'
                 )}
               >
                 {active.toLocaleString('vi-VN')}
               </p>
-              <p className="mt-1 text-xs font-medium text-sky-600/70 dark:text-sky-400">
+              <p className="mt-0.5 text-xs font-medium text-sky-600/80 dark:text-sky-400">
                 {pct(active, total)} tổng
               </p>
             </div>
 
-            {/* Off */}
-            <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-rose-500/10 to-red-600/5 p-3 ring-1 ring-rose-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-rose-500/40 sm:p-4">
-              <div
-                className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-rose-500/8 blur-xl"
-                aria-hidden
-              />
-              <div className="mb-1 flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-wider text-rose-600/80 dark:text-rose-400">
+            <div className="rounded-lg border border-rose-500/20 bg-rose-500/5 px-3 py-2.5">
+              <div className="flex items-center justify-between gap-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-rose-700/80 dark:text-rose-400">
                   Nghỉ việc {periodSuffix}
                 </p>
-                <TrendingDown className="h-3.5 w-3.5 text-rose-500/70" aria-hidden />
+                <TrendingDown className="h-3.5 w-3.5 shrink-0 text-rose-500/70" aria-hidden />
               </div>
-              <p className="text-3xl font-black tabular-nums text-foreground">
+              <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
                 {off.toLocaleString('vi-VN')}
               </p>
-              <p className="mt-1 text-xs font-medium text-rose-600/70 dark:text-rose-400">
+              <p className="mt-0.5 text-xs font-medium text-rose-600/80 dark:text-rose-400">
                 {pct(off, active)} đang hoạt động
               </p>
             </div>
 
-            {/* Mới */}
-            <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-600/5 p-3 ring-1 ring-emerald-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-emerald-500/40 sm:p-4">
-              <div
-                className="absolute -right-3 -top-3 h-16 w-16 rounded-full bg-emerald-500/8 blur-xl"
-                aria-hidden
-              />
-              <div className="mb-1 flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-wider text-emerald-600/80 dark:text-emerald-400">
+            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2.5">
+              <div className="flex items-center justify-between gap-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700/80 dark:text-emerald-400">
                   Tuyển mới {periodSuffix}
                 </p>
-                <TrendingUp className="h-3.5 w-3.5 text-emerald-500/70" aria-hidden />
+                <TrendingUp className="h-3.5 w-3.5 shrink-0 text-emerald-500/70" aria-hidden />
               </div>
-              <p className="text-3xl font-black tabular-nums text-foreground">
+              <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
                 {newHires.toLocaleString('vi-VN')}
               </p>
-              <p className="mt-1 text-xs font-medium text-emerald-600/70 dark:text-emerald-400">
+              <p className="mt-0.5 text-xs font-medium text-emerald-600/80 dark:text-emerald-400">
                 {pct(newHires, active)} đang hoạt động
               </p>
             </div>
           </div>
         )}
-
-        {isFetching && data ? (
-          <p className="mt-3 text-center text-xs text-muted-foreground">Đang cập nhật…</p>
-        ) : null}
       </div>
     </div>
   )

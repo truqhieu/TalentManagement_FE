@@ -69,32 +69,32 @@ function SummaryCard({ title, percent, color, icon, footer, delay, loading }: Su
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm',
+        'group relative overflow-hidden rounded-xl border border-border bg-card p-3 shadow-sm sm:p-4',
         quartOut,
         'transition-all duration-300 hover:-translate-y-0.5',
         CARD_ENTRANCE_HOVER
       )}
       style={staggerStyle(delay)}
     >
-      <div className="pointer-events-none absolute right-3 top-3 opacity-[0.08] transition-opacity group-hover:opacity-[0.14]">
+      <div className="pointer-events-none absolute right-2 top-2 opacity-[0.08] transition-opacity group-hover:opacity-[0.14]">
         {icon}
       </div>
-      <div className="relative z-10 flex items-center gap-4">
+      <div className="relative z-10 flex items-center gap-3">
         <div className="shrink-0">
           {loading ? (
-            <Skeleton className="h-[140px] w-[140px] rounded-full" />
+            <Skeleton className="h-[104px] w-[104px] rounded-full" />
           ) : (
-            <KpiGauge percent={percent} color={color} size={140} />
+            <KpiGauge percent={percent} color={color} size={104} />
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          <h3 className="mb-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
             {title}
           </h3>
           {loading ? (
             <Skeleton className="h-4 w-3/4" />
           ) : (
-            <div className="text-xs font-medium text-muted-foreground">{footer}</div>
+            <div className="text-sm font-medium text-muted-foreground">{footer}</div>
           )}
         </div>
       </div>
@@ -281,16 +281,16 @@ export function DashboardKpiOkrZone({
   const periodSummary = monthRangeLabel(reportYear, rangeStartMonth, rangeEndMonth)
 
   return (
-    <div className="mx-auto space-y-8 text-sm text-foreground">
+    <div className="mx-auto space-y-4 text-sm text-foreground">
       {/* 2. Thanh ngữ cảnh: Phạm vi (team) → Kỳ — đúng thứ tự “xem gì, trong lúc nào” */}
       <section
         className={cn(
-          'rounded-2xl border border-border/80 bg-card/90 p-4 shadow-sm backdrop-blur-sm sm:p-5',
+          'rounded-xl border border-border/80 bg-card/90 p-3 shadow-sm backdrop-blur-sm sm:p-3.5',
           'motion-safe:animate-[dash-fade-up_0.4s_ease-out_both] motion-reduce:animate-none'
         )}
         style={{ animationDelay: '40ms' }}
       >
-        <div className="mb-3 flex flex-wrap items-center gap-2 border-b border-border/60 pb-3">
+        <div className="mb-2 flex flex-wrap items-center gap-2 border-b border-border/60 pb-2">
           <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             {kpiFilterFromParent ? 'Phạm vi' : 'Phạm vi và kỳ'}
           </span>
@@ -299,7 +299,7 @@ export function DashboardKpiOkrZone({
           </span>
         </div>
 
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between lg:gap-4">
           {/* Team — đặt trước: người dùng chọn “đối tượng” trước khi lọc thời gian */}
           <div
             className={cn(
@@ -307,7 +307,7 @@ export function DashboardKpiOkrZone({
               kpiFilterFromParent ? 'max-w-none' : 'lg:max-w-md xl:max-w-lg'
             )}
           >
-            <div className="mb-1.5 flex items-center gap-2">
+            <div className="mb-1 flex items-center gap-2">
               <Users className="h-3.5 w-3.5 text-primary" strokeWidth={2} aria-hidden />
               <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Nhóm đang xem
@@ -315,7 +315,7 @@ export function DashboardKpiOkrZone({
             </div>
             {teamOptions.length > 1 || isManager ? (
               <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
-                <SelectTrigger className="h-11 w-full rounded-xl border-border bg-background text-left text-sm font-medium">
+                <SelectTrigger className="h-9 w-full rounded-lg border-border bg-background text-left text-sm font-medium">
                   <SelectValue placeholder="Chọn nhóm để tải số liệu" />
                 </SelectTrigger>
                 <SelectContent>
@@ -330,7 +330,7 @@ export function DashboardKpiOkrZone({
                 </SelectContent>
               </Select>
             ) : selectedTeam ? (
-              <div className="flex h-11 items-center rounded-xl border border-primary/25 bg-primary/5 px-4 text-sm font-bold text-primary">
+              <div className="flex h-9 items-center rounded-lg border border-primary/25 bg-primary/5 px-3 text-sm font-bold text-primary">
                 {selectedTeam.name}
                 {isMember ? (
                   <span className="ml-2 text-xs font-medium text-muted-foreground">
@@ -346,19 +346,19 @@ export function DashboardKpiOkrZone({
           {!kpiFilterFromParent ? (
             <>
               <div
-                className="hidden w-px shrink-0 self-stretch min-h-[4.5rem] bg-border lg:block"
+                className="hidden w-px shrink-0 self-stretch min-h-[3.5rem] bg-border lg:block"
                 aria-hidden
               />
 
               {/* Kỳ báo cáo */}
               <div className="w-full lg:flex-1 lg:max-w-xl">
-                <div className="mb-2 flex items-center gap-2">
+                <div className="mb-1.5 flex items-center gap-2">
                   <Calendar className="h-3.5 w-3.5 text-primary" strokeWidth={2} aria-hidden />
                   <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Kỳ báo cáo (cùng năm)
                   </Label>
                 </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                   <div className="space-y-1">
                     <span className="text-xs font-semibold text-muted-foreground">Năm</span>
                     <Input
@@ -366,7 +366,7 @@ export function DashboardKpiOkrZone({
                       min={2020}
                       max={2035}
                       value={reportYear}
-                      className="h-10 rounded-xl border-border bg-background text-sm tabular-nums"
+                      className="h-9 rounded-lg border-border bg-background text-sm tabular-nums"
                       onChange={(e) => {
                         const v = Number(e.target.value)
                         if (Number.isFinite(v)) setReportYearClamped(v)
@@ -379,7 +379,7 @@ export function DashboardKpiOkrZone({
                       value={String(rangeStartMonth)}
                       onValueChange={(v) => setFromMonth(Number(v))}
                     >
-                      <SelectTrigger className="h-10 rounded-xl border-border bg-background text-sm">
+                      <SelectTrigger className="h-9 rounded-lg border-border bg-background text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -397,7 +397,7 @@ export function DashboardKpiOkrZone({
                       value={String(rangeEndMonth)}
                       onValueChange={(v) => setToMonth(Number(v))}
                     >
-                      <SelectTrigger className="h-10 rounded-xl border-border bg-background text-sm">
+                      <SelectTrigger className="h-9 rounded-lg border-border bg-background text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -410,7 +410,7 @@ export function DashboardKpiOkrZone({
                     </Select>
                   </div>
                 </div>
-                <p className="mt-2 text-xs leading-snug text-muted-foreground">
+                <p className="mt-1.5 text-xs leading-snug text-muted-foreground">
                   Số liệu dưới đây gộp chỉ tiêu và khảo sát trong toàn bộ tháng thuộc kỳ.
                 </p>
               </div>
@@ -420,7 +420,7 @@ export function DashboardKpiOkrZone({
       </section>
 
       {!selectedTeamId ? (
-        <div className="rounded-3xl border border-dashed border-border bg-muted/40 p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-xl border border-dashed border-border bg-muted/40 px-4 py-5 text-center text-sm text-muted-foreground">
           {isManager
             ? 'Chọn nhóm ở phía trên để tải báo cáo KPI/OKR.'
             : 'Bạn chưa được gán vào nhóm nào. Vui lòng liên hệ nhân sự hoặc quản trị.'}
@@ -430,13 +430,13 @@ export function DashboardKpiOkrZone({
           {/* 3. Tóm tắt nhanh — đọc ngay sau khi đã chọn team & kỳ */}
           <section aria-label="Tóm tắt KPI, OKR và khảo sát">
             <h2 className="sr-only">Chỉ số tóm tắt trong kỳ</h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               <SummaryCard
                 title="Tiến độ KPI"
                 percent={kpi.percent}
                 color="hsl(var(--primary))"
                 icon={
-                  <Activity className="h-16 w-16 text-primary" strokeWidth={1.25} aria-hidden />
+                  <Activity className="h-10 w-10 text-primary" strokeWidth={1.25} aria-hidden />
                 }
                 footer={kpiFooter}
                 delay={0}
@@ -447,7 +447,7 @@ export function DashboardKpiOkrZone({
                 percent={okr.percent}
                 color="#10b981"
                 icon={
-                  <Flag className="h-16 w-16 text-emerald-500" strokeWidth={1.25} aria-hidden />
+                  <Flag className="h-10 w-10 text-emerald-500" strokeWidth={1.25} aria-hidden />
                 }
                 footer={okrFooter}
                 delay={1}
@@ -463,7 +463,7 @@ export function DashboardKpiOkrZone({
                 }
                 percent={report.percent}
                 color="hsl(var(--accent))"
-                icon={<Target className="h-16 w-16 text-accent" strokeWidth={1.25} aria-hidden />}
+                icon={<Target className="h-10 w-10 text-accent" strokeWidth={1.25} aria-hidden />}
                 footer={reportFooter}
                 delay={2}
                 loading={isLoading}
@@ -473,18 +473,18 @@ export function DashboardKpiOkrZone({
 
           {/* 4. Hành động tiếp theo — ngay dưới số liệu, không chôn ở cuối trang */}
           <section
-            className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
+            className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
             aria-label="Liên kết chi tiết"
           >
             <p className="text-xs text-muted-foreground">
               Cần chỉnh chỉ tiêu hoặc xem biểu mẫu khảo sát chi tiết?
             </p>
-            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
               {!isMember ? (
                 <Link
                   to="/monthly-report"
                   className={cn(
-                    'inline-flex min-h-10 items-center justify-center rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-bold text-primary shadow-sm transition-colors hover:bg-muted',
+                    'inline-flex min-h-9 items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm font-bold text-primary shadow-sm transition-colors hover:bg-muted',
                     quartOut
                   )}
                 >
@@ -495,7 +495,7 @@ export function DashboardKpiOkrZone({
                 <Link
                   to={paths.kpiOkr}
                   className={cn(
-                    'inline-flex min-h-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-600 px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-md shadow-primary/20',
+                    'inline-flex min-h-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-600 px-4 py-2 text-sm font-bold text-primary-foreground shadow-md shadow-primary/20',
                     quartOut,
                     'transition-all hover:opacity-95 active:scale-[0.98]'
                   )}
@@ -511,22 +511,22 @@ export function DashboardKpiOkrZone({
           </section>
 
           {/* 5. Một cột chính: xu hướng → chi tiết chỉ tiêu → phân tích theo người */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Xu hướng theo thời gian — đặt trước bảng chi tiết để có bối cảnh */}
             <div
               className={cn(
-                'rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8',
+                'rounded-xl border border-border bg-card p-4 shadow-sm',
                 CARD_ENTRANCE_HOVER
               )}
               style={staggerStyle(3)}
             >
-              <div className="mb-4 border-b border-border/70 pb-4">
-                <h3 className="text-lg font-bold text-foreground md:text-xl">
+              <div className="mb-3 border-b border-border/70 pb-2.5">
+                <h3 className="text-base font-bold text-foreground sm:text-lg">
                   {monthSpan > 1
                     ? `Xu hướng theo tháng (${monthSpan} tháng)`
                     : 'Xu hướng trong kỳ đã chọn'}
                 </h3>
-                <p className="mt-1 text-xs text-muted-foreground md:text-sm">
+                <p className="mt-0.5 text-sm text-muted-foreground">
                   {isMember
                     ? monthSpan > 1
                       ? '% KPI / OKR của bạn theo từng tháng trong kỳ.'
@@ -537,7 +537,7 @@ export function DashboardKpiOkrZone({
                 </p>
               </div>
               {isLoading ? (
-                <Skeleton className="h-[220px] w-full rounded-xl" />
+                <Skeleton className="h-[180px] w-full rounded-lg" />
               ) : (
                 <TrendLine points={trend} />
               )}
@@ -545,14 +545,14 @@ export function DashboardKpiOkrZone({
 
             {/* Chỉ tiêu được giao + trạng thái */}
             <div
-              className={cn('rounded-3xl bg-muted/40 p-6 md:p-8', CARD_ENTRANCE_HOVER)}
+              className={cn('rounded-xl bg-muted/40 p-4', CARD_ENTRANCE_HOVER)}
               style={staggerStyle(4)}
             >
-              <div className="mb-6 border-b border-border/60 pb-4">
-                <h2 className="text-xl font-bold text-foreground">
+              <div className="mb-3 border-b border-border/60 pb-2.5">
+                <h2 className="text-base font-bold text-foreground sm:text-lg">
                   {isMember ? 'Chi tiết chỉ tiêu của bạn' : 'Chi tiết chỉ tiêu đã giao'}
                 </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-0.5 text-sm text-muted-foreground">
                   {monthSpan > 1
                     ? `Gộp ${monthSpan} tháng (${monthRangeLabel(data.year, data.startMonth, data.endMonth)})${isMember ? ' — chỉ chỉ tiêu của bạn.' : ' — cùng nguồn với màn KPI & OKR.'}`
                     : isMember
@@ -561,16 +561,16 @@ export function DashboardKpiOkrZone({
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-8 xl:grid-cols-5">
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
                 <div className="xl:col-span-3">
-                  <div className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Thành viên trong team
                   </div>
                   {isLoading ? (
                     <div className="space-y-2">
-                      <Skeleton className="h-14 w-full rounded-xl" />
-                      <Skeleton className="h-14 w-full rounded-xl" />
-                      <Skeleton className="h-14 w-full rounded-xl" />
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                      <Skeleton className="h-12 w-full rounded-lg" />
                     </div>
                   ) : (
                     <MemberKpiPanel
@@ -580,21 +580,21 @@ export function DashboardKpiOkrZone({
                     />
                   )}
                 </div>
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-sm xl:col-span-2">
-                  <div className="mb-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <div className="rounded-xl border border-border bg-card p-3 shadow-sm xl:col-span-2">
+                  <div className="mb-0.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Đánh giá quản lý
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-sm text-muted-foreground">
                     Tổng {kpi.totalCount + okr.totalCount} KPI/OKR
                     {monthSpan > 1 ? ' (gộp kỳ)' : ' trong kỳ'} — biểu đồ theo OK / NOT / chưa chấm
                   </div>
                   {isLoading ? (
-                    <Skeleton className="mt-4 h-[200px] w-full rounded-xl" />
+                    <Skeleton className="mt-3 h-[160px] w-full rounded-lg" />
                   ) : (
                     <EvalBreakdownDonut breakdown={evalBreakdown} className="mt-2" />
                   )}
-                  <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                    <div className="rounded-lg bg-emerald-50 py-2 dark:bg-emerald-950/30">
+                  <div className="mt-3 grid grid-cols-3 gap-1.5 text-center">
+                    <div className="rounded-md bg-emerald-50 py-1.5 dark:bg-emerald-950/30">
                       <div className="text-lg font-black tabular-nums text-emerald-700 dark:text-emerald-300">
                         {evalBreakdown.ok}
                       </div>
@@ -602,7 +602,7 @@ export function DashboardKpiOkrZone({
                         OK
                       </div>
                     </div>
-                    <div className="rounded-lg bg-rose-50 py-2 dark:bg-rose-950/30">
+                    <div className="rounded-md bg-rose-50 py-1.5 dark:bg-rose-950/30">
                       <div className="text-lg font-black tabular-nums text-rose-700 dark:text-rose-300">
                         {evalBreakdown.not}
                       </div>
@@ -610,7 +610,7 @@ export function DashboardKpiOkrZone({
                         NOT
                       </div>
                     </div>
-                    <div className="rounded-lg bg-slate-50 py-2 dark:bg-slate-900/40">
+                    <div className="rounded-md bg-slate-50 py-1.5 dark:bg-slate-900/40">
                       <div className="text-lg font-black tabular-nums text-slate-700 dark:text-slate-200">
                         {evalBreakdown.pending}
                       </div>
@@ -627,27 +627,27 @@ export function DashboardKpiOkrZone({
             {!isMember && (
               <div
                 className={cn(
-                  'rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8',
+                  'rounded-xl border border-border bg-card p-4 shadow-sm',
                   CARD_ENTRANCE_HOVER
                 )}
                 style={staggerStyle(5)}
               >
-                <div className="mb-4 border-b border-border/70 pb-4">
-                  <h3 className="text-lg font-bold text-foreground md:text-xl">
+                <div className="mb-3 border-b border-border/70 pb-2.5">
+                  <h3 className="text-base font-bold text-foreground sm:text-lg">
                     So sánh theo nhân sự
                   </h3>
-                  <p className="mt-1 text-xs text-muted-foreground md:text-sm">
+                  <p className="mt-0.5 text-sm text-muted-foreground">
                     {monthSpan > 1
                       ? 'Cộng dồn đạt / chưa đạt qua các tháng trong kỳ.'
                       : 'Đạt và chưa đạt theo từng thành viên.'}
                   </p>
                 </div>
                 {isLoading ? (
-                  <Skeleton className="h-[300px] w-full rounded-xl" />
+                  <Skeleton className="h-[240px] w-full rounded-lg" />
                 ) : (
                   <PerPersonBar rows={perPerson} />
                 )}
-                <div className="mt-8 grid grid-cols-1 gap-6 border-t border-border/60 pt-8 sm:grid-cols-2">
+                <div className="mt-4 grid grid-cols-1 gap-4 border-t border-border/60 pt-4 sm:grid-cols-2">
                   <GradeDonut dist={kpiGradeDist} title="Xếp loại KPI" />
                   <GradeDonut dist={okrGradeDist} title="Xếp loại OKR" />
                 </div>
