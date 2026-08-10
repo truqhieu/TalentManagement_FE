@@ -22,6 +22,7 @@ import { Route as ProtectedOtherClassesRouteImport } from './routes/_protected/o
 import { Route as ProtectedMonthlyReportRouteImport } from './routes/_protected/monthly-report'
 import { Route as ProtectedLearningScheduleRouteImport } from './routes/_protected/learning-schedule'
 import { Route as ProtectedLearningClassesRouteImport } from './routes/_protected/learning-classes'
+import { Route as ProtectedKpiOkrComplianceRouteImport } from './routes/_protected/kpi-okr-compliance'
 import { Route as ProtectedKpiOkrRouteImport } from './routes/_protected/kpi-okr'
 import { Route as ProtectedDashboardRouteImport } from './routes/_protected/dashboard'
 import { Route as ProtectedCskhQualityRouteImport } from './routes/_protected/cskh-quality'
@@ -137,6 +138,12 @@ const ProtectedLearningClassesRoute =
   ProtectedLearningClassesRouteImport.update({
     id: '/learning-classes',
     path: '/learning-classes',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
+const ProtectedKpiOkrComplianceRoute =
+  ProtectedKpiOkrComplianceRouteImport.update({
+    id: '/kpi-okr-compliance',
+    path: '/kpi-okr-compliance',
     getParentRoute: () => ProtectedRouteRoute,
   } as any)
 const ProtectedKpiOkrRoute = ProtectedKpiOkrRouteImport.update({
@@ -439,6 +446,7 @@ export interface FileRoutesByFullPath {
   '/cskh-quality': typeof ProtectedCskhQualityRoute
   '/dashboard': typeof ProtectedDashboardRoute
   '/kpi-okr': typeof ProtectedKpiOkrRoute
+  '/kpi-okr-compliance': typeof ProtectedKpiOkrComplianceRoute
   '/learning-classes': typeof ProtectedLearningClassesRoute
   '/learning-schedule': typeof ProtectedLearningScheduleRoute
   '/monthly-report': typeof ProtectedMonthlyReportRoute
@@ -503,6 +511,7 @@ export interface FileRoutesByTo {
   '/cskh-quality': typeof ProtectedCskhQualityRoute
   '/dashboard': typeof ProtectedDashboardRoute
   '/kpi-okr': typeof ProtectedKpiOkrRoute
+  '/kpi-okr-compliance': typeof ProtectedKpiOkrComplianceRoute
   '/learning-classes': typeof ProtectedLearningClassesRoute
   '/learning-schedule': typeof ProtectedLearningScheduleRoute
   '/monthly-report': typeof ProtectedMonthlyReportRoute
@@ -570,6 +579,7 @@ export interface FileRoutesById {
   '/_protected/cskh-quality': typeof ProtectedCskhQualityRoute
   '/_protected/dashboard': typeof ProtectedDashboardRoute
   '/_protected/kpi-okr': typeof ProtectedKpiOkrRoute
+  '/_protected/kpi-okr-compliance': typeof ProtectedKpiOkrComplianceRoute
   '/_protected/learning-classes': typeof ProtectedLearningClassesRoute
   '/_protected/learning-schedule': typeof ProtectedLearningScheduleRoute
   '/_protected/monthly-report': typeof ProtectedMonthlyReportRoute
@@ -636,6 +646,7 @@ export interface FileRouteTypes {
     | '/cskh-quality'
     | '/dashboard'
     | '/kpi-okr'
+    | '/kpi-okr-compliance'
     | '/learning-classes'
     | '/learning-schedule'
     | '/monthly-report'
@@ -700,6 +711,7 @@ export interface FileRouteTypes {
     | '/cskh-quality'
     | '/dashboard'
     | '/kpi-okr'
+    | '/kpi-okr-compliance'
     | '/learning-classes'
     | '/learning-schedule'
     | '/monthly-report'
@@ -766,6 +778,7 @@ export interface FileRouteTypes {
     | '/_protected/cskh-quality'
     | '/_protected/dashboard'
     | '/_protected/kpi-okr'
+    | '/_protected/kpi-okr-compliance'
     | '/_protected/learning-classes'
     | '/_protected/learning-schedule'
     | '/_protected/monthly-report'
@@ -922,6 +935,13 @@ declare module '@tanstack/react-router' {
       path: '/learning-classes'
       fullPath: '/learning-classes'
       preLoaderRoute: typeof ProtectedLearningClassesRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
+    '/_protected/kpi-okr-compliance': {
+      id: '/_protected/kpi-okr-compliance'
+      path: '/kpi-okr-compliance'
+      fullPath: '/kpi-okr-compliance'
+      preLoaderRoute: typeof ProtectedKpiOkrComplianceRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
     '/_protected/kpi-okr': {
@@ -1315,6 +1335,7 @@ interface ProtectedRouteRouteChildren {
   ProtectedCskhQualityRoute: typeof ProtectedCskhQualityRoute
   ProtectedDashboardRoute: typeof ProtectedDashboardRoute
   ProtectedKpiOkrRoute: typeof ProtectedKpiOkrRoute
+  ProtectedKpiOkrComplianceRoute: typeof ProtectedKpiOkrComplianceRoute
   ProtectedLearningClassesRoute: typeof ProtectedLearningClassesRoute
   ProtectedLearningScheduleRoute: typeof ProtectedLearningScheduleRoute
   ProtectedMonthlyReportRoute: typeof ProtectedMonthlyReportRoute
@@ -1374,6 +1395,7 @@ const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedCskhQualityRoute: ProtectedCskhQualityRoute,
   ProtectedDashboardRoute: ProtectedDashboardRoute,
   ProtectedKpiOkrRoute: ProtectedKpiOkrRoute,
+  ProtectedKpiOkrComplianceRoute: ProtectedKpiOkrComplianceRoute,
   ProtectedLearningClassesRoute: ProtectedLearningClassesRoute,
   ProtectedLearningScheduleRoute: ProtectedLearningScheduleRoute,
   ProtectedMonthlyReportRoute: ProtectedMonthlyReportRoute,
