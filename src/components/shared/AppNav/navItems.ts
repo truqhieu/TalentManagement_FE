@@ -140,9 +140,17 @@ export const MEMBER_SELF_ITEMS: AppNavItem[] = [
 export const ROOM_BOOKING_ITEMS: AppNavItem[] = [
   {
     to: '/room-booking',
-    label: 'Duyệt phòng họp',
+    label: 'Duyệt lịch phòng họp',
     icon: DoorOpen,
     match: 'prefix',
+    permissionIdsAny: ['manager.approvals', 'hr.employees.view', 'bod.dashboard.view'],
+  },
+  {
+    to: '/room-booking',
+    label: 'Duyệt yêu cầu đổi lịch',
+    icon: ClipboardList,
+    match: 'prefix',
+    search: { tab: 'requests' },
     permissionIdsAny: ['manager.approvals', 'hr.employees.view', 'bod.dashboard.view'],
   },
   {
@@ -176,6 +184,13 @@ const HR_ITEMS: AppNavItem[] = [
     icon: Network,
     match: 'prefix',
     permissionId: 'hr.org.manage',
+  },
+  {
+    to: '/kpi-okr-compliance',
+    label: 'Tuân thủ KPI/OKR',
+    icon: ClipboardCheck,
+    match: 'prefix',
+    permissionId: 'hr.dept.view',
   },
   {
     to: '/hr-admin/settings/company-landing',
@@ -600,10 +615,13 @@ export function groupedSidebarNavItems(
       items: take([
         ...find(HR_ITEMS, '/hr-admin'),
         ...find(HR_ITEMS, '/hr-admin/org'),
+        ...find(HR_ITEMS, '/kpi-okr-compliance'),
         ...find(HR_ITEMS, '/hr-admin/kpi-catalog/SALES_NV'),
         ...find(MANAGER_OPS_ITEMS, '/manager/kpi-okr/leader-review'),
         ...find(HR_ITEMS, '/hr-admin/settings/company-landing'),
-        ...ROOM_BOOKING_ITEMS.filter((i) => i.permissionIdsAny?.length),
+        ...ROOM_BOOKING_ITEMS.filter(
+          (i) => i.search?.tab === 'requests' || i.search?.tab === 'approvals'
+        ),
         ...find(MANAGER_OPS_ITEMS, '/permissions'),
         ...find(BOD_ITEMS, '/permissions'),
         // CSKH_QUALITY_ITEM,
@@ -680,7 +698,8 @@ export function isNavItemActive(
     return Object.entries(item.search).every(([key, value]) => currentSearch[key] === value)
   }
 
-  // 3. Item không có search param → không highlight khi URL có query khác tab mặc định.
+  // 3. Nếu item không có search param nhưng URL hiện tại có (ví dụ đang ở tab requests),
+  // thì mục mặc định (không search) không được highlight.
   if (!item.search && currentSearch && Object.keys(currentSearch).length > 0) {
     return false
   }

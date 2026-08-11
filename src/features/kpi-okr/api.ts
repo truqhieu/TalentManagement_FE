@@ -758,6 +758,30 @@ export const performanceApi = {
     return res.data
   },
 
+  getKpiOkrComplianceReport: async (
+    year: number,
+    month: number,
+    opts?: { teamId?: string; departmentId?: string }
+  ) => {
+    if (isMockApiEnabled())
+      return {
+        year,
+        month,
+        summary: {
+          totalTeams: 0,
+          teamsFullyCompliant: 0,
+          teamsWithGaps: 0,
+          totalEligible: 0,
+          totalMissing: 0,
+        },
+        teams: [],
+      } as KpiOkrComplianceReport
+    const res = await apiClient.get<KpiOkrComplianceReport>('/performance/kpi-okr-compliance', {
+      params: { year, month, ...opts },
+    })
+    return res.data
+  },
+
   // ─── Epic 5.5: Sales Honor Board ─────────────────────────────────────
 
   getSalesHonorBoard: async (year: number, month: number) => {
@@ -1123,6 +1147,32 @@ export type MonthlyReport = {
     newJoiners: number
     leavers: number
   }
+}
+
+export type KpiOkrComplianceTeamRow = {
+  teamId: string
+  teamName: string
+  divisionId: string | null
+  divisionName: string | null
+  leaderNames: string[]
+  eligibleCount: number
+  assignedCount: number
+  missingCount: number
+  complianceRate: number
+  missingMembers: Array<{ id: string; fullNameLegal: string | null; email: string | null }>
+}
+
+export type KpiOkrComplianceReport = {
+  year: number
+  month: number
+  summary: {
+    totalTeams: number
+    teamsFullyCompliant: number
+    teamsWithGaps: number
+    totalEligible: number
+    totalMissing: number
+  }
+  teams: KpiOkrComplianceTeamRow[]
 }
 
 export type SalesHonorWinnerIndividual = {
