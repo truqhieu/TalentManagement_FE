@@ -743,7 +743,9 @@ export function HrOrgStructure() {
       list = list.filter((d) => d.teams.length === 0)
     }
     if (statusFilter === 'active-only') {
-      list = list.filter((d) => d.isActive)
+      list = list
+        .filter((d) => d.isActive)
+        .map((d) => ({ ...d, teams: d.teams.filter((team) => team.isActive) }))
     } else if (statusFilter === 'inactive-only') {
       list = list.filter((d) => !d.isActive)
     }
@@ -1418,6 +1420,14 @@ function TeamCardMobile({
       <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center gap-2 break-words font-medium leading-snug text-foreground">
           {team.name}
+          {!team.isActive && (
+            <Badge
+              variant="outline"
+              className="rounded px-2 py-0 text-[10px] font-bold uppercase tracking-wider border-danger/50 bg-danger-muted text-danger"
+            >
+              Ngưng dùng
+            </Badge>
+          )}
           {team.requiresKpiApproval && (
             <Badge
               variant="outline"
@@ -1515,6 +1525,14 @@ function FragmentTeamRow({
       <TableCell className="py-3 pl-6 align-middle text-sm">
         <div className="flex items-center gap-2 font-medium text-foreground">
           {team.name}
+          {!team.isActive && (
+            <Badge
+              variant="outline"
+              className="rounded px-2 py-0 text-[10px] font-bold uppercase tracking-wider border-danger/50 bg-danger-muted text-danger"
+            >
+              Ngưng dùng
+            </Badge>
+          )}
           {team.requiresKpiApproval && (
             <Badge
               variant="outline"

@@ -122,6 +122,7 @@ export type OrgAdminTeamRow = {
   name: string
   /** Giữ tên `departmentId` (BC FE): id phòng ban cha (`team_groups`). */
   departmentId: string
+  isActive: boolean
   isTrafficTeam: boolean
   requiresKpiApproval: boolean
   catalogSeedEnabled: boolean
@@ -260,6 +261,7 @@ export const organizationApi = {
           id: t.id,
           name: t.name,
           departmentId: t.departmentId,
+          isActive: true,
           isTrafficTeam: false,
           requiresKpiApproval: false,
           catalogSeedEnabled: false,
