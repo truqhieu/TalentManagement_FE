@@ -148,6 +148,7 @@ export function EmployeeForm({ form, onSubmit, isSubmitting }: EmployeeFormProps
                     control={control}
                     name="birthDate"
                     label="Ngày sinh"
+                    required
                     labelClassName={labelClass}
                     datePickerClassName={inputFieldClass}
                   />
@@ -188,6 +189,7 @@ export function EmployeeForm({ form, onSubmit, isSubmitting }: EmployeeFormProps
                     control={control}
                     name="startDate"
                     label="Ngày bắt đầu"
+                    required
                     labelClassName={labelClass}
                     datePickerClassName={inputFieldClass}
                   />
@@ -278,6 +280,7 @@ export function EmployeeForm({ form, onSubmit, isSubmitting }: EmployeeFormProps
                     control={control}
                     name="managerBlockCode"
                     label="Mã khối theo quản lý"
+                    required
                     labelClassName={labelClass}
                     inputClassName={inputFieldClass}
                   />
@@ -332,6 +335,7 @@ export function EmployeeForm({ form, onSubmit, isSubmitting }: EmployeeFormProps
                     control={control}
                     name="hometownDetail"
                     label="Quê quán / quê hương"
+                    required
                     labelClassName={labelClass}
                     inputClassName={inputFieldClass}
                   />

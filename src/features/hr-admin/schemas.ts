@@ -43,6 +43,16 @@ const optionalPhoneString = z
 /** Trường hồ sơ mở rộng dạng text tự do — rỗng = không nhập, không validate định dạng. */
 const optionalProfileString = z.string().transform((s) => s.trim())
 
+/**
+ * Bốn field dưới đây là đầu vào của công thức sinh "ID nhân sự" (mã khối + tháng/năm vào làm
+ * + năm sinh + mã tỉnh theo quê quán + STT nhóm). Backend từ chối tạo tài khoản khi thiếu,
+ * nên bắt buộc ngay trên form để HR thấy lỗi tại chỗ thay vì nhận lỗi từ server.
+ */
+const requiredProfileString = (message: string) =>
+  optionalProfileString.pipe(z.string().min(1, message))
+const requiredDateString = (message: string) => optionalDateString.pipe(z.string().min(1, message))
+const requiredBirthDateString = optionalBirthDateString.pipe(z.string().min(1, 'Chọn ngày sinh'))
+
 export const createEmployeeSchema = z.object({
   name: z
     .string()
@@ -59,7 +69,7 @@ export const createEmployeeSchema = z.object({
   departmentId: z.string().uuid('Chọn phòng ban hợp lệ'),
   teamId: z.string().uuid('Chọn nhóm hợp lệ'),
   phone: optionalPhoneString,
-  birthDate: optionalBirthDateString,
+  birthDate: requiredBirthDateString,
   // Phân công tổ chức (mở rộng)
   jobTitle: optionalProfileString.default(''),
   teamPosition: optionalProfileString.default(''),
@@ -74,7 +84,7 @@ export const createEmployeeSchema = z.object({
   addressHousehold: optionalProfileString.default(''),
   educationLevel: optionalProfileString.default(''),
   schoolName: optionalProfileString.default(''),
-  hometownDetail: optionalProfileString.default(''),
+  hometownDetail: requiredProfileString('Nhập quê quán (dùng để lấy mã tỉnh)'),
   // Giấy tờ & nhân khẩu
   identityDocumentInfo: optionalProfileString.default(''),
   maritalStatus: optionalProfileString.default(''),
@@ -91,7 +101,7 @@ export const createEmployeeSchema = z.object({
   // Khác
   bankAccountInfo: optionalProfileString.default(''),
   vehicleInfo: optionalProfileString.default(''),
-  managerBlockCode: optionalProfileString.default(''),
+  managerBlockCode: requiredProfileString('Nhập mã khối theo quản lý'),
   attachmentIdFront: optionalProfileString.default(''),
   attachmentIdBack: optionalProfileString.default(''),
   policyAcknowledgement: optionalProfileString.default(''),
@@ -104,7 +114,7 @@ export const createEmployeeSchema = z.object({
 export const createEmployeeFormSchema = createEmployeeSchema
   .extend({
     extraTeamIds: z.array(z.string().uuid()).default([]),
-    startDate: optionalDateString,
+    startDate: requiredDateString('Chọn ngày bắt đầu làm việc'),
     initialLevel: z.enum(['tap_su', 'biet_viec']).default('tap_su'),
     notifyEmail: z.boolean().default(true),
   })
